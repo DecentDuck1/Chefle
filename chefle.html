@@ -13,10 +13,10 @@
       --ink: #3b2418;
       --muted: #7a563f;
       --line: #ead4a6;
-      --basil: #3f7d45;
-      --basil-dark: #2f6035;
-      --tomato: #c94f3d;
-      --tomato-dark: #963326;
+      --basil: #617d5a;
+      --basil-dark: #4d6846;
+      --tomato: #a95a4c;
+      --tomato-dark: #874235;
       --butter: #f4c45f;
       --pot: #45636b;
       --shadow: 0 18px 48px rgba(101, 62, 26, .16);
@@ -48,9 +48,9 @@
     }
 
     body.high-contrast {
-      --basil: #236f2c;
-      --basil-dark: #184f20;
-      --tomato: #b83225;
+      --basil: #4f7447;
+      --basil-dark: #375332;
+      --tomato: #934637;
       --line: #bd9460;
       --muted: #563725;
     }
@@ -69,7 +69,7 @@
 
     .topbar-inner {
       display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) 92px;
+      grid-template-columns: 44px minmax(0, 1fr) 138px;
       align-items: center;
       width: min(1320px, 100%);
       height: 62px;
@@ -167,6 +167,20 @@
       line-height: 1.45;
     }
 
+    .daily-region {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      margin-top: 14px;
+      padding: 8px 12px;
+      border: 2px solid rgba(63,125,69,.2);
+      border-radius: var(--radius);
+      background: rgba(63,125,69,.08);
+      color: var(--basil-dark);
+      font-size: .94rem;
+      font-weight: 1000;
+    }
+
     .status-row {
       display: flex;
       flex-wrap: wrap;
@@ -192,10 +206,12 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) 342px;
       gap: 16px;
-      align-items: start;
+      align-items: stretch;
     }
 
     .playground {
+      display: grid;
+      align-content: start;
       min-width: 0;
     }
 
@@ -227,6 +243,7 @@
     }
 
     .swatch.match { background: var(--basil); }
+    .swatch.close { background: #d3a13e; }
     .swatch.miss { background: var(--tomato); }
 
     .board-wrap,
@@ -242,7 +259,7 @@
     .guess-row,
     .empty-row {
       display: grid;
-      grid-template-columns: minmax(128px, 1.28fr) repeat(5, minmax(0, 1fr));
+      grid-template-columns: minmax(150px, 1.25fr) repeat(3, minmax(0, 1fr));
       gap: 6px;
     }
 
@@ -269,7 +286,7 @@
     .board {
       display: grid;
       gap: 7px;
-      min-height: 400px;
+      min-height: 92px;
       padding: 10px;
     }
 
@@ -322,8 +339,9 @@
       animation-delay: var(--delay);
     }
 
-    .tile.match { background: linear-gradient(180deg, #5e9f53, var(--basil)); }
-    .tile.miss { background: linear-gradient(180deg, #df6753, var(--tomato)); }
+    .tile.match { background: linear-gradient(180deg, #718d68, var(--basil)); }
+    .tile.close { background: linear-gradient(180deg, #e0b24a, #bd842a); }
+    .tile.miss { background: linear-gradient(180deg, #bd6b56, var(--tomato)); }
 
     .tile-label {
       width: 100%;
@@ -332,6 +350,7 @@
       font-weight: 1000;
       line-height: 1;
       opacity: .83;
+      color: rgba(255,253,246,.86);
       text-overflow: ellipsis;
       text-transform: uppercase;
       white-space: nowrap;
@@ -344,6 +363,7 @@
       overflow: hidden;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
+      color: #fffdf6;
       font-size: .68rem;
       font-weight: 1000;
       line-height: 1.08;
@@ -352,6 +372,7 @@
 
     .tile-hint {
       min-height: 16px;
+      color: #fff4d8;
       font-size: .86rem;
       font-weight: 1000;
       line-height: 1;
@@ -374,9 +395,8 @@
     }
 
     .guess-panel {
-      position: sticky;
+      position: relative;
       z-index: 30;
-      bottom: calc(13px + var(--safe-bottom) + var(--keyboard-offset));
       margin-top: 12px;
     }
 
@@ -438,8 +458,40 @@
       font-size: .88rem;
     }
 
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .filter-field label {
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .filter-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf6;
+      color: var(--ink);
+      font-size: .82rem;
+      font-weight: 900;
+    }
+
     .recipe-input:focus,
-    .pool-filter:focus {
+    .pool-filter:focus,
+    .filter-select:focus {
       border-color: var(--basil);
       box-shadow: 0 0 0 4px rgba(63,125,69,.14);
     }
@@ -519,9 +571,8 @@
     }
 
     .discovery-panel {
-      position: sticky;
-      top: 78px;
-      max-height: calc(100svh - 92px);
+      align-self: stretch;
+      min-height: 0;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
     }
@@ -560,6 +611,7 @@
       align-content: start;
       gap: 7px;
       margin: 0;
+      min-height: 0;
       padding: 10px;
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -633,6 +685,17 @@
       box-shadow: 0 26px 80px rgba(65,38,19,.28);
     }
 
+    .classification-modal {
+      width: min(820px, 100%);
+    }
+
+    .stats-modal {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      max-height: 90vh;
+      overflow: hidden;
+    }
+
     .modal-head {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -663,6 +726,69 @@
       padding: 16px 18px 18px;
     }
 
+    .stats-modal .modal-head {
+      padding: 14px 16px 10px;
+    }
+
+    .stats-modal .modal-body {
+      min-height: 0;
+      gap: 10px;
+      padding: 12px 16px 14px;
+      overflow: hidden;
+    }
+
+    .classification-table-wrap {
+      overflow-x: auto;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .classification-table {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: collapse;
+      color: var(--ink);
+    }
+
+    .classification-table th,
+    .classification-table td {
+      padding: 12px;
+      border-bottom: 1px solid #ecd4a4;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .classification-table th {
+      color: var(--basil-dark);
+      font-size: .72rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .classification-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .classification-name {
+      width: 130px;
+      font-weight: 1000;
+    }
+
+    .classification-count {
+      width: 74px;
+      color: var(--muted);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .classification-values {
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
     .answer-card {
       display: grid;
       gap: 12px;
@@ -670,6 +796,13 @@
       border: 2px solid #efd7a8;
       border-radius: var(--radius);
       background: #fffdf6;
+    }
+
+    .stats-modal .answer-card {
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 5px 10px;
+      align-items: center;
+      padding: 8px;
     }
 
     .answer-image {
@@ -681,12 +814,24 @@
       object-fit: cover;
     }
 
+    .stats-modal .answer-image {
+      grid-row: 1 / 4;
+      width: 72px;
+      height: 72px;
+      aspect-ratio: 1;
+    }
+
     .answer-name {
       margin: 0;
       font-family: var(--rounded);
       font-size: 1.15rem;
       line-height: 1.08;
       text-align: center;
+    }
+
+    .stats-modal .answer-name {
+      font-size: 1rem;
+      text-align: left;
     }
 
     .answer-proclamation {
@@ -697,11 +842,21 @@
       text-align: center;
     }
 
+    .stats-modal .answer-proclamation {
+      font-size: .82rem;
+      text-align: left;
+    }
+
     .recipe-link {
       justify-self: center;
       color: var(--basil-dark);
       font-weight: 900;
       text-decoration: none;
+    }
+
+    .stats-modal .recipe-link {
+      justify-self: start;
+      font-size: .82rem;
     }
 
     .recipe-link:hover,
@@ -711,16 +866,17 @@
     }
 
     .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      display: flex;
       gap: 8px;
     }
 
     .stat {
       display: grid;
+      flex: 1 1 0;
       place-items: center;
-      min-height: 76px;
-      padding: 8px 5px;
+      min-width: 0;
+      min-height: 58px;
+      padding: 6px 4px;
       border: 2px solid #ecd4a4;
       border-radius: var(--radius);
       background: #fffdf6;
@@ -728,13 +884,13 @@
 
     .stat strong {
       color: var(--basil-dark);
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       line-height: 1;
     }
 
     .stat span {
       color: var(--muted);
-      font-size: .65rem;
+      font-size: .58rem;
       font-weight: 1000;
       text-align: center;
       text-transform: uppercase;
@@ -742,7 +898,7 @@
 
     .histogram {
       display: grid;
-      gap: 6px;
+      gap: 4px;
     }
 
     .hist-row {
@@ -750,12 +906,12 @@
       grid-template-columns: 18px minmax(0, 1fr) 28px;
       gap: 8px;
       align-items: center;
-      font-size: .78rem;
+      font-size: .72rem;
       font-weight: 1000;
     }
 
     .hist-track {
-      height: 19px;
+      height: 15px;
       border-radius: 999px;
       background: #efdba8;
       overflow: hidden;
@@ -764,9 +920,38 @@
     .hist-fill {
       width: var(--w, 0%);
       height: 100%;
-      min-width: 19px;
+      min-width: 15px;
       border-radius: 999px;
       background: var(--basil);
+    }
+
+    .share-preview {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .share-preview span {
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .share-preview pre {
+      max-height: 140px;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: var(--body);
+      font-size: .82rem;
+      font-weight: 800;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .countdown-box {
@@ -774,8 +959,8 @@
       justify-content: space-between;
       gap: 12px;
       align-items: center;
-      min-height: 48px;
-      padding: 12px 14px;
+      min-height: 40px;
+      padding: 8px 12px;
       border: 2px solid #ecd4a4;
       border-radius: var(--radius);
       background: #fffdf6;
@@ -861,6 +1046,26 @@
       accent-color: var(--basil);
     }
 
+    .dev-block h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: .95rem;
+      font-weight: 900;
+    }
+
+    .dev-block p,
+    .dev-status {
+      margin: 0;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .dev-block .secondary-button {
+      width: 100%;
+    }
+
     .toggle-row strong {
       display: block;
       margin-bottom: 3px;
@@ -931,13 +1136,13 @@
 
     @media (max-width: 940px) {
       .game-layout { grid-template-columns: 1fr; }
-      .discovery-panel { position: relative; top: auto; max-height: none; }
+      .discovery-panel { align-self: auto; }
       .pool-list { max-height: 340px; }
     }
 
     @media (max-width: 760px) {
       .app-shell { padding: 74px 8px 28px; }
-      .topbar-inner { grid-template-columns: 42px 1fr 86px; height: 58px; }
+      .topbar-inner { grid-template-columns: 42px 1fr 129px; height: 58px; }
       .brand { font-size: 1.58rem; }
       .icon-button { width: 39px; height: 39px; }
       .intro { padding: 16px; }
@@ -945,11 +1150,11 @@
       .board-header,
       .guess-row,
       .empty-row {
-        grid-template-columns: minmax(86px, 1.15fr) repeat(5, minmax(0, 1fr));
+        grid-template-columns: minmax(94px, 1.15fr) repeat(3, minmax(0, 1fr));
         gap: 3px;
       }
       .board-header { padding: 7px 5px; font-size: .45rem; }
-      .board { min-height: 414px; padding: 6px; gap: 5px; }
+      .board { min-height: 86px; padding: 6px; gap: 5px; }
       .dish-label, .tile, .empty-cell, .empty-dish { min-height: 68px; border-radius: 12px; }
       .dish-label { padding: 6px 5px; }
       .dish-name { font-size: .58rem; line-height: 1.04; -webkit-line-clamp: 3; }
@@ -960,6 +1165,17 @@
       .guess-form { grid-template-columns: 1fr; }
       .submit-button { width: 100%; }
       .modal-actions { grid-template-columns: 1fr; }
+      .stats-modal .modal-actions { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .stats-modal .primary-button,
+      .stats-modal .secondary-button { min-height: 40px; }
+      .stats-modal .modal-body { gap: 8px; padding: 10px; }
+      .stats-modal .answer-card { grid-template-columns: 58px minmax(0, 1fr); }
+      .stats-modal .answer-image { width: 58px; height: 58px; }
+      .stat-grid { gap: 5px; }
+      .stat { min-height: 52px; padding: 5px 2px; }
+      .stat strong { font-size: 1.06rem; }
+      .stat span { font-size: .5rem; }
+      .filter-bar { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 360px) {
@@ -981,6 +1197,9 @@
         <button class="icon-button" id="statsButton" type="button" aria-label="Open statistics">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 16V9"></path><path d="M12 16V6"></path><path d="M16 16v-4"></path></svg>
         </button>
+        <button class="icon-button" id="classificationsButton" type="button" aria-label="Open classifications table">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18"></path><path d="M3 12h18"></path><path d="M3 19h18"></path><path d="M8 5v14"></path><path d="M16 5v14"></path></svg>
+        </button>
         <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 1 1-2.97 2.97l-.05-.05A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.08 1.65V21.4a2.1 2.1 0 1 1-4.2 0v-.15A1.8 1.8 0 0 0 8.45 19.6a1.8 1.8 0 0 0-1.98.36l-.05.05a2.1 2.1 0 1 1-2.97-2.97l.05-.05A1.8 1.8 0 0 0 3.86 15a1.8 1.8 0 0 0-1.65-1.08H2.06a2.1 2.1 0 1 1 0-4.2h.15A1.8 1.8 0 0 0 3.86 8.65a1.8 1.8 0 0 0-.36-1.98l-.05-.05a2.1 2.1 0 1 1 2.97-2.97l.05.05a1.8 1.8 0 0 0 1.98.36A1.8 1.8 0 0 0 9.53 2.4V2.25a2.1 2.1 0 1 1 4.2 0v.15a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 1 1 2.97 2.97l-.05.05A1.8 1.8 0 0 0 19.4 8.65a1.8 1.8 0 0 0 1.65 1.08h.15a2.1 2.1 0 1 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z"></path></svg>
         </button>
@@ -992,8 +1211,9 @@
     <section class="intro" aria-labelledby="gameStatus">
       <div>
         <p class="kicker" id="gameId">Chefle</p>
-        <h2 class="daily-title" id="gameStatus">Guesses Remaining: 6</h2>
-        <p class="daily-copy">Select from today&rsquo;s 150 possible dishes. Each row compares region, protein, base, temperature, and calories.</p>
+        <h2 class="daily-title" id="gameStatus">Make your first guess</h2>
+        <p class="daily-region" id="dailyRegion">Today&rsquo;s Region Group: --</p>
+        <p class="daily-copy">Select from today&rsquo;s balanced regional dish list. Each row compares protein, base carb, and serving temperature category.</p>
         <div class="status-row" aria-label="Game status">
           <span class="remaining-line" id="attemptPill">Guesses Used: 0 / 6</span>
         </div>
@@ -1004,19 +1224,19 @@
       <section class="playground" aria-label="Main playground">
         <div class="legend" aria-label="Feedback legend">
           <span class="legend-chip"><span class="swatch match"></span> Match</span>
+          <span class="legend-chip"><span class="swatch close"></span> Close temperature</span>
           <span class="legend-chip"><span class="swatch miss"></span> Different</span>
-          <span class="legend-chip">&#9650; Target is higher</span>
-          <span class="legend-chip">&#9660; Target is lower</span>
+          <span class="legend-chip">Cold</span>
+          <span class="legend-chip">Room Temperature</span>
+          <span class="legend-chip">Hot</span>
         </div>
 
         <section class="board-wrap" aria-label="Guess comparison board">
           <div class="board-header" aria-hidden="true">
             <span class="dish-head">Dish</span>
-            <span>Region</span>
             <span>Protein</span>
-            <span>Base</span>
-            <span>Temp</span>
-            <span>Calories</span>
+            <span>Base Carb</span>
+            <span>Temperature</span>
           </div>
           <div class="board" id="board"></div>
         </section>
@@ -1036,9 +1256,19 @@
 
       <aside class="discovery-panel" aria-labelledby="poolTitle">
         <div class="panel-head">
-          <h2 class="panel-title" id="poolTitle">Today&rsquo;s Pool <span id="poolFilteredCount">150 shown</span></h2>
-          <label class="sr-only" for="poolFilter">Filter today&rsquo;s 150 dishes</label>
-          <input class="pool-filter" id="poolFilter" type="text" inputmode="search" placeholder="Filter the 150 dishes">
+          <h2 class="panel-title" id="poolTitle">Today&rsquo;s Pool <span id="poolFilteredCount">0 shown</span></h2>
+          <label class="sr-only" for="poolFilter">Filter today&rsquo;s dish list</label>
+          <input class="pool-filter" id="poolFilter" type="text" inputmode="search" placeholder="Filter dishes">
+          <div class="filter-bar" aria-label="Pool filters">
+            <div class="filter-field">
+              <label for="proteinFilter">Protein</label>
+              <select class="filter-select" id="proteinFilter"></select>
+            </div>
+            <div class="filter-field">
+              <label for="carbFilter">Base Carb</label>
+              <select class="filter-select" id="carbFilter"></select>
+            </div>
+          </div>
         </div>
         <ul class="pool-list" id="poolList" aria-label="Daily possible answers"></ul>
       </aside>
@@ -1046,7 +1276,7 @@
   </main>
 
   <div class="modal-backdrop" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
-    <div class="modal">
+    <div class="modal stats-modal">
       <div class="modal-head">
         <div>
           <h2 id="statsTitle">Stats</h2>
@@ -1061,10 +1291,14 @@
           <img class="answer-image" id="answerImage" alt="">
           <h3 class="answer-name" id="answerName"></h3>
           <p class="answer-proclamation" id="answerProclamation"></p>
-          <a class="recipe-link" id="answerLink" href="https://www.hellofresh.com/recipes" target="_blank" rel="noopener">Explore Cooking Steps &#8599;</a>
+          <a class="recipe-link" id="answerLink" href="https://www.allrecipes.com/search?q=" target="_blank" rel="noopener">Find on Allrecipes &#8599;</a>
         </div>
         <div class="stat-grid" id="statGrid"></div>
         <div class="histogram" id="histogram" aria-label="Guess distribution"></div>
+        <div class="share-preview" id="sharePreview" hidden>
+          <span>Share Summary</span>
+          <pre id="sharePreviewText"></pre>
+        </div>
         <div class="countdown-box"><span class="countdown-label">Next dish</span><span class="countdown-time" id="countdown">00:00:00</span></div>
         <div class="modal-actions">
           <button class="primary-button" id="shareButton" type="button">Share Results</button>
@@ -1079,7 +1313,7 @@
       <div class="modal-head">
         <div>
           <h2 id="helpTitle">How to Play</h2>
-          <p>Browse today&rsquo;s pool, pick a dish, and use the continental clue grid.</p>
+          <p>Browse today&rsquo;s pool, pick a dish, and use the regional clue grid.</p>
         </div>
         <button class="icon-button" id="closeHelp" type="button" aria-label="Close help">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -1088,11 +1322,39 @@
       <div class="modal-body">
         <ul class="help-list">
           <li>The left dish label is only your guess name, never a scored tile.</li>
-          <li>The daily side panel contains exactly 150 possible answers and always includes the target.</li>
-          <li>Green means the attribute matches. Red means the region, protein, base, or temperature differs.</li>
-          <li>Calories use arrows: up means today&rsquo;s dish is heavier, down means lighter.</li>
+          <li>The daily side panel only contains dishes from today&rsquo;s revealed region and always includes the target.</li>
+          <li>Sage means the attribute matches, amber means a nearby temperature category, and terracotta means different.</li>
+          <li>Temperature is categorized as Cold, Room Temperature, or Hot.</li>
           <li>Click a side-list dish to guess it immediately, or use the search input with arrow keys and Enter.</li>
         </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="classificationsModal" role="dialog" aria-modal="true" aria-labelledby="classificationsTitle">
+    <div class="modal classification-modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="classificationsTitle">Classifications</h2>
+          <p>All subtypes currently used by the dish list.</p>
+        </div>
+        <button class="icon-button" id="closeClassifications" type="button" aria-label="Close classifications">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="classification-table-wrap">
+          <table class="classification-table">
+            <thead>
+              <tr>
+                <th scope="col">Classification</th>
+                <th scope="col">Count</th>
+                <th scope="col">Subtypes</th>
+              </tr>
+            </thead>
+            <tbody id="classificationsBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -1102,7 +1364,7 @@
       <div class="modal-head">
         <div>
           <h2 id="settingsTitle">Settings</h2>
-          <p>Tune the kitchen without changing the daily answer.</p>
+          <p>Tune the kitchen and developer controls.</p>
         </div>
         <button class="icon-button" id="closeSettings" type="button" aria-label="Close settings">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -1110,7 +1372,7 @@
       </div>
       <div class="modal-body">
         <label class="toggle-row">
-          <span><strong>Sound effects</strong><span>Soft synthesized taps for guesses, wins, and losses.</span></span>
+          <span><strong>Sound effects</strong><span>Soft synthesized taps for guesses, wins, and copies.</span></span>
           <input class="toggle" id="soundToggle" type="checkbox">
         </label>
         <div class="settings-control-row">
@@ -1121,6 +1383,14 @@
           <span><strong>High contrast</strong><span>Stronger clue colors and text contrast.</span></span>
           <input class="toggle" id="contrastToggle" type="checkbox">
         </label>
+        <section class="settings-control-row dev-block" aria-labelledby="devToolsTitle">
+          <div>
+            <h3 id="devToolsTitle">Dev</h3>
+            <p>Reset the current date to a different answer.</p>
+          </div>
+          <button class="secondary-button" id="resetFoodButton" type="button">Reset Today&rsquo;s Dish</button>
+          <p class="dev-status" id="devResetStatus" role="status" aria-live="polite"></p>
+        </section>
       </div>
     </div>
   </div>
@@ -1130,253 +1400,377 @@
       "use strict";
 
       const chefleGlobalMasterRegistry = [
-        { name: "Chicken Fajitas", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "chicken-fajitas" },
-        { name: "Classic Beef Burgers", cuisineRegion: "North American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "classic-bacon-cheeseburgers" },
-        { name: "Margherita Pizza", cuisineRegion: "European", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "margherita-pizza" },
-        { name: "Shrimp Scampi Pasta", cuisineRegion: "European", protein: "Seafood", carb: "Pasta", temp: "Hot", calories: 600, imgSlug: "shrimp-scampi" },
-        { name: "Caesar Salad with Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Greens/None", temp: "Cold", calories: 450, imgSlug: "chicken-caesar-salad" },
-        { name: "Pork Carnitas Tacos", cuisineRegion: "North American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "pork-carnitas-tacos" },
-        { name: "Chicken Tikka Masala", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "chicken-tikka-masala" },
-        { name: "Vegetable Stir Fry", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 500, imgSlug: "vegetable-stir-fry" },
-        { name: "Sushi Roll Combo", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 550, imgSlug: "sushi-roll-combo" },
-        { name: "Beef Bolognese Pasta", cuisineRegion: "European", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 700, imgSlug: "beef-bolognese" },
-        { name: "Greek Salad with Gyro", cuisineRegion: "European", protein: "Beef", carb: "Greens/None", temp: "Cold", calories: 600, imgSlug: "greek-salad" },
-        { name: "BBQ Pulled Pork Sandwich", cuisineRegion: "North American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "bbq-pulled-pork" },
-        { name: "Falafel Pita Pocket", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 550, imgSlug: "falafel-pita" },
-        { name: "Thai Green Curry Shrimp", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "thai-green-curry" },
-        { name: "Loaded Baked Potato Soup", cuisineRegion: "North American", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 600, imgSlug: "baked-potato-soup" },
-        { name: "Steak Fries & Chimichurri", cuisineRegion: "South American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "steak-fries" },
-        { name: "Feijoada Pork Stew", cuisineRegion: "South American", protein: "Pork", carb: "Rice", temp: "Hot", calories: 950, imgSlug: "feijoada-stew" },
-        { name: "Moroccan Couscous Tagine", cuisineRegion: "African", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 500, imgSlug: "couscous-tagine" },
-        { name: "Peri-Peri Chicken Bowl", cuisineRegion: "African", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "peri-peri-chicken" },
-        { name: "Lamb Souvlaki Wrap", cuisineRegion: "European", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "lamb-souvlaki" },
-        { name: "Fish and Chips", cuisineRegion: "European", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "fish-and-chips" },
-        { name: "Cottage Pie", cuisineRegion: "European", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "cottage-pie" },
-        { name: "Chicken Schnitzel", cuisineRegion: "European", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "chicken-schnitzel" },
-        { name: "Biryani Rice Pot", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 850, imgSlug: "biryani-rice" },
-        { name: "Chana Masala with Naan", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "chana-masala" },
-        { name: "Ph\u1EDF Noodle Soup", cuisineRegion: "Asian", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 600, imgSlug: "pho-soup" },
-        { name: "Ramen Bowl", cuisineRegion: "Asian", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "ramen-bowl" },
-        { name: "Gyoza Dumpling Plate", cuisineRegion: "Asian", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 450, imgSlug: "gyoza-plate" },
-        { name: "Ceviche Platter", cuisineRegion: "South American", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 350, imgSlug: "ceviche-platter" },
-        { name: "Empanada Pastry Trios", cuisineRegion: "South American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 600, imgSlug: "empanada-trios" },
-        { name: "Jambalaya Rice Skillet", cuisineRegion: "North American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "jambalaya-rice" },
-        { name: "Turkey Club Sandwich", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Cold", calories: 650, imgSlug: "turkey-club-sandwich" },
-        { name: "Cobb Salad", cuisineRegion: "North American", protein: "Poultry", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "cobb-salad" },
-        { name: "Buffalo Chicken Wrap", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "buffalo-chicken-wrap" },
-        { name: "Shrimp Po Boy", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 800, imgSlug: "shrimp-po-boy" },
-        { name: "Clam Chowder Bread Bowl", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "clam-chowder-bowl" },
-        { name: "Maple Salmon Plate", cuisineRegion: "North American", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "maple-salmon-plate" },
-        { name: "Chicken Pot Pie", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "chicken-pot-pie" },
-        { name: "Turkey Chili Bowl", cuisineRegion: "North American", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 600, imgSlug: "turkey-chili" },
-        { name: "Veggie Chili", cuisineRegion: "North American", protein: "Vegetarian", carb: "Greens/None", temp: "Hot", calories: 500, imgSlug: "veggie-chili" },
-        { name: "Macaroni and Cheese", cuisineRegion: "North American", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "macaroni-cheese" },
-        { name: "Brisket Plate", cuisineRegion: "North American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 950, imgSlug: "brisket-plate" },
-        { name: "Chicken Quesadilla", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "chicken-quesadilla" },
-        { name: "Beef Taco Salad", cuisineRegion: "North American", protein: "Beef", carb: "Greens/None", temp: "Cold", calories: 650, imgSlug: "beef-taco-salad" },
-        { name: "Lobster Roll", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 600, imgSlug: "lobster-roll" },
-        { name: "Nashville Hot Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "nashville-hot-chicken" },
-        { name: "Tomato Soup & Grilled Cheese", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "tomato-soup-grilled-cheese" },
-        { name: "Crab Cake Sandwich", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "crab-cake-sandwich" },
-        { name: "Veggie Burger", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "veggie-burger" },
-        { name: "Chicken Noodle Soup", cuisineRegion: "North American", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 500, imgSlug: "chicken-noodle-soup" },
-        { name: "Tuna Salad Sandwich", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 500, imgSlug: "tuna-salad-sandwich" },
-        { name: "Pulled Jackfruit Sandwich", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "pulled-jackfruit-sandwich" },
-        { name: "Argentine Beef Milanesa", cuisineRegion: "South American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "argentine-milanesa" },
-        { name: "Lomo Saltado", cuisineRegion: "South American", protein: "Beef", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "lomo-saltado" },
-        { name: "Moqueca Fish Stew", cuisineRegion: "South American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "moqueca-fish-stew" },
-        { name: "Arepa Chicken Pockets", cuisineRegion: "South American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "arepa-chicken-pockets" },
-        { name: "Pastel de Choclo", cuisineRegion: "South American", protein: "Beef", carb: "Grains", temp: "Hot", calories: 750, imgSlug: "pastel-de-choclo" },
-        { name: "Peruvian Chicken Rice", cuisineRegion: "South American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "peruvian-chicken-rice" },
-        { name: "Brazilian Cheese Bread Plate", cuisineRegion: "South American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 600, imgSlug: "brazilian-cheese-bread" },
-        { name: "Quinoa Avocado Bowl", cuisineRegion: "South American", protein: "Vegetarian", carb: "Grains", temp: "Cold", calories: 550, imgSlug: "quinoa-avocado-bowl" },
-        { name: "Choripan Sandwich", cuisineRegion: "South American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "choripan-sandwich" },
-        { name: "Aji de Gallina", cuisineRegion: "South American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "aji-de-gallina" },
-        { name: "Tacu Tacu Steak", cuisineRegion: "South American", protein: "Beef", carb: "Rice", temp: "Hot", calories: 850, imgSlug: "tacu-tacu-steak" },
-        { name: "Humita Corn Cakes", cuisineRegion: "South American", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 500, imgSlug: "humita-corn-cakes" },
-        { name: "Chilean Salmon Salad", cuisineRegion: "South American", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "chilean-salmon-salad" },
-        { name: "Pabellon Criollo", cuisineRegion: "South American", protein: "Beef", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "pabellon-criollo" },
-        { name: "Yuca Pork Bowl", cuisineRegion: "South American", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "yuca-pork-bowl" },
-        { name: "Carbonara Spaghetti", cuisineRegion: "European", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 850, imgSlug: "carbonara-spaghetti" },
-        { name: "Mushroom Risotto", cuisineRegion: "European", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "mushroom-risotto" },
-        { name: "Chicken Parmesan", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "chicken-parmesan" },
-        { name: "Eggplant Parmesan", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "eggplant-parmesan" },
-        { name: "Pesto Pasta", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 650, imgSlug: "pesto-pasta" },
-        { name: "Seafood Paella", cuisineRegion: "European", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "seafood-paella" },
-        { name: "Ratatouille Grain Bowl", cuisineRegion: "European", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 500, imgSlug: "ratatouille-grain-bowl" },
-        { name: "Swedish Meatballs", cuisineRegion: "European", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "swedish-meatballs" },
-        { name: "Beef Goulash", cuisineRegion: "European", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "beef-goulash" },
-        { name: "Croque Monsieur", cuisineRegion: "European", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "croque-monsieur" },
-        { name: "Nicoise Tuna Salad", cuisineRegion: "European", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "nicoise-tuna-salad" },
-        { name: "Pierogi Potato Plate", cuisineRegion: "European", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "pierogi-potato-plate" },
-        { name: "Duck Cassoulet", cuisineRegion: "European", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 900, imgSlug: "duck-cassoulet" },
-        { name: "Mussels with Fries", cuisineRegion: "European", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "mussels-fries" },
-        { name: "Pork Schnitzel", cuisineRegion: "European", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "pork-schnitzel" },
-        { name: "Spanakopita Plate", cuisineRegion: "European", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "spanakopita-plate" },
-        { name: "Chicken Cacciatore", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 700, imgSlug: "chicken-cacciatore" },
-        { name: "Smoked Salmon Tartine", cuisineRegion: "European", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 550, imgSlug: "smoked-salmon-tartine" },
-        { name: "Vegetable Lasagna", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "vegetable-lasagna" },
-        { name: "Teriyaki Chicken Bowl", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "teriyaki-chicken-bowl" },
-        { name: "Korean Beef Bibimbap", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "korean-beef-bibimbap" },
-        { name: "Mapo Tofu Rice", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "mapo-tofu-rice" },
-        { name: "Dan Dan Noodles", cuisineRegion: "Asian", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "dan-dan-noodles" },
-        { name: "Chicken Katsu Curry", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 850, imgSlug: "chicken-katsu-curry" },
-        { name: "Okonomiyaki Pancake", cuisineRegion: "Asian", protein: "Pork", carb: "Grains", temp: "Hot", calories: 700, imgSlug: "okonomiyaki-pancake" },
-        { name: "Nasi Goreng", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "nasi-goreng" },
-        { name: "Laksa Seafood Noodles", cuisineRegion: "Asian", protein: "Seafood", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "laksa-seafood-noodles" },
-        { name: "Cold Soba Salad", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Pasta", temp: "Cold", calories: 550, imgSlug: "cold-soba-salad" },
-        { name: "Pork Fried Rice", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "pork-fried-rice" },
-        { name: "Shrimp Fried Rice", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "shrimp-fried-rice" },
-        { name: "Tofu Pad Thai", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 650, imgSlug: "tofu-pad-thai" },
-        { name: "Butter Chicken", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "butter-chicken" },
-        { name: "Paneer Curry", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "paneer-curry" },
-        { name: "Aloo Gobi", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 550, imgSlug: "aloo-gobi" },
-        { name: "Beef Bulgogi Lettuce Wraps", cuisineRegion: "Asian", protein: "Beef", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "beef-bulgogi-wraps" },
-        { name: "Chicken Satay Skewers", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "chicken-satay-skewers" },
-        { name: "Salmon Poke Bowl", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 650, imgSlug: "salmon-poke-bowl" },
-        { name: "Vegetable Bao Buns", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 550, imgSlug: "vegetable-bao-buns" },
-        { name: "Jollof Chicken Rice", cuisineRegion: "African", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "jollof-chicken-rice" },
-        { name: "Egusi Soup with Fufu", cuisineRegion: "African", protein: "Beef", carb: "Grains", temp: "Hot", calories: 850, imgSlug: "egusi-soup-fufu" },
-        { name: "Bunny Chow Curry", cuisineRegion: "African", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "bunny-chow-curry" },
-        { name: "Koshari Lentil Bowl", cuisineRegion: "African", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "koshari-lentil-bowl" },
-        { name: "Harira Chickpea Soup", cuisineRegion: "African", protein: "Vegetarian", carb: "Greens/None", temp: "Hot", calories: 450, imgSlug: "harira-chickpea-soup" },
-        { name: "Doro Wat Chicken", cuisineRegion: "African", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "doro-wat-chicken" },
-        { name: "Injera Lentil Platter", cuisineRegion: "African", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "injera-lentil-platter" },
-        { name: "Bobotie Rice Bake", cuisineRegion: "African", protein: "Beef", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "bobotie-rice-bake" },
-        { name: "Suya Beef Skewers", cuisineRegion: "African", protein: "Beef", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "suya-beef-skewers" },
-        { name: "Cape Malay Fish Curry", cuisineRegion: "African", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "cape-malay-fish-curry" },
-        { name: "Chermoula Shrimp Couscous", cuisineRegion: "African", protein: "Seafood", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "chermoula-shrimp-couscous" },
-        { name: "Plantain Black Bean Bowl", cuisineRegion: "African", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "plantain-black-bean-bowl" },
-        { name: "Lamb Kofta Couscous", cuisineRegion: "African", protein: "Beef", carb: "Grains", temp: "Hot", calories: 800, imgSlug: "lamb-kofta-couscous" },
-        { name: "Chicken Yassa", cuisineRegion: "African", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "chicken-yassa" },
-        { name: "Peanut Stew Bowl", cuisineRegion: "African", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "peanut-stew-bowl" },
-        { name: "Aussie Meat Pie", cuisineRegion: "Oceanic", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 800, imgSlug: "aussie-meat-pie" },
-        { name: "Chicken Parmy with Chips", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 900, imgSlug: "chicken-parmy-chips" },
-        { name: "Barramundi Potato Plate", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "barramundi-potato-plate" },
-        { name: "Lamb Roast Dinner", cuisineRegion: "Oceanic", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "lamb-roast-dinner" },
-        { name: "Sausage Sizzle", cuisineRegion: "Oceanic", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "sausage-sizzle" },
-        { name: "Pumpkin Feta Salad", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Greens/None", temp: "Cold", calories: 500, imgSlug: "pumpkin-feta-salad" },
-        { name: "Hangi Chicken Plate", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "hangi-chicken-plate" },
-        { name: "Prawn Avocado Salad", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "prawn-avocado-salad" },
-        { name: "Kumara Veggie Bowl", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 600, imgSlug: "kumara-veggie-bowl" },
-        { name: "Beef Mince Toastie", cuisineRegion: "Oceanic", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "beef-mince-toastie" },
-        { name: "Tuna Rice Salad", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 550, imgSlug: "tuna-rice-salad" },
-        { name: "Roast Pork Roll", cuisineRegion: "Oceanic", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 800, imgSlug: "roast-pork-roll" },
-        { name: "Vegemite Cheese Toastie", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 500, imgSlug: "vegemite-cheese-toastie" },
-        { name: "Chicken Laksa", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "chicken-laksa" },
-        { name: "Seafood Pie", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "seafood-pie" },
-        { name: "Black Bean Burrito Bowl", cuisineRegion: "North American", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "black-bean-burrito-bowl" },
-        { name: "Chicken Enchiladas", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "chicken-enchiladas" },
-        { name: "Carne Asada Fries", cuisineRegion: "North American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 950, imgSlug: "carne-asada-fries" },
-        { name: "Shrimp Tostadas", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 600, imgSlug: "shrimp-tostadas" },
-        { name: "Pork Green Chile Stew", cuisineRegion: "North American", protein: "Pork", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "pork-green-chile-stew" },
-        { name: "Caprese Sandwich", cuisineRegion: "European", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Cold", calories: 550, imgSlug: "caprese-sandwich" },
-        { name: "Italian Antipasto Salad", cuisineRegion: "European", protein: "Pork", carb: "Greens/None", temp: "Cold", calories: 650, imgSlug: "italian-antipasto-salad" },
-        { name: "Beef Wellington Slice", cuisineRegion: "European", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "beef-wellington-slice" },
-        { name: "Chicken Kiev", cuisineRegion: "European", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "chicken-kiev" },
-        { name: "Tuna Pasta Salad", cuisineRegion: "European", protein: "Seafood", carb: "Pasta", temp: "Cold", calories: 600, imgSlug: "tuna-pasta-salad" },
-        { name: "Miso Salmon Rice Bowl", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "miso-salmon-rice-bowl" },
-        { name: "Mongolian Beef Noodles", cuisineRegion: "Asian", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "mongolian-beef-noodles" },
-        { name: "Vegetable Biryani", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "vegetable-biryani" },
-        { name: "Pork Belly Bao", cuisineRegion: "Asian", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "pork-belly-bao" },
-        { name: "Chicken Lettuce Cups", cuisineRegion: "Asian", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 500, imgSlug: "chicken-lettuce-cups" },
-        { name: "Berbere Chicken Bowl", cuisineRegion: "African", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 700, imgSlug: "berbere-chicken-bowl" },
-        { name: "North African Tuna Salad", cuisineRegion: "African", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 500, imgSlug: "north-african-tuna-salad" },
-        { name: "Beef Tagine with Apricots", cuisineRegion: "African", protein: "Beef", carb: "Grains", temp: "Hot", calories: 800, imgSlug: "beef-tagine-apricots" },
-        { name: "Pork Sosatie Skewers", cuisineRegion: "African", protein: "Pork", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "pork-sosatie-skewers" },
-        { name: "Sweet Potato Mafe", cuisineRegion: "African", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 650, imgSlug: "sweet-potato-mafe" },
-        { name: "Peruvian Quinoa Chicken", cuisineRegion: "South American", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "peruvian-quinoa-chicken" },
-        { name: "Brazilian Shrimp Rice", cuisineRegion: "South American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "brazilian-shrimp-rice" },
-        { name: "Argentine Provoleta Salad", cuisineRegion: "South American", protein: "Vegetarian", carb: "Greens/None", temp: "Hot", calories: 600, imgSlug: "argentine-provoleta-salad" },
-        { name: "Colombian Pork Arepas", cuisineRegion: "South American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "colombian-pork-arepas" },
-        { name: "Chilean Beef Stew", cuisineRegion: "South American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "chilean-beef-stew" },
-        { name: "Oceanic Chicken Rice Salad", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Rice", temp: "Cold", calories: 600, imgSlug: "oceanic-chicken-rice-salad" },
-        { name: "Barramundi Tacos", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "barramundi-tacos" },
-        { name: "Kiwi Beef Burger", cuisineRegion: "Oceanic", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "kiwi-beef-burger" },
-        { name: "Pork Pineapple Skewers", cuisineRegion: "Oceanic", protein: "Pork", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "pork-pineapple-skewers" },
-        { name: "Roasted Vegetable Damper", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 600, imgSlug: "roasted-vegetable-damper" },
-        { name: "Firecracker Meatballs", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "firecracker-meatballs" },
-        { name: "Creamy Dill Chicken", cuisineRegion: "European", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 650, imgSlug: "creamy-dill-chicken" },
-        { name: "Spicy Salsa Verde Shrimp Tacos", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "spicy-salsa-verde-shrimp-tacos" },
-        { name: "Firecracker Shrimp Rice Bowls", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "firecracker-shrimp-and-mushroom-rice-bowls" },
-        { name: "Crispy Chipotle Shrimp Tacos", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "crispy-chipotle-shrimp-tacos" },
-        { name: "Baja Shrimp Quesadillas", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "baja-shrimp-quesadillas" },
-        { name: "Fuego Chicken Fajita Tacos", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "fuego-shrimp-fajita-tacos" },
-        { name: "Tex-Mex Shrimp and Yellow Rice", cuisineRegion: "North American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "tex-mex-shrimp-yellow-rice" },
-        { name: "Greek Shrimp over Lemony Spinach Rice", cuisineRegion: "European", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 600, imgSlug: "greek-shrimp-over-lemony-spinach-rice" },
-        { name: "One-Pot Italian Vegetable and Shrimp Soup", cuisineRegion: "European", protein: "Seafood", carb: "Grains", temp: "Hot", calories: 550, imgSlug: "one-pot-italian-vegetable-shrimp-soup" },
-        { name: "Creamy Dreamy Mushroom Cavatappi", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "creamy-dreamy-mushroom-cavatappi" },
-        { name: "Pork Sausage Rigatoni Rosa", cuisineRegion: "European", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 850, imgSlug: "pork-sausage-rigatoni-rosa" },
-        { name: "Chicken Sausage Spaghetti Bolognese", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "chicken-sausage-spaghetti-bolognese" },
-        { name: "Ricotta Tomato Ravioli", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 650, imgSlug: "ricotta-tomato-ravioli" },
-        { name: "Tuscan Chicken Linguine", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "tuscan-chicken-linguine" },
-        { name: "Chicken Ramen in a Shoyu-Style Broth", cuisineRegion: "Asian", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "chicken-ramen-in-a-shoyu-style-broth" },
-        { name: "Sweet Chili Pork Bowls", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "sweet-chili-pork-bowls" },
-        { name: "Sesame Soy Beef Bowls", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "sesame-soy-beef-bowls" },
-        { name: "Banh Mi Meatball Bowls", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "banh-mi-meatball-bowls" },
-        { name: "Bulgogi Pork Tenderloin", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "bulgogi-pork-tenderloin" },
-        { name: "Sweet Potato Lentil Curry", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "sweet-potato-lentil-curry" },
-        { name: "Chickpea Powered Mediterranean Couscous", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "chickpea-powered-mediterranean-couscous" },
-        { name: "Chicken Harissa Bowls", cuisineRegion: "African", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 700, imgSlug: "chicken-harissa-bowls" },
-        { name: "Moroccan Chicken Sausage Tagine", cuisineRegion: "African", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 750, imgSlug: "moroccan-chicken-sausage-tagine" },
-        { name: "North African Spiced Shrimp Couscous", cuisineRegion: "African", protein: "Seafood", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "north-african-spiced-shrimp-couscous" },
-        { name: "Apricot Almond Chickpea Tagine", cuisineRegion: "African", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "apricot-almond-chickpea-tagine" },
-        { name: "Louisiana-Style Tilapia", cuisineRegion: "North American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "louisiana-style-tilapia" },
-        { name: "Pub-Style Shepherd's Pie", cuisineRegion: "European", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "pub-style-shepherds-pie" },
-        { name: "Cheesy Smothered Mushroom Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "cheesy-smothered-mushroom-chicken" },
-        { name: "Crispy Buffalo-Spiced Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "crispy-buffalo-spiced-chicken" },
-        { name: "Maple Mustard Pork Chops", cuisineRegion: "North American", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "maple-mustard-pork-chops" },
-        { name: "Cherry Balsamic Pork Chops", cuisineRegion: "European", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "cherry-balsamic-pork-chops" },
-        { name: "Figgy Balsamic Pork", cuisineRegion: "European", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "figgy-balsamic-pork" },
-        { name: "Meatloaf Parm", cuisineRegion: "North American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "meatloaf-parm" },
-        { name: "Gouda Vibes Burgers", cuisineRegion: "North American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "gouda-vibes-burgers" },
-        { name: "Firehouse Cheeseburgers", cuisineRegion: "North American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "firehouse-cheeseburgers" },
-        { name: "Tex-Mex Turkey Stuffed Peppers", cuisineRegion: "North American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "tex-mex-turkey-stuffed-peppers" },
-        { name: "BBQ Pulled Chicken Tacos", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "bbq-pulled-chicken-tacos" },
-        { name: "Buffalo Cauliflower Tacos", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "buffalo-cauliflower-tacos" },
-        { name: "Lemony Spaghetti with Brussels Sprouts", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 700, imgSlug: "lemony-spaghetti-with-brussels-sprouts" },
-        { name: "One-Pot Creamy Lemon Dill Chicken Soup", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 600, imgSlug: "one-pot-creamy-lemon-dill-chicken-soup" },
-        { name: "Stuffed Meatball Rigatoni Bake", cuisineRegion: "European", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 850, imgSlug: "stuffed-meatball-rigatoni-bake" },
-        { name: "Hot Honey Pepperoni Pizza", cuisineRegion: "European", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "hot-honey-pepperoni-pizza" },
-        { name: "Prosciutto Caprese Sandwich", cuisineRegion: "European", protein: "Pork", carb: "Tortillas/Bread", temp: "Cold", calories: 650, imgSlug: "prosciutto-caprese-sandwich" },
-        { name: "Greek Chicken and Brown Rice Salad", cuisineRegion: "European", protein: "Poultry", carb: "Rice", temp: "Cold", calories: 550, imgSlug: "greek-chicken-and-brown-rice-salad" },
-        { name: "Garlic Chicken with Fattoush Salad", cuisineRegion: "Asian", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "garlic-chicken-with-fattoush-salad" }
+        { name: "Scrambled Eggs", cuisineRegion: "Europe", protein: "Egg", carb: "None", temp: "Hot", calories: 300 },
+        { name: "Eggs Benedict", cuisineRegion: "North America", protein: "Egg", carb: "Bread", temp: "Hot", calories: 410 },
+        { name: "Pancakes", cuisineRegion: "North America", protein: "Vegetarian", carb: "Batter", temp: "Hot", calories: 430 },
+        { name: "French Toast", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Bread", temp: "Hot", calories: 430 },
+        { name: "Belgian Waffles", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Batter", temp: "Hot", calories: 480 },
+        { name: "Oatmeal", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Grain", temp: "Hot", calories: 300 },
+        { name: "Avocado Toast", cuisineRegion: "Oceania", protein: "Vegetarian", carb: "Bread", temp: "Room Temperature", calories: 360 },
+        { name: "Bacon and Eggs", cuisineRegion: "North America", protein: "Pork", carb: "Egg", temp: "Hot", calories: 440 },
+        { name: "Breakfast Burrito", cuisineRegion: "North America", protein: "Poultry", carb: "Tortilla", temp: "Hot", calories: 510 },
+        { name: "Hash Browns", cuisineRegion: "North America", protein: "Vegetarian", carb: "Potato", temp: "Hot", calories: 410 },
+        { name: "Eggs Florentine", cuisineRegion: "Europe", protein: "Egg", carb: "Bread", temp: "Hot", calories: 410 },
+        { name: "Shakshuka", cuisineRegion: "Middle East", protein: "Egg", carb: "Vegetable", temp: "Hot", calories: 310 },
+        { name: "Huevos Rancheros", cuisineRegion: "Latin America", protein: "Egg", carb: "Tortilla", temp: "Hot", calories: 410 },
+        { name: "Frittata", cuisineRegion: "Europe", protein: "Egg", carb: "Vegetable", temp: "Room Temperature", calories: 310 },
+        { name: "Quiche Lorraine", cuisineRegion: "Europe", protein: "Pork", carb: "Pastry", temp: "Room Temperature", calories: 570 },
+        { name: "Cinnamon Rolls", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 480 },
+        { name: "Acai Bowl", cuisineRegion: "Latin America", protein: "Vegetarian", carb: "Fruit", temp: "Cold", calories: 300 },
+        { name: "Biscuits and Gravy", cuisineRegion: "North America", protein: "Pork", carb: "Bread", temp: "Hot", calories: 540 },
+        { name: "Sweet Crepes", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 430 },
+        { name: "Corned Beef Hash", cuisineRegion: "North America", protein: "Beef", carb: "Potato", temp: "Hot", calories: 520 },
+        { name: "Full English Breakfast", cuisineRegion: "Europe", protein: "Pork", carb: "Bread", temp: "Hot", calories: 850 },
+        { name: "Bagel with Lox and Cream Cheese", cuisineRegion: "North America", protein: "Seafood", carb: "Bread", temp: "Cold", calories: 430 },
+        { name: "Congee", cuisineRegion: "East Asia", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 550 },
+        { name: "Classic French Omelette", cuisineRegion: "Europe", protein: "Egg", carb: "None", temp: "Hot", calories: 300 },
+        { name: "Scotch Eggs", cuisineRegion: "Europe", protein: "Pork", carb: "Egg", temp: "Cold", calories: 420 },
+        { name: "French Fries", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Potato", temp: "Hot", calories: 500 },
+        { name: "Garlic Bread", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Bread", temp: "Hot", calories: 400 },
+        { name: "Onion Rings", cuisineRegion: "North America", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Mozzarella Sticks", cuisineRegion: "North America", protein: "Cheese", carb: "Breadcrumbs", temp: "Hot", calories: 460 },
+        { name: "Buffalo Chicken Wings", cuisineRegion: "North America", protein: "Poultry", carb: "None", temp: "Hot", calories: 450 },
+        { name: "Bruschetta", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Bread", temp: "Room Temperature", calories: 370 },
+        { name: "Nachos", cuisineRegion: "Latin America", protein: "Cheese", carb: "Tortilla Chips", temp: "Hot", calories: 550 },
+        { name: "Jalape\u00f1o Poppers", cuisineRegion: "North America", protein: "Cheese", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Potato Skins", cuisineRegion: "North America", protein: "Pork", carb: "Potato", temp: "Hot", calories: 550 },
+        { name: "Fried Spring Rolls", cuisineRegion: "East Asia", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 600 },
+        { name: "Steamed Dumplings", cuisineRegion: "East Asia", protein: "Pork", carb: "Dough", temp: "Hot", calories: 580 },
+        { name: "Fried Calamari", cuisineRegion: "Mediterranean", protein: "Seafood", carb: "None", temp: "Hot", calories: 420 },
+        { name: "Deviled Eggs", cuisineRegion: "Europe", protein: "Egg", carb: "None", temp: "Cold", calories: 300 },
+        { name: "Caprese Salad", cuisineRegion: "Europe", protein: "Cheese", carb: "Vegetable", temp: "Room Temperature", calories: 300 },
+        { name: "Hummus with Pita", cuisineRegion: "Middle East", protein: "Vegetarian", carb: "Bread", temp: "Room Temperature", calories: 370 },
+        { name: "Guacamole and Tortilla Chips", cuisineRegion: "Latin America", protein: "Vegetarian", carb: "Tortilla Chips", temp: "Cold", calories: 410 },
+        { name: "Pigs in a Blanket", cuisineRegion: "North America", protein: "Pork", carb: "Pastry", temp: "Hot", calories: 600 },
+        { name: "Edamame", cuisineRegion: "East Asia", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Stuffed Mushrooms", cuisineRegion: "Europe", protein: "Cheese", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Chicken Tenders", cuisineRegion: "North America", protein: "Poultry", carb: "Breadcrumbs", temp: "Hot", calories: 570 },
+        { name: "Caesar Salad", cuisineRegion: "Latin America", protein: "Vegetarian", carb: "Greens", temp: "Cold", calories: 300 },
+        { name: "Greek Salad", cuisineRegion: "Mediterranean", protein: "Cheese", carb: "Vegetable", temp: "Cold", calories: 300 },
+        { name: "Cole Slaw", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Vegetable", temp: "Cold", calories: 300 },
+        { name: "Macaroni Salad", cuisineRegion: "North America", protein: "Vegetarian", carb: "Pasta", temp: "Cold", calories: 350 },
+        { name: "Potato Salad", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Potato", temp: "Cold", calories: 300 },
+        { name: "Shrimp Cocktail", cuisineRegion: "North America", protein: "Seafood", carb: "None", temp: "Cold", calories: 300 },
+        { name: "Fried Pickles", cuisineRegion: "North America", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Cheese Fondue", cuisineRegion: "Europe", protein: "Cheese", carb: "Bread", temp: "Hot", calories: 480 },
+        { name: "Baked Brie", cuisineRegion: "Europe", protein: "Cheese", carb: "Pastry", temp: "Hot", calories: 550 },
+        { name: "Chicken Noodle Soup", cuisineRegion: "North America", protein: "Poultry", carb: "Noodle", temp: "Hot", calories: 530 },
+        { name: "Tomato Soup", cuisineRegion: "North America", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "French Onion Soup", cuisineRegion: "Europe", protein: "Beef", carb: "Bread", temp: "Hot", calories: 480 },
+        { name: "New England Clam Chowder", cuisineRegion: "North America", protein: "Seafood", carb: "Potato", temp: "Hot", calories: 440 },
+        { name: "Minestrone", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 460 },
+        { name: "Classic Beef Stew", cuisineRegion: "Europe", protein: "Beef", carb: "Potato", temp: "Hot", calories: 490 },
+        { name: "Chili Con Carne", cuisineRegion: "North America", protein: "Beef", carb: "Beans", temp: "Hot", calories: 490 },
+        { name: "Lentil Soup", cuisineRegion: "Middle East", protein: "Vegetarian", carb: "Beans", temp: "Hot", calories: 360 },
+        { name: "Potato Leek Soup", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Potato", temp: "Hot", calories: 360 },
+        { name: "Gazpacho", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Vegetable", temp: "Cold", calories: 300 },
+        { name: "Tom Yum Soup", cuisineRegion: "Southeast Asia", protein: "Seafood", carb: "Broth", temp: "Hot", calories: 320 },
+        { name: "Miso Soup", cuisineRegion: "East Asia", protein: "Vegetarian", carb: "Broth", temp: "Hot", calories: 300 },
+        { name: "Beef Pho", cuisineRegion: "Southeast Asia", protein: "Beef", carb: "Noodle", temp: "Hot", calories: 550 },
+        { name: "Tonkotsu Ramen", cuisineRegion: "East Asia", protein: "Pork", carb: "Noodle", temp: "Hot", calories: 850 },
+        { name: "Borscht", cuisineRegion: "Eastern Europe", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Lobster Bisque", cuisineRegion: "Europe", protein: "Seafood", carb: "Broth", temp: "Hot", calories: 320 },
+        { name: "Beef Goulash", cuisineRegion: "Eastern Europe", protein: "Beef", carb: "Potato", temp: "Hot", calories: 490 },
+        { name: "Chicken Tortilla Soup", cuisineRegion: "Latin America", protein: "Poultry", carb: "Tortilla", temp: "Hot", calories: 440 },
+        { name: "Split Pea Soup", cuisineRegion: "Europe", protein: "Pork", carb: "Beans", temp: "Hot", calories: 580 },
+        { name: "Roasted Pumpkin Soup", cuisineRegion: "Oceania", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Hot and Sour Soup", cuisineRegion: "East Asia", protein: "Pork", carb: "Broth", temp: "Hot", calories: 380 },
+        { name: "Wonton Soup", cuisineRegion: "East Asia", protein: "Pork", carb: "Dough", temp: "Hot", calories: 540 },
+        { name: "Egg Drop Soup", cuisineRegion: "East Asia", protein: "Egg", carb: "Broth", temp: "Hot", calories: 300 },
+        { name: "Mulligatawny Soup", cuisineRegion: "South Asia", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 510 },
+        { name: "Bouillabaisse", cuisineRegion: "Europe", protein: "Seafood", carb: "Broth", temp: "Hot", calories: 350 },
+        { name: "Italian Wedding Soup", cuisineRegion: "Europe", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 550 },
+        { name: "Broccoli Cheddar Soup", cuisineRegion: "North America", protein: "Cheese", carb: "Vegetable", temp: "Hot", calories: 340 },
+        { name: "Corn Chowder", cuisineRegion: "North America", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Cream of Mushroom Soup", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Beef Barley Soup", cuisineRegion: "North America", protein: "Beef", carb: "Grain", temp: "Hot", calories: 450 },
+        { name: "Classic Cheeseburger", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 630 },
+        { name: "Margherita Pizza", cuisineRegion: "Europe", protein: "Cheese", carb: "Dough", temp: "Hot", calories: 680 },
+        { name: "Pepperoni Pizza", cuisineRegion: "North America", protein: "Pork", carb: "Dough", temp: "Hot", calories: 820 },
+        { name: "Club Sandwich", cuisineRegion: "North America", protein: "Poultry", carb: "Bread", temp: "Cold", calories: 530 },
+        { name: "BLT Sandwich", cuisineRegion: "North America", protein: "Pork", carb: "Bread", temp: "Room Temperature", calories: 560 },
+        { name: "Grilled Cheese Sandwich", cuisineRegion: "North America", protein: "Cheese", carb: "Bread", temp: "Hot", calories: 510 },
+        { name: "Reuben Sandwich", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 550 },
+        { name: "Philly Cheesesteak", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 780 },
+        { name: "Pulled Pork Sandwich", cuisineRegion: "North America", protein: "Pork", carb: "Bread", temp: "Hot", calories: 560 },
+        { name: "Chicken Parmigiana Sub", cuisineRegion: "North America", protein: "Poultry", carb: "Bread", temp: "Hot", calories: 530 },
+        { name: "Meatball Sub", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 550 },
+        { name: "Tuna Melt", cuisineRegion: "North America", protein: "Seafood", carb: "Bread", temp: "Hot", calories: 450 },
+        { name: "Egg Salad Sandwich", cuisineRegion: "North America", protein: "Egg", carb: "Bread", temp: "Cold", calories: 360 },
+        { name: "Turkey and Swiss Wrap", cuisineRegion: "North America", protein: "Poultry", carb: "Tortilla", temp: "Cold", calories: 510 },
+        { name: "Sloppy Joe", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 530 },
+        { name: "Cuban Sandwich", cuisineRegion: "Latin America", protein: "Pork", carb: "Bread", temp: "Hot", calories: 560 },
+        { name: "French Dip Sandwich", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 550 },
+        { name: "Pork Banh Mi", cuisineRegion: "Southeast Asia", protein: "Pork", carb: "Bread", temp: "Room Temperature", calories: 510 },
+        { name: "Caprese Panini", cuisineRegion: "Europe", protein: "Cheese", carb: "Bread", temp: "Hot", calories: 490 },
+        { name: "BBQ Chicken Pizza", cuisineRegion: "North America", protein: "Poultry", carb: "Dough", temp: "Hot", calories: 860 },
+        { name: "Hawaiian Pizza", cuisineRegion: "North America", protein: "Pork", carb: "Dough", temp: "Hot", calories: 790 },
+        { name: "Calzone", cuisineRegion: "Europe", protein: "Pork", carb: "Dough", temp: "Hot", calories: 840 },
+        { name: "Lobster Roll", cuisineRegion: "North America", protein: "Seafood", carb: "Bread", temp: "Cold", calories: 480 },
+        { name: "Ribeye Steak", cuisineRegion: "North America", protein: "Beef", carb: "None", temp: "Hot", calories: 690 },
+        { name: "Filet Mignon", cuisineRegion: "Europe", protein: "Beef", carb: "None", temp: "Hot", calories: 380 },
+        { name: "Sunday Roast Beef", cuisineRegion: "Europe", protein: "Beef", carb: "Potato", temp: "Hot", calories: 540 },
+        { name: "Classic Meatloaf", cuisineRegion: "North America", protein: "Beef", carb: "None", temp: "Hot", calories: 380 },
+        { name: "Beef Stroganoff", cuisineRegion: "Eastern Europe", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 590 },
+        { name: "Beef Wellington", cuisineRegion: "Europe", protein: "Beef", carb: "Pastry", temp: "Hot", calories: 740 },
+        { name: "BBQ Baby Back Ribs", cuisineRegion: "North America", protein: "Pork", carb: "None", temp: "Hot", calories: 710 },
+        { name: "Pan-Seared Pork Chops", cuisineRegion: "North America", protein: "Pork", carb: "None", temp: "Hot", calories: 390 },
+        { name: "Roast Pork Tenderloin", cuisineRegion: "Europe", protein: "Pork", carb: "None", temp: "Hot", calories: 390 },
+        { name: "Shepherd's Pie", cuisineRegion: "Europe", protein: "Lamb", carb: "Potato", temp: "Hot", calories: 640 },
+        { name: "Cottage Pie", cuisineRegion: "Europe", protein: "Beef", carb: "Potato", temp: "Hot", calories: 620 },
+        { name: "Grilled Lamb Chops", cuisineRegion: "Mediterranean", protein: "Lamb", carb: "None", temp: "Hot", calories: 400 },
+        { name: "Beef Bourguignon", cuisineRegion: "Europe", protein: "Beef", carb: "None", temp: "Hot", calories: 370 },
+        { name: "Carne Asada", cuisineRegion: "Latin America", protein: "Beef", carb: "None", temp: "Hot", calories: 380 },
+        { name: "Swedish Meatballs", cuisineRegion: "Europe", protein: "Beef", carb: "Potato", temp: "Hot", calories: 540 },
+        { name: "Spaghetti and Meatballs", cuisineRegion: "North America", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 600 },
+        { name: "Wiener Schnitzel", cuisineRegion: "Europe", protein: "Veal", carb: "Breadcrumbs", temp: "Hot", calories: 580 },
+        { name: "Pork Schnitzel", cuisineRegion: "Europe", protein: "Pork", carb: "Breadcrumbs", temp: "Hot", calories: 600 },
+        { name: "Smoked Beef Brisket", cuisineRegion: "North America", protein: "Beef", carb: "None", temp: "Hot", calories: 510 },
+        { name: "Corned Beef and Cabbage", cuisineRegion: "North America", protein: "Beef", carb: "Vegetable", temp: "Hot", calories: 410 },
+        { name: "Salisbury Steak", cuisineRegion: "North America", protein: "Beef", carb: "None", temp: "Hot", calories: 380 },
+        { name: "Braised Lamb Shank", cuisineRegion: "Europe", protein: "Lamb", carb: "None", temp: "Hot", calories: 390 },
+        { name: "Beef Kebabs", cuisineRegion: "Middle East", protein: "Beef", carb: "None", temp: "Hot", calories: 430 },
+        { name: "Mongolian Beef", cuisineRegion: "East Asia", protein: "Beef", carb: "None", temp: "Hot", calories: 370 },
+        { name: "Beef and Broccoli", cuisineRegion: "North America", protein: "Beef", carb: "Vegetable", temp: "Hot", calories: 410 },
+        { name: "Beef Fajitas", cuisineRegion: "North America", protein: "Beef", carb: "Tortilla", temp: "Hot", calories: 510 },
+        { name: "Southern Fried Chicken", cuisineRegion: "North America", protein: "Poultry", carb: "None", temp: "Hot", calories: 450 },
+        { name: "Classic Roast Chicken", cuisineRegion: "Europe", protein: "Poultry", carb: "None", temp: "Hot", calories: 360 },
+        { name: "Chicken Parmigiana", cuisineRegion: "North America", protein: "Poultry", carb: "Cheese", temp: "Hot", calories: 490 },
+        { name: "Chicken Alfredo", cuisineRegion: "North America", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 840 },
+        { name: "Chicken Marsala", cuisineRegion: "North America", protein: "Poultry", carb: "None", temp: "Hot", calories: 360 },
+        { name: "Chicken Piccata", cuisineRegion: "North America", protein: "Poultry", carb: "None", temp: "Hot", calories: 360 },
+        { name: "Chicken Cordon Bleu", cuisineRegion: "Europe", protein: "Poultry", carb: "Pork", temp: "Hot", calories: 480 },
+        { name: "Chicken Tikka Masala", cuisineRegion: "Europe", protein: "Poultry", carb: "Sauce", temp: "Hot", calories: 430 },
+        { name: "Butter Chicken", cuisineRegion: "South Asia", protein: "Poultry", carb: "Sauce", temp: "Hot", calories: 430 },
+        { name: "Chicken Korma", cuisineRegion: "South Asia", protein: "Poultry", carb: "Sauce", temp: "Hot", calories: 430 },
+        { name: "Kung Pao Chicken", cuisineRegion: "East Asia", protein: "Poultry", carb: "Nuts", temp: "Hot", calories: 510 },
+        { name: "General Tso's Chicken", cuisineRegion: "North America", protein: "Poultry", carb: "Sauce", temp: "Hot", calories: 450 },
+        { name: "Sweet and Sour Chicken", cuisineRegion: "North America", protein: "Poultry", carb: "Fruit", temp: "Hot", calories: 430 },
+        { name: "Orange Chicken", cuisineRegion: "North America", protein: "Poultry", carb: "Sauce", temp: "Hot", calories: 450 },
+        { name: "Chicken Kiev", cuisineRegion: "Eastern Europe", protein: "Poultry", carb: "Breadcrumbs", temp: "Hot", calories: 480 },
+        { name: "Chicken Fajitas", cuisineRegion: "North America", protein: "Poultry", carb: "Tortilla", temp: "Hot", calories: 490 },
+        { name: "Chicken Pot Pie", cuisineRegion: "North America", protein: "Poultry", carb: "Pastry", temp: "Hot", calories: 650 },
+        { name: "Roast Turkey", cuisineRegion: "North America", protein: "Poultry", carb: "Bread", temp: "Hot", calories: 510 },
+        { name: "Peking Duck", cuisineRegion: "East Asia", protein: "Poultry", carb: "Pancakes", temp: "Hot", calories: 540 },
+        { name: "Duck \u00e0 l'Orange", cuisineRegion: "Europe", protein: "Poultry", carb: "Fruit", temp: "Hot", calories: 430 },
+        { name: "Chicken Satay", cuisineRegion: "Southeast Asia", protein: "Poultry", carb: "None", temp: "Hot", calories: 360 },
+        { name: "Chicken Souvlaki", cuisineRegion: "Mediterranean", protein: "Poultry", carb: "None", temp: "Hot", calories: 360 },
+        { name: "Tandoori Chicken", cuisineRegion: "South Asia", protein: "Poultry", carb: "None", temp: "Hot", calories: 360 },
+        { name: "Chicken Adobo", cuisineRegion: "Southeast Asia", protein: "Poultry", carb: "None", temp: "Hot", calories: 350 },
+        { name: "Chicken Quesadilla", cuisineRegion: "North America", protein: "Poultry", carb: "Tortilla", temp: "Hot", calories: 510 },
+        { name: "Coq au Vin", cuisineRegion: "Europe", protein: "Poultry", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Chicken Enchiladas", cuisineRegion: "Latin America", protein: "Poultry", carb: "Tortilla", temp: "Hot", calories: 490 },
+        { name: "Chicken Teriyaki", cuisineRegion: "East Asia", protein: "Poultry", carb: "Sauce", temp: "Hot", calories: 430 },
+        { name: "Chicken Cacciatore", cuisineRegion: "Europe", protein: "Poultry", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Fish and Chips", cuisineRegion: "Europe", protein: "Seafood", carb: "Potato", temp: "Hot", calories: 790 },
+        { name: "Grilled Salmon", cuisineRegion: "North America", protein: "Seafood", carb: "None", temp: "Hot", calories: 330 },
+        { name: "Shrimp Scampi", cuisineRegion: "North America", protein: "Seafood", carb: "Pasta", temp: "Hot", calories: 540 },
+        { name: "Paella Valenciana", cuisineRegion: "Europe", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 520 },
+        { name: "California Sushi Rolls", cuisineRegion: "North America", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 530 },
+        { name: "Tuna Sashimi", cuisineRegion: "East Asia", protein: "Seafood", carb: "None", temp: "Cold", calories: 300 },
+        { name: "Maryland Crab Cakes", cuisineRegion: "North America", protein: "Seafood", carb: "Breadcrumbs", temp: "Hot", calories: 530 },
+        { name: "Fried Butterfly Shrimp", cuisineRegion: "North America", protein: "Seafood", carb: "Breadcrumbs", temp: "Hot", calories: 540 },
+        { name: "Baked Cod", cuisineRegion: "Europe", protein: "Seafood", carb: "None", temp: "Hot", calories: 330 },
+        { name: "Lobster Thermidor", cuisineRegion: "Europe", protein: "Seafood", carb: "Cheese", temp: "Hot", calories: 460 },
+        { name: "Linguine with Clams", cuisineRegion: "Europe", protein: "Seafood", carb: "Pasta", temp: "Hot", calories: 540 },
+        { name: "Shrimp Fried Rice", cuisineRegion: "East Asia", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 610 },
+        { name: "Baja Fish Tacos", cuisineRegion: "North America", protein: "Seafood", carb: "Tortilla", temp: "Hot", calories: 480 },
+        { name: "Grilled Swordfish Steak", cuisineRegion: "Mediterranean", protein: "Seafood", carb: "None", temp: "Hot", calories: 330 },
+        { name: "Tuna Tartare", cuisineRegion: "Europe", protein: "Seafood", carb: "Vegetable", temp: "Cold", calories: 330 },
+        { name: "Classic Ceviche", cuisineRegion: "Latin America", protein: "Seafood", carb: "Vegetable", temp: "Cold", calories: 300 },
+        { name: "Coconut Shrimp", cuisineRegion: "North America", protein: "Seafood", carb: "Coconut", temp: "Hot", calories: 480 },
+        { name: "Seared Ahi Tuna", cuisineRegion: "East Asia", protein: "Seafood", carb: "None", temp: "Hot", calories: 330 },
+        { name: "Cioppino", cuisineRegion: "North America", protein: "Seafood", carb: "Broth", temp: "Hot", calories: 350 },
+        { name: "Shrimp Jambalaya", cuisineRegion: "North America", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 520 },
+        { name: "Mussels in White Wine Sauce", cuisineRegion: "Europe", protein: "Seafood", carb: "Broth", temp: "Hot", calories: 370 },
+        { name: "Pan-Seared Scallops", cuisineRegion: "Europe", protein: "Seafood", carb: "None", temp: "Hot", calories: 330 },
+        { name: "Steamed Crab Legs", cuisineRegion: "North America", protein: "Seafood", carb: "Butter", temp: "Hot", calories: 430 },
+        { name: "Shrimp and Grits", cuisineRegion: "North America", protein: "Seafood", carb: "Grain", temp: "Hot", calories: 440 },
+        { name: "Salmon Teriyaki", cuisineRegion: "East Asia", protein: "Seafood", carb: "Sauce", temp: "Hot", calories: 400 },
+        { name: "Lasagna Bolognese", cuisineRegion: "Europe", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 650 },
+        { name: "Spaghetti Carbonara", cuisineRegion: "Europe", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 720 },
+        { name: "Fettuccine Alfredo", cuisineRegion: "Europe", protein: "Cheese", carb: "Pasta", temp: "Hot", calories: 810 },
+        { name: "Penne alla Vodka", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 460 },
+        { name: "Macaroni and Cheese", cuisineRegion: "North America", protein: "Cheese", carb: "Pasta", temp: "Hot", calories: 550 },
+        { name: "Baked Ziti", cuisineRegion: "North America", protein: "Cheese", carb: "Pasta", temp: "Hot", calories: 560 },
+        { name: "Pad Thai", cuisineRegion: "Southeast Asia", protein: "Poultry", carb: "Noodles", temp: "Hot", calories: 560 },
+        { name: "Chicken Lo Mein", cuisineRegion: "East Asia", protein: "Poultry", carb: "Noodles", temp: "Hot", calories: 560 },
+        { name: "Vegetable Fried Rice", cuisineRegion: "East Asia", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 530 },
+        { name: "Mushroom Risotto", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 440 },
+        { name: "Eggplant Parmigiana", cuisineRegion: "Europe", protein: "Cheese", carb: "Vegetable", temp: "Hot", calories: 390 },
+        { name: "Falafel Wrap", cuisineRegion: "Middle East", protein: "Vegetarian", carb: "Bread", temp: "Hot", calories: 420 },
+        { name: "Chana Masala", cuisineRegion: "South Asia", protein: "Vegetarian", carb: "Beans", temp: "Hot", calories: 390 },
+        { name: "Palak Paneer", cuisineRegion: "South Asia", protein: "Cheese", carb: "Vegetable", temp: "Hot", calories: 370 },
+        { name: "Vegetable Curry", cuisineRegion: "South Asia", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Ratatouille", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Vegetable", temp: "Hot", calories: 300 },
+        { name: "Gnocchi alla Sorrentina", cuisineRegion: "Europe", protein: "Cheese", carb: "Potato", temp: "Hot", calories: 500 },
+        { name: "Spinach and Ricotta Ravioli", cuisineRegion: "Europe", protein: "Cheese", carb: "Pasta", temp: "Hot", calories: 560 },
+        { name: "Spaghetti Aglio e Olio", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 460 },
+        { name: "Pesto Pasta", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 460 },
+        { name: "Vegetable Chow Mein", cuisineRegion: "East Asia", protein: "Vegetarian", carb: "Noodles", temp: "Hot", calories: 450 },
+        { name: "Singapore Noodles", cuisineRegion: "Southeast Asia", protein: "Pork", carb: "Noodles", temp: "Hot", calories: 590 },
+        { name: "Bibimbap", cuisineRegion: "East Asia", protein: "Beef", carb: "Rice", temp: "Hot", calories: 570 },
+        { name: "Kimchi Fried Rice", cuisineRegion: "East Asia", protein: "Pork", carb: "Rice", temp: "Hot", calories: 670 },
+        { name: "Vegetable Biryani", cuisineRegion: "South Asia", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 440 },
+        { name: "Stuffed Bell Peppers", cuisineRegion: "North America", protein: "Beef", carb: "Vegetable", temp: "Hot", calories: 410 },
+        { name: "Vegetarian Chili", cuisineRegion: "North America", protein: "Vegetarian", carb: "Beans", temp: "Hot", calories: 360 },
+        { name: "Cheese Tortellini", cuisineRegion: "Europe", protein: "Cheese", carb: "Pasta", temp: "Hot", calories: 560 },
+        { name: "Lentil Dahl", cuisineRegion: "South Asia", protein: "Vegetarian", carb: "Beans", temp: "Hot", calories: 390 },
+        { name: "Beef Tacos", cuisineRegion: "Latin America", protein: "Beef", carb: "Tortilla", temp: "Hot", calories: 530 },
+        { name: "Tacos al Pastor", cuisineRegion: "Latin America", protein: "Pork", carb: "Tortilla", temp: "Hot", calories: 540 },
+        { name: "Beef and Bean Burrito", cuisineRegion: "Latin America", protein: "Beef", carb: "Tortilla", temp: "Hot", calories: 530 },
+        { name: "Classic Hot Dog", cuisineRegion: "North America", protein: "Beef", carb: "Bread", temp: "Hot", calories: 500 },
+        { name: "Corn Dog", cuisineRegion: "North America", protein: "Pork", carb: "Batter", temp: "Hot", calories: 550 },
+        { name: "Gyro Wrap", cuisineRegion: "Mediterranean", protein: "Lamb", carb: "Bread", temp: "Hot", calories: 570 },
+        { name: "Chicken Shawarma", cuisineRegion: "Middle East", protein: "Poultry", carb: "Bread", temp: "Hot", calories: 530 },
+        { name: "Doner Kebab", cuisineRegion: "Middle East", protein: "Beef", carb: "Bread", temp: "Hot", calories: 550 },
+        { name: "Cheese Quesadilla", cuisineRegion: "Latin America", protein: "Cheese", carb: "Tortilla", temp: "Hot", calories: 490 },
+        { name: "Beef Empanadas", cuisineRegion: "Latin America", protein: "Beef", carb: "Pastry", temp: "Hot", calories: 560 },
+        { name: "Pork Tamales", cuisineRegion: "Latin America", protein: "Pork", carb: "Corn Masa", temp: "Hot", calories: 530 },
+        { name: "Beef Taquitos", cuisineRegion: "Latin America", protein: "Beef", carb: "Tortilla", temp: "Hot", calories: 510 },
+        { name: "Potato and Pea Samosas", cuisineRegion: "South Asia", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 460 },
+        { name: "Poutine", cuisineRegion: "North America", protein: "Cheese", carb: "Potato", temp: "Hot", calories: 740 },
+        { name: "Arepas", cuisineRegion: "Latin America", protein: "Cheese", carb: "Corn Meal", temp: "Hot", calories: 470 },
+        { name: "Pork Belly Bao Buns", cuisineRegion: "East Asia", protein: "Pork", carb: "Bread", temp: "Hot", calories: 560 },
+        { name: "Beef Chimichanga", cuisineRegion: "North America", protein: "Beef", carb: "Tortilla", temp: "Hot", calories: 600 },
+        { name: "Elote", cuisineRegion: "Latin America", protein: "Vegetarian", carb: "Corn", temp: "Hot", calories: 330 },
+        { name: "Soft Pretzels", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Dough", temp: "Hot", calories: 420 },
+        { name: "Yakitori", cuisineRegion: "East Asia", protein: "Poultry", carb: "Skewer", temp: "Hot", calories: 360 },
+        { name: "Arancini", cuisineRegion: "Europe", protein: "Cheese", carb: "Rice", temp: "Hot", calories: 540 },
+        { name: "Pupusas", cuisineRegion: "Latin America", protein: "Pork", carb: "Corn Masa", temp: "Hot", calories: 530 },
+        { name: "Potato Pierogi", cuisineRegion: "Eastern Europe", protein: "Vegetarian", carb: "Dough", temp: "Hot", calories: 500 },
+        { name: "Croque Monsieur", cuisineRegion: "Europe", protein: "Pork", carb: "Bread", temp: "Hot", calories: 540 },
+        { name: "Croque Madame", cuisineRegion: "Europe", protein: "Egg", carb: "Bread", temp: "Hot", calories: 440 },
+        { name: "Burek", cuisineRegion: "Eastern Europe", protein: "Beef", carb: "Pastry", temp: "Hot", calories: 590 },
+        { name: "Sausage Roll", cuisineRegion: "Europe", protein: "Pork", carb: "Pastry", temp: "Room Temperature", calories: 620 },
+        { name: "Apple Pie", cuisineRegion: "North America", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 510 },
+        { name: "Chocolate Chip Cookies", cuisineRegion: "North America", protein: "Vegetarian", carb: "Cookie", temp: "Room Temperature", calories: 490 },
+        { name: "Fudge Brownies", cuisineRegion: "North America", protein: "Vegetarian", carb: "Cake", temp: "Room Temperature", calories: 540 },
+        { name: "New York Cheesecake", cuisineRegion: "North America", protein: "Vegetarian", carb: "Dairy", temp: "Cold", calories: 480 },
+        { name: "Tiramisu", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pastry", temp: "Cold", calories: 410 },
+        { name: "Cr\u00e8me Br\u00fbl\u00e9e", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Dairy", temp: "Cold", calories: 380 },
+        { name: "Chocolate Lava Cake", cuisineRegion: "North America", protein: "Vegetarian", carb: "Cake", temp: "Hot", calories: 570 },
+        { name: "Hot Fudge Sundae", cuisineRegion: "North America", protein: "Vegetarian", carb: "Dairy", temp: "Cold", calories: 460 },
+        { name: "Banana Split", cuisineRegion: "North America", protein: "Vegetarian", carb: "Fruit", temp: "Cold", calories: 350 },
+        { name: "Carrot Cake", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Cake", temp: "Room Temperature", calories: 540 },
+        { name: "Red Velvet Cake", cuisineRegion: "North America", protein: "Vegetarian", carb: "Cake", temp: "Room Temperature", calories: 540 },
+        { name: "Key Lime Pie", cuisineRegion: "North America", protein: "Vegetarian", carb: "Pastry", temp: "Cold", calories: 490 },
+        { name: "Lemon Meringue Tart", cuisineRegion: "Europe", protein: "Egg", carb: "Pastry", temp: "Room Temperature", calories: 470 },
+        { name: "Pecan Pie", cuisineRegion: "North America", protein: "Vegetarian", carb: "Pastry", temp: "Room Temperature", calories: 510 },
+        { name: "Chocolate Mousse", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Dairy", temp: "Cold", calories: 460 },
+        { name: "Churros", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 550 },
+        { name: "Gelato", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Dairy", temp: "Cold", calories: 460 },
+        { name: "Panna Cotta", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Dairy", temp: "Cold", calories: 460 },
+        { name: "French Macarons", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Almond", temp: "Room Temperature", calories: 300 },
+        { name: "Chocolate \u00c9clairs", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pastry", temp: "Cold", calories: 410 },
+        { name: "Baklava", cuisineRegion: "Middle East", protein: "Vegetarian", carb: "Pastry", temp: "Room Temperature", calories: 510 },
+        { name: "Bread and Butter Pudding", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Bread", temp: "Hot", calories: 450 },
+        { name: "Sticky Toffee Pudding", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Cake", temp: "Hot", calories: 570 },
+        { name: "Strawberry Shortcake", cuisineRegion: "North America", protein: "Vegetarian", carb: "Biscuit", temp: "Room Temperature", calories: 480 },
+        { name: "Peach Cobbler", cuisineRegion: "North America", protein: "Vegetarian", carb: "Pastry", temp: "Hot", calories: 510 },
+        { name: "Pavlova", cuisineRegion: "Oceania", protein: "Egg", carb: "Meringue", temp: "Cold", calories: 340 },
+        { name: "Glazed Donuts", cuisineRegion: "North America", protein: "Vegetarian", carb: "Dough", temp: "Room Temperature", calories: 510 },
+        { name: "Waffles with Ice Cream", cuisineRegion: "North America", protein: "Vegetarian", carb: "Batter", temp: "Cold", calories: 410 },
+        { name: "Blueberry Muffins", cuisineRegion: "North America", protein: "Vegetarian", carb: "Cake", temp: "Room Temperature", calories: 460 },
+        { name: "Butter Croissant", cuisineRegion: "Europe", protein: "Vegetarian", carb: "Pastry", temp: "Room Temperature", calories: 430 }
       ];
 
-      const MAX_GUESSES = 6;
-      const DAILY_POOL_SIZE = 150;
-      const DATA_VERSION = "minimal-hf-archive-2026-05-19";
-      const GAME_KEY = "chefle:continental:v1:game";
-      const STATS_KEY = "chefle:continental:v1:stats";
+      const INITIAL_EMPTY_ROWS = 1;
+      const DATA_VERSION = "regional-temp-2026-05-19";
+      const GAME_KEY = "chefle:regional-temp:v3:game";
+      const STATS_KEY = "chefle:regional-temp:v3:stats";
       const SETTINGS_KEY = "chefle:continental:v1:settings";
-      const IMAGE_ENDPOINT = "https://img.hellofresh.com/c_fill,f_auto,fl_lossy,h_300,q_auto,w_400/hellofresh_s3/recipe_covers/sub/";
+      const DEV_KEY = "chefle:regional-temp:v3:dev";
       const GREEN = "\u{1F7E9}";
-      const RED = "\u{1F7E5}";
-      const UP = "\u25B2";
-      const DOWN = "\u25BC";
+      const YELLOW = "\u{1F7E8}";
+      const GRAY = "\u2B1B";
       const CHECK = "\u2713";
-      const FIELDS = [
-        { key: "cuisineRegion", label: "Region" },
-        { key: "protein", label: "Protein" },
-        { key: "carb", label: "Base" },
-        { key: "temp", label: "Temp" },
-        { key: "calories", label: "Calories", type: "number" }
+      const CLOSE = "~";
+      const TEMP_CATEGORIES = ["Cold", "Room Temperature", "Hot"];
+      const REGION_GROUPS = [
+        { label: "North America", regions: ["North America"] },
+        { label: "Europe", regions: ["Europe"] },
+        { label: "Asia, Latin America & More", regions: ["East Asia", "Latin America", "South Asia", "Middle East", "Southeast Asia", "Mediterranean", "Eastern Europe", "Oceania"] }
       ];
+      const REGION_GROUP_BY_REGION = Object.fromEntries(REGION_GROUPS.flatMap((group) => group.regions.map((region) => [region, group.label])));
+      const FIELDS = [
+        { key: "protein", label: "Protein" },
+        { key: "carb", label: "Base Carb" },
+        { key: "temp", label: "Temperature", order: TEMP_CATEGORIES }
+      ];
+      const CLASSIFICATION_FIELDS = [
+        { key: "regionGroup", label: "Region Group", value: (dish) => regionGroupForDish(dish) },
+        { key: "cuisineRegion", label: "Region" },
+        ...FIELDS
+      ];
+      const CATEGORY_GROUPS = {
+        protein: {
+          egg: ["egg", "eggs"],
+          beef: ["beef"],
+          pork: ["pork"],
+          poultry: ["poultry", "chicken", "turkey", "duck"],
+          seafood: ["seafood", "fish", "shrimp", "crab", "lobster", "clam", "clams"],
+          cheese: ["cheese", "cheeses"],
+          vegetarian: ["vegetarian"],
+          lamb: ["lamb"],
+          veal: ["veal"]
+        },
+        carb: {
+          "tortillas/bread": ["tortillas/bread", "tortilla/bread", "bread/tortilla", "bread", "breads", "bagel", "bagels", "biscuit", "biscuits", "bun", "buns", "pita", "pitas", "roll", "rolls", "tortilla", "tortillas", "tortilla chip", "tortilla chips", "wrap", "wraps"],
+          noodle: ["noodle", "noodles"],
+          potato: ["potato", "potatoes"],
+          breadcrumb: ["breadcrumb", "breadcrumbs"],
+          bean: ["bean", "beans"],
+          green: ["green", "greens"],
+          vegetable: ["vegetable", "vegetables"],
+          pancake: ["pancake", "pancakes"],
+          grain: ["grain", "grains"],
+          pastry: ["pastry", "pastries"],
+          dough: ["dough"],
+          pasta: ["pasta"],
+          rice: ["rice"],
+          none: ["none", "no carb", "green", "greens", "greens/none"]
+        },
+        temp: {
+          cold: ["cold", "chilled"],
+          "room temperature": ["room temperature", "room temp", "ambient"],
+          hot: ["hot", "warm"]
+        }
+      };
+      const CATEGORY_FILTER_LABELS = {
+        "tortillas/bread": "Tortillas/Bread",
+        noodle: "Noodle(s)",
+        potato: "Potato",
+        breadcrumb: "Breadcrumbs",
+        bean: "Beans",
+        vegetable: "Vegetable",
+        pancake: "Pancakes",
+        grain: "Grain",
+        none: "Greens/None"
+      };
+      const CATEGORY_LOOKUP = Object.fromEntries(Object.entries(CATEGORY_GROUPS).map(([field, groups]) => [
+        field,
+        Object.fromEntries(Object.entries(groups).flatMap(([canonical, aliases]) => aliases.map((alias) => [alias, canonical])))
+      ]));
       const els = {
         board: document.getElementById("board"),
         gameId: document.getElementById("gameId"),
         gameStatus: document.getElementById("gameStatus"),
+        dailyRegion: document.getElementById("dailyRegion"),
         attemptPill: document.getElementById("attemptPill"),
         form: document.getElementById("guessForm"),
         input: document.getElementById("dishInput"),
         submit: document.getElementById("submitButton"),
         suggestions: document.getElementById("suggestions"),
         poolFilter: document.getElementById("poolFilter"),
+        proteinFilter: document.getElementById("proteinFilter"),
+        carbFilter: document.getElementById("carbFilter"),
         poolFilteredCount: document.getElementById("poolFilteredCount"),
         poolList: document.getElementById("poolList"),
         toast: document.getElementById("toast"),
         statsModal: document.getElementById("statsModal"),
         helpModal: document.getElementById("helpModal"),
+        classificationsModal: document.getElementById("classificationsModal"),
         settingsModal: document.getElementById("settingsModal"),
         statsTitle: document.getElementById("statsTitle"),
         statsSubtitle: document.getElementById("statsSubtitle"),
@@ -1387,18 +1781,25 @@
         answerLink: document.getElementById("answerLink"),
         statGrid: document.getElementById("statGrid"),
         histogram: document.getElementById("histogram"),
+        sharePreview: document.getElementById("sharePreview"),
+        sharePreviewText: document.getElementById("sharePreviewText"),
         countdown: document.getElementById("countdown"),
         shareButton: document.getElementById("shareButton"),
         keepPlayingButton: document.getElementById("keepPlayingButton"),
         closeStats: document.getElementById("closeStats"),
         closeHelp: document.getElementById("closeHelp"),
+        closeClassifications: document.getElementById("closeClassifications"),
         closeSettings: document.getElementById("closeSettings"),
         statsButton: document.getElementById("statsButton"),
         helpButton: document.getElementById("helpButton"),
+        classificationsButton: document.getElementById("classificationsButton"),
         settingsButton: document.getElementById("settingsButton"),
         soundToggle: document.getElementById("soundToggle"),
         sfxVolumeSlider: document.getElementById("sfxVolumeSlider"),
-        contrastToggle: document.getElementById("contrastToggle")
+        contrastToggle: document.getElementById("contrastToggle"),
+        resetFoodButton: document.getElementById("resetFoodButton"),
+        devResetStatus: document.getElementById("devResetStatus"),
+        classificationsBody: document.getElementById("classificationsBody")
       };
 
       const audio = { ctx: null };
@@ -1410,6 +1811,7 @@
       let gameState;
       let stats;
       let settings;
+      let devState;
       let visibleSuggestions = [];
       let activeSuggestion = 0;
       let toastTimer = null;
@@ -1440,16 +1842,46 @@
         return String(value).trim().toLowerCase().replace(/\s+/g, " ");
       }
 
+      function singularizeCategoryToken(value) {
+        if (value === "potatoes") return "potato";
+        if (value === "tomatoes") return "tomato";
+        if (value.endsWith("ies") && value.length > 4) return value.slice(0, -3) + "y";
+        if (value.endsWith("oes") && value.length > 4) return value.slice(0, -2);
+        if (value.endsWith("s") && !value.endsWith("ss") && value.length > 3) return value.slice(0, -1);
+        return value;
+      }
+
+      function normalizeCategoryValue(fieldKey, value) {
+        let normalized = normalizeName(value)
+          .replace(/[\u2019']/g, "'")
+          .replace(/-/g, " ")
+          .replace(/\s*\/\s*/g, "/")
+          .replace(/\s+/g, " ");
+        const lookup = CATEGORY_LOOKUP[fieldKey] || {};
+        if (lookup[normalized]) return lookup[normalized];
+        normalized = singularizeCategoryToken(normalized);
+        return lookup[normalized] || normalized;
+      }
+
+      function categoriesMatch(fieldKey, guessValue, targetValue) {
+        return normalizeCategoryValue(fieldKey, guessValue) === normalizeCategoryValue(fieldKey, targetValue);
+      }
+
+      function categoryFilterLabel(fieldKey, value) {
+        const canonical = normalizeCategoryValue(fieldKey, value);
+        return CATEGORY_FILTER_LABELS[canonical] || String(value);
+      }
+
       function slugify(value) {
         return normalizeName(value).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
       }
 
       function dishImageUrl(dish) {
-        return IMAGE_ENDPOINT + slugify(dish.imgSlug || dish.name) + ".jpg";
+        return fallbackImageUrl(dish);
       }
 
       function recipeUrl(dish) {
-        return "https://www.hellofresh.com/recipes/" + slugify(dish.imgSlug || dish.name);
+        return "https://www.allrecipes.com/search?q=" + encodeURIComponent(dish.name);
       }
 
       function fallbackImageUrl(dish) {
@@ -1477,50 +1909,42 @@
       }
 
       function ensureMasterRegistry(base) {
-        const requiredKeys = ["name", "cuisineRegion", "protein", "carb", "temp", "calories", "imgSlug"];
+        const requiredKeys = ["name", "cuisineRegion", "protein", "carb", "temp", "calories"];
         const seen = new Set();
         const registry = [];
         base.forEach((dish) => {
           if (!requiredKeys.every((key) => Object.prototype.hasOwnProperty.call(dish, key))) return;
           const key = normalizeName(dish.name);
-          if (seen.has(key)) return;
+          const temp = TEMP_CATEGORIES.find((category) => normalizeCategoryValue("temp", category) === normalizeCategoryValue("temp", dish.temp));
+          const calories = Number(dish.calories);
+          if (seen.has(key) || !temp || !Number.isFinite(calories)) return;
           seen.add(key);
-          registry.push({ ...dish, calories: Math.round(Number(dish.calories) / 50) * 50, imgSlug: slugify(dish.imgSlug || dish.name) });
+          registry.push({
+            ...dish,
+            temp,
+            calories: Math.max(300, Math.min(900, Math.round(calories))),
+            imgSlug: slugify(dish.imgSlug || dish.name)
+          });
         });
-        const adjectives = ["Grilled", "Roasted", "Street-Style", "Herbed", "Crispy", "Market", "Smoky", "Golden", "Garden", "Supper"];
-        let cursor = 0;
-        while (registry.length < DAILY_POOL_SIZE) {
-          const source = registry[cursor % registry.length];
-          const name = adjectives[Math.floor(cursor / registry.length) % adjectives.length] + " " + source.name;
-          const key = normalizeName(name);
-          if (!seen.has(key)) {
-            seen.add(key);
-            registry.push({ ...source, name, calories: Math.max(300, Math.min(1000, source.calories + ((cursor % 5) - 2) * 50)), imgSlug: slugify(name) });
-          }
-          cursor += 1;
-        }
         return registry;
       }
 
       function targetForDate(key) {
-        return masterRegistry[hashString("target:" + DATA_VERSION + ":" + key) % masterRegistry.length];
+        return masterRegistry[hashString("target:" + DATA_VERSION + ":" + key + ":" + targetSeedForDate(key)) % masterRegistry.length];
+      }
+
+      function regionGroupForDish(dish) {
+        return REGION_GROUP_BY_REGION[dish.cuisineRegion] || dish.cuisineRegion;
       }
 
       function dailyPoolForDate(key) {
         const target = targetForDate(key);
-        const ranked = masterRegistry
+        const targetGroup = regionGroupForDish(target);
+        return masterRegistry
+          .filter((dish) => regionGroupForDish(dish) === targetGroup)
           .map((dish) => ({ dish, rank: hashString("pool:" + DATA_VERSION + ":" + key + ":" + dish.name) }))
           .sort((a, b) => a.rank - b.rank || a.dish.name.localeCompare(b.dish.name))
           .map((item) => item.dish);
-        const pool = [target];
-        const used = new Set([target.name]);
-        ranked.forEach((dish) => {
-          if (pool.length < DAILY_POOL_SIZE && !used.has(dish.name)) {
-            used.add(dish.name);
-            pool.push(dish);
-          }
-        });
-        return pool;
       }
 
       function readJson(key, fallback) {
@@ -1533,23 +1957,57 @@
       }
 
       function saveGame() { localStorage.setItem(GAME_KEY, JSON.stringify(gameState)); }
-      function saveStats() { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); }
+      function saveStats() {
+        stats = normalizeStats(stats);
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      }
       function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+      function saveDevState() { localStorage.setItem(DEV_KEY, JSON.stringify(devState)); }
 
       function freshStats() {
-        return { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, guessDistribution: [0,0,0,0,0,0], lastCompletedDate: null, lastWinDate: null };
+        return { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, guessDistribution: [], lastCompletedDate: null, lastWinDate: null };
       }
 
       function normalizeStats(raw) {
+        const source = raw && typeof raw === "object" ? raw : {};
         const base = freshStats();
-        const dist = Array.isArray(raw.guessDistribution) ? raw.guessDistribution.slice(0, 6) : base.guessDistribution;
-        while (dist.length < 6) dist.push(0);
-        return { ...base, ...raw, played: Number(raw.played) || 0, wins: Number(raw.wins) || 0, currentStreak: Number(raw.currentStreak) || 0, maxStreak: Number(raw.maxStreak) || 0, guessDistribution: dist.map((n) => Number(n) || 0) };
+        const wholeNumber = (value) => {
+          const number = Number(value);
+          return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+        };
+        const dist = Array.isArray(source.guessDistribution) ? source.guessDistribution : base.guessDistribution;
+        const played = wholeNumber(source.played);
+        const wins = Math.min(played, wholeNumber(source.wins));
+        const currentStreak = wholeNumber(source.currentStreak);
+        return {
+          ...base,
+          ...source,
+          played,
+          wins,
+          currentStreak,
+          maxStreak: Math.max(wholeNumber(source.maxStreak), currentStreak),
+          guessDistribution: dist.map(wholeNumber),
+          lastCompletedDate: typeof source.lastCompletedDate === "string" ? source.lastCompletedDate : null,
+          lastWinDate: typeof source.lastWinDate === "string" ? source.lastWinDate : null
+        };
       }
 
       function normalizeSettings(raw) {
         const volume = Number(raw.sfxVolume);
         return { sound: false, contrast: false, ...raw, sfxVolume: Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 0.8 };
+      }
+
+      function normalizeDevState(raw) {
+        return { targetSeeds: {}, ...raw, targetSeeds: raw && typeof raw.targetSeeds === "object" && raw.targetSeeds ? raw.targetSeeds : {} };
+      }
+
+      function targetSeedForDate(key) {
+        const seed = Number(devState && devState.targetSeeds ? devState.targetSeeds[key] : 0);
+        return Number.isFinite(seed) ? seed : 0;
+      }
+
+      function setTargetSeedForDate(key, seed) {
+        devState.targetSeeds[key] = seed;
       }
 
       function freshGameState(key) {
@@ -1560,10 +2018,10 @@
         if (!raw || raw.dateKey !== key || raw.dataVersion !== DATA_VERSION || raw.targetName !== targetForDate(key).name) return freshGameState(key);
         const valid = new Set(dailyPool.map((dish) => dish.name));
         const guesses = Array.isArray(raw.guesses)
-          ? raw.guesses.filter((name, index, arr) => valid.has(name) && arr.indexOf(name) === index).slice(0, MAX_GUESSES)
+          ? raw.guesses.filter((name) => valid.has(name))
           : [];
         const won = guesses.includes(targetForDate(key).name);
-        const status = won ? "won" : guesses.length >= MAX_GUESSES ? "lost" : "playing";
+        const status = won ? "won" : "playing";
         return { ...freshGameState(key), guesses, status, statsRecorded: Boolean(raw.statsRecorded) && status !== "playing" };
       }
 
@@ -1588,19 +2046,37 @@
         return dailyPool.find((dish) => normalizeName(dish.name) === normalized) || null;
       }
 
+      function formatFieldValue(field, value) {
+        return field.unit ? value + field.unit : String(value);
+      }
+
+      function compareClassificationValues(field, a, b) {
+        if (field.order) {
+          const indexA = field.order.findIndex((value) => normalizeCategoryValue(field.key, value) === normalizeCategoryValue(field.key, a));
+          const indexB = field.order.findIndex((value) => normalizeCategoryValue(field.key, value) === normalizeCategoryValue(field.key, b));
+          return indexA - indexB;
+        }
+        return field.type === "number" ? Number(a) - Number(b) : String(a).localeCompare(String(b));
+      }
+
+      function closeCategoryMatch(field, guessValue, targetValue) {
+        if (!field.order) return false;
+        const guessIndex = field.order.findIndex((value) => normalizeCategoryValue(field.key, value) === normalizeCategoryValue(field.key, guessValue));
+        const targetIndex = field.order.findIndex((value) => normalizeCategoryValue(field.key, value) === normalizeCategoryValue(field.key, targetValue));
+        return guessIndex >= 0 && targetIndex >= 0 && Math.abs(guessIndex - targetIndex) === 1;
+      }
+
       function compareDish(guess, target) {
         return FIELDS.map((field) => {
           const guessValue = guess[field.key];
           const targetValue = target[field.key];
-          const match = guessValue === targetValue;
-          let state = match ? "match" : "miss";
-          let hint = match ? CHECK : "";
-          let share = match ? GREEN : RED;
-          if (!match && field.type === "number") {
-            hint = targetValue > guessValue ? UP : DOWN;
-            share = hint;
-          }
-          return { field, state, hint, share, value: String(guessValue), title: field.label + ": " + guessValue };
+          const match = categoriesMatch(field.key, guessValue, targetValue);
+          const close = !match && closeCategoryMatch(field, guessValue, targetValue);
+          let state = match ? "match" : close ? "close" : "miss";
+          let hint = match ? CHECK : close ? CLOSE : "";
+          let share = match ? GREEN : close ? YELLOW : GRAY;
+          const value = formatFieldValue(field, guessValue);
+          return { field, state, hint, share, value, title: field.label + ": " + value };
         });
       }
 
@@ -1651,7 +2127,9 @@
       function renderBoard() {
         clearNode(els.board);
         gameState.guesses.map(findDishByName).filter(Boolean).forEach((dish) => addGuessRow(dish, false));
-        for (let i = gameState.guesses.length; i < MAX_GUESSES; i += 1) addEmptyRow(i);
+        if (gameState.status === "playing") {
+          for (let i = 0; i < INITIAL_EMPTY_ROWS; i += 1) addEmptyRow(gameState.guesses.length + i);
+        }
       }
 
       function showToast(message) {
@@ -1663,14 +2141,12 @@
 
       function updateStatus() {
         els.gameId.textContent = "Chefle #" + gameId + " | " + formatGameDate(todayKey);
-        els.attemptPill.textContent = "Guesses Used: " + gameState.guesses.length + " / " + MAX_GUESSES;
+        els.dailyRegion.textContent = "Today's Region Group: " + regionGroupForDish(targetDish);
+        els.attemptPill.textContent = "Guesses Used: " + gameState.guesses.length;
         if (gameState.status === "won") {
           els.gameStatus.textContent = "Game Complete";
-        } else if (gameState.status === "lost") {
-          els.gameStatus.textContent = "Game Over";
         } else {
-          const remaining = MAX_GUESSES - gameState.guesses.length;
-          els.gameStatus.textContent = "Guesses Remaining: " + remaining;
+          els.gameStatus.textContent = gameState.guesses.length ? "Keep Guessing" : "Make your first guess";
         }
         const done = gameState.status !== "playing";
         els.input.disabled = done;
@@ -1683,7 +2159,7 @@
         const terms = normalizeName(query).split(" ").filter(Boolean);
         const guessed = new Set(gameState.guesses);
         const scored = list.map((dish) => {
-          const haystack = normalizeName([dish.name, dish.cuisineRegion, dish.protein, dish.carb, dish.temp, dish.calories].join(" "));
+          const haystack = normalizeName([dish.name, dish.protein, dish.carb, dish.temp, dish.cuisineRegion, regionGroupForDish(dish)].join(" "));
           const starts = normalizeName(dish.name).startsWith(normalizeName(query)) ? 3 : 0;
           const everyTerm = terms.every((term) => haystack.includes(term));
           const score = everyTerm ? starts + terms.reduce((sum, term) => sum + (haystack.includes(term) ? 1 : 0), 0) : -1;
@@ -1702,12 +2178,11 @@
 
         visibleSuggestions.forEach((dish, index) => {
           const item = document.createElement("li");
-          const alreadyGuessed = gameState.guesses.includes(dish.name);
           item.className = "suggestion";
           item.id = "dish-option-" + index;
           item.setAttribute("role", "option");
           item.setAttribute("aria-selected", String(index === activeSuggestion));
-          item.setAttribute("aria-disabled", String(alreadyGuessed));
+          item.setAttribute("aria-disabled", "false");
           item.appendChild(makeDishImage(dish, "dish-thumb", ""));
           const name = document.createElement("span");
           name.textContent = dish.name;
@@ -1746,8 +2221,48 @@
         if (submitAfter) submitGuess();
       }
 
+      function populateSelect(select, values, allLabel) {
+        const selected = select.value;
+        clearNode(select);
+        const all = document.createElement("option");
+        all.value = "";
+        all.textContent = allLabel;
+        select.appendChild(all);
+        const options = values.map((value) => typeof value === "string" ? { value, label: value } : value);
+        options.forEach((optionValue) => {
+          const option = document.createElement("option");
+          option.value = optionValue.value;
+          option.textContent = optionValue.label;
+          select.appendChild(option);
+        });
+        if (options.some((optionValue) => optionValue.value === selected)) select.value = selected;
+      }
+
+      function filterOptionsFor(fieldKey) {
+        const options = new Map();
+        dailyPool.forEach((dish) => {
+          const canonical = normalizeCategoryValue(fieldKey, dish[fieldKey]);
+          if (!options.has(canonical)) options.set(canonical, categoryFilterLabel(fieldKey, dish[fieldKey]));
+        });
+        return Array.from(options, ([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label));
+      }
+
+      function populatePoolFilters() {
+        populateSelect(els.proteinFilter, filterOptionsFor("protein"), "All proteins");
+        populateSelect(els.carbFilter, filterOptionsFor("carb"), "All bases");
+      }
+
+      function filteredPool() {
+        const protein = els.proteinFilter.value;
+        const carb = els.carbFilter.value;
+        return dailyPool.filter((dish) => (
+          (!protein || normalizeCategoryValue("protein", dish.protein) === protein)
+          && (!carb || normalizeCategoryValue("carb", dish.carb) === carb)
+        ));
+      }
+
       function renderDiscoveryList() {
-        const filtered = poolSearch(els.poolFilter.value, dailyPool);
+        const filtered = poolSearch(els.poolFilter.value, filteredPool());
         clearNode(els.poolList);
         els.poolFilteredCount.textContent = filtered.length + " shown";
         filtered.forEach((dish) => {
@@ -1772,15 +2287,21 @@
 
       function recordStats() {
         if (gameState.statsRecorded || gameState.status === "playing") return;
+        stats = normalizeStats(stats);
+        if (stats.lastCompletedDate === todayKey) {
+          gameState.statsRecorded = true;
+          saveGame();
+          return;
+        }
         stats.played += 1;
         if (gameState.status === "won") {
           stats.wins += 1;
           stats.currentStreak = stats.lastWinDate === previousDateKey(todayKey) ? stats.currentStreak + 1 : 1;
           stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-          stats.guessDistribution[Math.max(0, gameState.guesses.length - 1)] += 1;
+          const guessIndex = Math.max(0, gameState.guesses.length - 1);
+          while (stats.guessDistribution.length <= guessIndex) stats.guessDistribution.push(0);
+          stats.guessDistribution[guessIndex] += 1;
           stats.lastWinDate = todayKey;
-        } else {
-          stats.currentStreak = 0;
         }
         stats.lastCompletedDate = todayKey;
         gameState.statsRecorded = true;
@@ -1792,31 +2313,25 @@
         if (submitting || gameState.status !== "playing") return;
         const dish = findDishByName(els.input.value);
         if (!dish) {
-          showToast("Pick a dish from today's 150.");
+          showToast("Pick a dish from today's list.");
           renderSuggestions();
-          return;
-        }
-        if (gameState.guesses.includes(dish.name)) {
-          showToast("You already tried that one.");
-          els.input.value = "";
-          renderSuggestions();
-          renderDiscoveryList();
           return;
         }
         submitting = true;
         gameState.guesses.push(dish.name);
         if (dish.name === targetDish.name) gameState.status = "won";
-        else if (gameState.guesses.length >= MAX_GUESSES) gameState.status = "lost";
         saveGame();
         clearNode(els.board);
         gameState.guesses.slice(0, -1).map(findDishByName).filter(Boolean).forEach((oldDish) => addGuessRow(oldDish, false));
         addGuessRow(dish, true);
-        for (let i = gameState.guesses.length; i < MAX_GUESSES; i += 1) addEmptyRow(i);
+        if (gameState.status === "playing") {
+          for (let i = 0; i < INITIAL_EMPTY_ROWS; i += 1) addEmptyRow(gameState.guesses.length + i);
+        }
         els.input.value = "";
         closeSuggestions();
         updateStatus();
         renderDiscoveryList();
-        playEventSound(gameState.status === "won" ? "win" : gameState.status === "lost" ? "loss" : "guess");
+        playEventSound(gameState.status === "won" ? "win" : "guess");
         if (gameState.status !== "playing") {
           recordStats();
           window.setTimeout(() => openStats(true), 800);
@@ -1829,7 +2344,8 @@
       }
 
       function renderStats() {
-        const winPct = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
+        stats = normalizeStats(stats);
+        const winPct = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
         els.statGrid.innerHTML = [
           statCard(stats.played, "Played"),
           statCard(winPct, "Win %"),
@@ -1840,11 +2356,18 @@
         clearNode(els.histogram);
         const max = Math.max(1, ...stats.guessDistribution);
         stats.guessDistribution.forEach((count, index) => {
+          if (!count) return;
           const row = document.createElement("div");
           row.className = "hist-row";
           row.innerHTML = '<span>' + (index + 1) + '</span><span class="hist-track"><span class="hist-fill" style="--w:' + ((count / max) * 100) + '%"></span></span><span>' + count + '</span>';
           els.histogram.appendChild(row);
         });
+        if (!els.histogram.children.length) {
+          const row = document.createElement("div");
+          row.className = "hist-row";
+          row.innerHTML = '<span>--</span><span class="hist-track"><span class="hist-fill" style="--w:0%"></span></span><span>0</span>';
+          els.histogram.appendChild(row);
+        }
       }
 
       function renderAnswerCard(showAnswer) {
@@ -1861,16 +2384,24 @@
         els.answerLink.href = recipeUrl(targetDish);
       }
 
+      function renderSharePreview(showShare) {
+        els.sharePreview.hidden = !showShare;
+        if (!showShare) {
+          els.sharePreviewText.textContent = "";
+          return;
+        }
+        els.sharePreviewText.textContent = shareText();
+      }
+
       function openStats(fromGameEnd = false) {
         renderStats();
         const done = gameState.status !== "playing";
         renderAnswerCard(done);
-        els.statsTitle.textContent = gameState.status === "won" ? "Game Complete" : gameState.status === "lost" ? "Game Over" : "Stats";
+        renderSharePreview(done);
+        els.statsTitle.textContent = gameState.status === "won" ? "Game Complete" : "Stats";
         els.statsSubtitle.textContent = gameState.status === "won"
-          ? "Solved in " + gameState.guesses.length + " of " + MAX_GUESSES + " guesses."
-          : gameState.status === "lost"
-            ? "Answer: " + targetDish.name + "."
-            : "Your cooking record.";
+          ? "Solved in " + gameState.guesses.length + " guess" + (gameState.guesses.length === 1 ? "" : "es") + "."
+          : "Your cooking record.";
         els.shareButton.disabled = !done;
         els.shareButton.textContent = done ? "Share Results" : "Finish to Share";
         els.statsModal.classList.add("open");
@@ -1880,7 +2411,7 @@
 
       function closeStats() {
         els.statsModal.classList.remove("open");
-        if (!els.helpModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
+        if (!els.helpModal.classList.contains("open") && !els.classificationsModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
       }
 
       function openHelp() {
@@ -1891,7 +2422,54 @@
 
       function closeHelp() {
         els.helpModal.classList.remove("open");
-        if (!els.statsModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
+        if (!els.statsModal.classList.contains("open") && !els.classificationsModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
+      }
+
+      function classificationValue(field, value) {
+        return field.unit ? value + field.unit : value;
+      }
+
+      function fieldValue(field, dish) {
+        return typeof field.value === "function" ? field.value(dish) : dish[field.key];
+      }
+
+      function renderClassificationsTable() {
+        clearNode(els.classificationsBody);
+        CLASSIFICATION_FIELDS.forEach((field) => {
+          const values = Array.from(new Set(masterRegistry.map((dish) => fieldValue(field, dish))))
+            .filter((value) => value !== undefined && value !== null && value !== "")
+            .sort((a, b) => compareClassificationValues(field, a, b));
+          const row = document.createElement("tr");
+
+          const name = document.createElement("td");
+          name.className = "classification-name";
+          name.textContent = field.label;
+          row.appendChild(name);
+
+          const count = document.createElement("td");
+          count.className = "classification-count";
+          count.textContent = String(values.length);
+          row.appendChild(count);
+
+          const subtypes = document.createElement("td");
+          subtypes.className = "classification-values";
+          subtypes.textContent = values.map((value) => classificationValue(field, value)).join(", ");
+          row.appendChild(subtypes);
+
+          els.classificationsBody.appendChild(row);
+        });
+      }
+
+      function openClassifications() {
+        renderClassificationsTable();
+        els.classificationsModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        els.closeClassifications.focus();
+      }
+
+      function closeClassifications() {
+        els.classificationsModal.classList.remove("open");
+        if (!els.statsModal.classList.contains("open") && !els.helpModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
       }
 
       function openSettings() {
@@ -1902,7 +2480,7 @@
 
       function closeSettings() {
         els.settingsModal.classList.remove("open");
-        if (!els.statsModal.classList.contains("open") && !els.helpModal.classList.contains("open")) document.body.style.overflow = "";
+        if (!els.statsModal.classList.contains("open") && !els.helpModal.classList.contains("open") && !els.classificationsModal.classList.contains("open")) document.body.style.overflow = "";
       }
 
       function shareRows() {
@@ -1910,9 +2488,9 @@
       }
 
       function shareText() {
-        const attempts = gameState.status === "won" ? gameState.guesses.length + "/" + MAX_GUESSES : "X/" + MAX_GUESSES;
         const url = /^https?:$/.test(window.location.protocol) ? window.location.href.split("#")[0] : "https://chefle.game/";
-        return "Chefle " + todayKey + "/#" + gameId + " - " + attempts + " Attempts\n" + shareRows() + "\nPlay here: " + url;
+        const guesses = gameState.guesses.length;
+        return "Chefle #" + gameId + " - solved in " + guesses + " guess" + (guesses === 1 ? "" : "es") + "\n" + shareRows() + "\nPlay: " + url;
       }
 
       async function copyShare() {
@@ -1959,9 +2537,6 @@
           tone(ctx, 523, .18, "sine", .2, 0);
           tone(ctx, 659, .18, "sine", .18, .08);
           tone(ctx, 784, .24, "sine", .16, .16);
-        } else if (kind === "loss") {
-          tone(ctx, 220, .22, "triangle", .18, 0);
-          tone(ctx, 165, .26, "triangle", .15, .12);
         } else if (kind === "copy") {
           tone(ctx, 700, .12, "sine", .14, 0);
         } else {
@@ -1975,6 +2550,36 @@
         els.soundToggle.checked = Boolean(settings.sound);
         els.sfxVolumeSlider.value = String(settings.sfxVolume);
         els.contrastToggle.checked = Boolean(settings.contrast);
+      }
+
+      function resetTodaysDish() {
+        const previousTarget = targetDish ? targetDish.name : "";
+        const completedToday = stats.lastCompletedDate === todayKey;
+        let seed = targetSeedForDate(todayKey);
+        for (let i = 0; i < Math.max(1, masterRegistry.length); i += 1) {
+          seed += 1;
+          setTargetSeedForDate(todayKey, seed);
+          if (!previousTarget || targetForDate(todayKey).name !== previousTarget) break;
+        }
+        saveDevState();
+        targetDish = targetForDate(todayKey);
+        dailyPool = dailyPoolForDate(todayKey);
+        gameState = freshGameState(todayKey);
+        gameState.statsRecorded = completedToday;
+        saveGame();
+        els.input.value = "";
+        els.poolFilter.value = "";
+        els.proteinFilter.value = "";
+        els.carbFilter.value = "";
+        activeSuggestion = 0;
+        closeSuggestions();
+        populatePoolFilters();
+        renderBoard();
+        updateStatus();
+        renderStats();
+        renderDiscoveryList();
+        els.devResetStatus.textContent = "Today's dish reset. Guesses cleared.";
+        playEventSound("copy");
       }
 
       function updateCountdown() {
@@ -2003,6 +2608,7 @@
         masterRegistry = ensureMasterRegistry(chefleGlobalMasterRegistry);
         todayKey = localDateKey();
         gameId = gameNumberFromDate(todayKey);
+        devState = normalizeDevState(readJson(DEV_KEY, {}));
         targetDish = targetForDate(todayKey);
         dailyPool = dailyPoolForDate(todayKey);
         stats = normalizeStats(readJson(STATS_KEY, freshStats()));
@@ -2011,8 +2617,11 @@
         if (gameState.status !== "playing" && !gameState.statsRecorded) recordStats();
         closeStats();
         closeHelp();
+        closeClassifications();
         closeSettings();
         applySettings();
+        els.devResetStatus.textContent = "";
+        populatePoolFilters();
         renderBoard();
         updateStatus();
         renderStats();
@@ -2056,6 +2665,8 @@
       });
 
       els.poolFilter.addEventListener("input", renderDiscoveryList);
+      els.proteinFilter.addEventListener("change", renderDiscoveryList);
+      els.carbFilter.addEventListener("change", renderDiscoveryList);
 
       document.addEventListener("pointerdown", (event) => {
         if (!els.form.contains(event.target)) closeSuggestions();
@@ -2063,14 +2674,17 @@
 
       els.statsButton.addEventListener("click", () => openStats(false));
       els.helpButton.addEventListener("click", openHelp);
+      els.classificationsButton.addEventListener("click", openClassifications);
       els.settingsButton.addEventListener("click", openSettings);
       els.closeStats.addEventListener("click", closeStats);
       els.keepPlayingButton.addEventListener("click", closeStats);
       els.closeHelp.addEventListener("click", closeHelp);
+      els.closeClassifications.addEventListener("click", closeClassifications);
       els.closeSettings.addEventListener("click", closeSettings);
       els.shareButton.addEventListener("click", copyShare);
       els.statsModal.addEventListener("pointerdown", (event) => { if (event.target === els.statsModal) closeStats(); });
       els.helpModal.addEventListener("pointerdown", (event) => { if (event.target === els.helpModal) closeHelp(); });
+      els.classificationsModal.addEventListener("pointerdown", (event) => { if (event.target === els.classificationsModal) closeClassifications(); });
       els.settingsModal.addEventListener("pointerdown", (event) => { if (event.target === els.settingsModal) closeSettings(); });
 
       els.soundToggle.addEventListener("change", () => {
@@ -2096,11 +2710,14 @@
         applySettings();
       });
 
+      els.resetFoodButton.addEventListener("click", resetTodaysDish);
+
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           closeSuggestions();
           closeStats();
           closeHelp();
+          closeClassifications();
           closeSettings();
         }
       });
