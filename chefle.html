@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Chefle</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --cream: #fff8e8;
+      --cream-deep: #f7dfb5;
+      --card: #fffdf6;
+      --ink: #3b2418;
+      --muted: #7a563f;
+      --line: #ead4a6;
+      --basil: #3f7d45;
+      --basil-dark: #2f6035;
+      --tomato: #c94f3d;
+      --tomato-dark: #963326;
+      --butter: #f4c45f;
+      --pot: #45636b;
+      --shadow: 0 18px 48px rgba(101, 62, 26, .16);
+      --radius: 12px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --keyboard-offset: 0px;
+      --rounded: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html {
+      min-width: 320px;
+      overflow-x: hidden;
+      background: var(--cream);
+      scroll-padding-top: 74px;
+    }
+
+    body {
+      min-height: 100svh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: var(--body);
+      letter-spacing: 0;
+      background: #fff3d7;
+    }
+
+    body.high-contrast {
+      --basil: #236f2c;
+      --basil-dark: #184f20;
+      --tomato: #b83225;
+      --line: #bd9460;
+      --muted: #563725;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 40;
+      border-bottom: 2px solid rgba(234, 212, 166, .78);
+      background: rgba(255, 248, 232, .9);
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar-inner {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 92px;
+      align-items: center;
+      width: min(1320px, 100%);
+      height: 62px;
+      margin: 0 auto;
+      padding: 0 10px;
+    }
+
+    .brand {
+      justify-self: center;
+      margin: 0;
+      color: var(--tomato);
+      font-family: var(--rounded);
+      font-size: 1.9rem;
+      font-weight: 900;
+      line-height: .95;
+    }
+
+    .icon-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .icon-button {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--basil-dark);
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+    }
+
+    .icon-button:hover,
+    .icon-button:focus-visible {
+      border-color: var(--line);
+      background: #fff2d1;
+      outline: 0;
+    }
+
+    .icon-button:active { transform: scale(.96); }
+
+    .icon {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.25;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .app-shell {
+      width: min(1320px, 100%);
+      margin: 0 auto;
+      padding: 78px 14px 36px;
+    }
+
+    .intro {
+      display: block;
+      margin-bottom: 16px;
+      padding: 20px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .kicker {
+      margin: 0 0 7px;
+      color: var(--basil-dark);
+      font-size: .76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .daily-title {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--rounded);
+      font-size: 2rem;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    .daily-copy {
+      max-width: 64ch;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .98rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .remaining-line {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: .94rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 342px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .playground {
+      min-width: 0;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 7px 10px;
+      border: 2px solid rgba(234,212,166,.9);
+      border-radius: var(--radius);
+      background: rgba(255,253,246,.82);
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .swatch {
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+    }
+
+    .swatch.match { background: var(--basil); }
+    .swatch.miss { background: var(--tomato); }
+
+    .board-wrap,
+    .discovery-panel {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,253,246,.86);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-header,
+    .guess-row,
+    .empty-row {
+      display: grid;
+      grid-template-columns: minmax(128px, 1.28fr) repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .board-header {
+      padding: 10px;
+      border-bottom: 2px solid var(--line);
+      background: #fff1cf;
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 1000;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .board-header span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .board-header .dish-head { text-align: left; }
+
+    .board {
+      display: grid;
+      gap: 7px;
+      min-height: 400px;
+      padding: 10px;
+    }
+
+    .dish-label,
+    .tile,
+    .empty-cell,
+    .empty-dish {
+      min-width: 0;
+      min-height: 72px;
+      border-radius: var(--radius);
+    }
+
+    .dish-label {
+      display: grid;
+      align-content: center;
+      padding: 10px 11px;
+      border: 2px solid #e4c58c;
+      background: #fffaf0;
+      color: var(--ink);
+      box-shadow: inset 0 -5px 0 rgba(100,61,25,.05);
+    }
+
+    .dish-name {
+      overflow: hidden;
+      font-family: var(--rounded);
+      font-size: .9rem;
+      font-weight: 900;
+      line-height: 1.06;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    .tile {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      place-items: center;
+      padding: 7px 5px;
+      border: 2px solid rgba(255,255,255,.42);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      box-shadow: inset 0 -6px 0 rgba(0,0,0,.08);
+    }
+
+    .tile.reveal {
+      animation: tileIn .18s ease-out both;
+      animation-delay: var(--delay);
+    }
+
+    .tile.match { background: linear-gradient(180deg, #5e9f53, var(--basil)); }
+    .tile.miss { background: linear-gradient(180deg, #df6753, var(--tomato)); }
+
+    .tile-label {
+      width: 100%;
+      overflow: hidden;
+      font-size: .49rem;
+      font-weight: 1000;
+      line-height: 1;
+      opacity: .83;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .tile-value {
+      display: -webkit-box;
+      width: 100%;
+      margin: 3px 0;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      font-size: .68rem;
+      font-weight: 1000;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    .tile-hint {
+      min-height: 16px;
+      font-size: .86rem;
+      font-weight: 1000;
+      line-height: 1;
+    }
+
+    .empty-cell,
+    .empty-dish {
+      border: 2px dashed #e7c98f;
+      background: linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,244,215,.58));
+    }
+
+    .empty-dish {
+      display: grid;
+      align-content: center;
+      padding: 10px;
+      color: #b68847;
+      font-family: var(--rounded);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .guess-panel {
+      position: sticky;
+      z-index: 30;
+      bottom: calc(13px + var(--safe-bottom) + var(--keyboard-offset));
+      margin-top: 12px;
+    }
+
+    .toast {
+      width: fit-content;
+      max-width: 100%;
+      min-height: 32px;
+      margin: 0 auto 9px;
+      padding: 8px 12px;
+      border: 2px solid rgba(234,212,166,.9);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: #fff8e8;
+      font-size: .82rem;
+      font-weight: 900;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .16s ease, transform .16s ease;
+      pointer-events: none;
+    }
+
+    .toast.visible { opacity: 1; transform: translateY(0); }
+
+    .guess-form {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 10px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,253,246,.97);
+      box-shadow: 0 18px 44px rgba(82,45,17,.22);
+      backdrop-filter: blur(16px);
+    }
+
+    .field-wrap { position: relative; min-width: 0; }
+
+    .recipe-input,
+    .pool-filter {
+      width: 100%;
+      border: 2px solid #dfbf84;
+      border-radius: var(--radius);
+      background: #fff8e8;
+      color: var(--ink);
+      outline: 0;
+      font-weight: 900;
+    }
+
+    .recipe-input {
+      height: 52px;
+      padding: 0 15px;
+    }
+
+    .pool-filter {
+      height: 42px;
+      padding: 0 12px;
+      font-size: .88rem;
+    }
+
+    .recipe-input:focus,
+    .pool-filter:focus {
+      border-color: var(--basil);
+      box-shadow: 0 0 0 4px rgba(63,125,69,.14);
+    }
+
+    .submit-button {
+      min-width: 106px;
+      height: 52px;
+      border: 0;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #ff765e, var(--tomato));
+      color: white;
+      font-family: var(--rounded);
+      font-weight: 900;
+      box-shadow: inset 0 -5px 0 rgba(0,0,0,.12);
+      transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+    }
+
+    .submit-button:hover,
+    .submit-button:focus-visible,
+    .primary-button:hover,
+    .secondary-button:hover { filter: brightness(1.04); outline: 0; }
+    .submit-button:active, .primary-button:active, .secondary-button:active { transform: translateY(1px); }
+    .submit-button:disabled, .recipe-input:disabled { opacity: .58; cursor: not-allowed; }
+
+    .suggestions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(100% + 10px);
+      display: none;
+      max-height: 250px;
+      margin: 0;
+      padding: 7px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,253,246,.99);
+      box-shadow: 0 18px 48px rgba(82,45,17,.2);
+      list-style: none;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .suggestions.visible { display: block; }
+
+    .suggestion {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      min-height: 48px;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 900;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .suggestion img {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #ead4a6;
+    }
+
+    .suggestion:hover,
+    .suggestion[aria-selected="true"] {
+      background: #eef6dc;
+      outline: 2px solid rgba(63,125,69,.18);
+    }
+
+    .suggestion[aria-disabled="true"] {
+      color: #9f8167;
+      opacity: .65;
+    }
+
+    .discovery-panel {
+      position: sticky;
+      top: 78px;
+      max-height: calc(100svh - 92px);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .panel-head {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 2px solid var(--line);
+      background: #fff1cf;
+    }
+
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--rounded);
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .panel-title span {
+      color: var(--muted);
+      font-family: var(--body);
+      font-size: .72rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pool-list {
+      display: grid;
+      align-content: start;
+      gap: 7px;
+      margin: 0;
+      padding: 10px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      list-style: none;
+    }
+
+    .pool-item {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 58px;
+      padding: 6px;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+      color: var(--ink);
+      text-align: left;
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+
+    .pool-item:hover,
+    .pool-item:focus-visible {
+      border-color: rgba(63,125,69,.45);
+      background: #eef6dc;
+      outline: 0;
+    }
+
+    .pool-item:active { transform: scale(.99); }
+    .pool-item.guessed { opacity: .62; }
+    .pool-item.correct { border-color: var(--basil); background: #e7f3db; opacity: 1; }
+
+    .dish-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: #ead4a6;
+      object-fit: cover;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .pool-name {
+      display: block;
+      font-size: .87rem;
+      font-weight: 1000;
+      line-height: 1.1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(67,43,27,.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-backdrop.open { display: grid; }
+
+    .modal {
+      width: min(520px, 100%);
+      max-height: min(760px, calc(100svh - 36px));
+      overflow-y: auto;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff8e8;
+      box-shadow: 0 26px 80px rgba(65,38,19,.28);
+    }
+
+    .modal-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 18px 18px 14px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .modal h2 {
+      margin: 0;
+      color: var(--tomato);
+      font-family: var(--rounded);
+      font-size: 1.55rem;
+      line-height: 1.05;
+    }
+
+    .modal p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px 18px 18px;
+    }
+
+    .answer-card {
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+      border: 2px solid #efd7a8;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .answer-image {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius);
+      background: #ead4a6;
+      object-fit: cover;
+    }
+
+    .answer-name {
+      margin: 0;
+      font-family: var(--rounded);
+      font-size: 1.15rem;
+      line-height: 1.08;
+      text-align: center;
+    }
+
+    .answer-proclamation {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .recipe-link {
+      justify-self: center;
+      color: var(--basil-dark);
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .recipe-link:hover,
+    .recipe-link:focus-visible {
+      text-decoration: underline;
+      outline: 0;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      display: grid;
+      place-items: center;
+      min-height: 76px;
+      padding: 8px 5px;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .stat strong {
+      color: var(--basil-dark);
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .65rem;
+      font-weight: 1000;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .histogram {
+      display: grid;
+      gap: 6px;
+    }
+
+    .hist-row {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr) 28px;
+      gap: 8px;
+      align-items: center;
+      font-size: .78rem;
+      font-weight: 1000;
+    }
+
+    .hist-track {
+      height: 19px;
+      border-radius: 999px;
+      background: #efdba8;
+      overflow: hidden;
+    }
+
+    .hist-fill {
+      width: var(--w, 0%);
+      height: 100%;
+      min-width: 19px;
+      border-radius: 999px;
+      background: var(--basil);
+    }
+
+    .countdown-box {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .countdown-label {
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .countdown-time {
+      color: var(--tomato-dark);
+      font-family: var(--rounded);
+      font-size: 1.1rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .primary-button,
+    .secondary-button {
+      min-height: 46px;
+      border-radius: var(--radius);
+      font-family: var(--rounded);
+      font-weight: 900;
+    }
+
+    .primary-button {
+      border: 0;
+      background: var(--basil);
+      color: white;
+      box-shadow: inset 0 -5px 0 rgba(0,0,0,.12);
+    }
+
+    .secondary-button {
+      border: 2px solid #e8cf9f;
+      background: #fffaf0;
+      color: var(--ink);
+    }
+
+    .help-list {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .settings-control-row {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 2px solid #ecd4a4;
+      border-radius: var(--radius);
+      background: #fffdf6;
+    }
+
+    .settings-control-row label {
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .settings-control-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--basil);
+    }
+
+    .toggle-row strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .toggle-row span {
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .toggle {
+      appearance: none;
+      width: 52px;
+      height: 30px;
+      border: 2px solid #d6b37b;
+      border-radius: 999px;
+      background: #f1dfbd;
+      position: relative;
+      transition: background .16s ease, border-color .16s ease;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 8px rgba(75,45,20,.22);
+      transition: transform .16s ease;
+    }
+
+    .toggle:checked {
+      border-color: var(--basil);
+      background: var(--basil);
+    }
+
+    .toggle:checked::after { transform: translateX(22px); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes tileIn {
+      0% { opacity: .2; transform: translateY(4px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 1ms !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+
+    @media (max-width: 940px) {
+      .game-layout { grid-template-columns: 1fr; }
+      .discovery-panel { position: relative; top: auto; max-height: none; }
+      .pool-list { max-height: 340px; }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell { padding: 74px 8px 28px; }
+      .topbar-inner { grid-template-columns: 42px 1fr 86px; height: 58px; }
+      .brand { font-size: 1.58rem; }
+      .icon-button { width: 39px; height: 39px; }
+      .intro { padding: 16px; }
+      .daily-title { font-size: 1.62rem; }
+      .board-header,
+      .guess-row,
+      .empty-row {
+        grid-template-columns: minmax(86px, 1.15fr) repeat(5, minmax(0, 1fr));
+        gap: 3px;
+      }
+      .board-header { padding: 7px 5px; font-size: .45rem; }
+      .board { min-height: 414px; padding: 6px; gap: 5px; }
+      .dish-label, .tile, .empty-cell, .empty-dish { min-height: 68px; border-radius: 12px; }
+      .dish-label { padding: 6px 5px; }
+      .dish-name { font-size: .58rem; line-height: 1.04; -webkit-line-clamp: 3; }
+      .tile { padding: 5px 2px; }
+      .tile-label { font-size: .34rem; }
+      .tile-value { font-size: .48rem; line-height: 1.04; }
+      .tile-hint { font-size: .68rem; }
+      .guess-form { grid-template-columns: 1fr; }
+      .submit-button { width: 100%; }
+      .modal-actions { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 360px) {
+      .board-header { font-size: .4rem; }
+      .tile-value { font-size: .43rem; }
+      .tile-label { font-size: .31rem; }
+      .dish-name { font-size: .53rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button" id="helpButton" type="button" aria-label="Open help">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 1 1 4.8 2.4c-1.1.8-1.9 1.4-1.9 2.6"></path><path d="M12 17h.01"></path></svg>
+      </button>
+      <h1 class="brand">Chefle</h1>
+      <div class="icon-group">
+        <button class="icon-button" id="statsButton" type="button" aria-label="Open statistics">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M8 16V9"></path><path d="M12 16V6"></path><path d="M16 16v-4"></path></svg>
+        </button>
+        <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.05.05a2.1 2.1 0 1 1-2.97 2.97l-.05-.05A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.08 1.65V21.4a2.1 2.1 0 1 1-4.2 0v-.15A1.8 1.8 0 0 0 8.45 19.6a1.8 1.8 0 0 0-1.98.36l-.05.05a2.1 2.1 0 1 1-2.97-2.97l.05-.05A1.8 1.8 0 0 0 3.86 15a1.8 1.8 0 0 0-1.65-1.08H2.06a2.1 2.1 0 1 1 0-4.2h.15A1.8 1.8 0 0 0 3.86 8.65a1.8 1.8 0 0 0-.36-1.98l-.05-.05a2.1 2.1 0 1 1 2.97-2.97l.05.05a1.8 1.8 0 0 0 1.98.36A1.8 1.8 0 0 0 9.53 2.4V2.25a2.1 2.1 0 1 1 4.2 0v.15a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.05-.05a2.1 2.1 0 1 1 2.97 2.97l-.05.05A1.8 1.8 0 0 0 19.4 8.65a1.8 1.8 0 0 0 1.65 1.08h.15a2.1 2.1 0 1 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="intro" aria-labelledby="gameStatus">
+      <div>
+        <p class="kicker" id="gameId">Chefle</p>
+        <h2 class="daily-title" id="gameStatus">Guesses Remaining: 6</h2>
+        <p class="daily-copy">Select from today&rsquo;s 150 possible dishes. Each row compares region, protein, base, temperature, and calories.</p>
+        <div class="status-row" aria-label="Game status">
+          <span class="remaining-line" id="attemptPill">Guesses Used: 0 / 6</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="game-layout">
+      <section class="playground" aria-label="Main playground">
+        <div class="legend" aria-label="Feedback legend">
+          <span class="legend-chip"><span class="swatch match"></span> Match</span>
+          <span class="legend-chip"><span class="swatch miss"></span> Different</span>
+          <span class="legend-chip">&#9650; Target is higher</span>
+          <span class="legend-chip">&#9660; Target is lower</span>
+        </div>
+
+        <section class="board-wrap" aria-label="Guess comparison board">
+          <div class="board-header" aria-hidden="true">
+            <span class="dish-head">Dish</span>
+            <span>Region</span>
+            <span>Protein</span>
+            <span>Base</span>
+            <span>Temp</span>
+            <span>Calories</span>
+          </div>
+          <div class="board" id="board"></div>
+        </section>
+
+        <section class="guess-panel" aria-label="Dish guess entry">
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          <form class="guess-form" id="guessForm" autocomplete="off" novalidate>
+            <div class="field-wrap">
+              <label for="dishInput" class="sr-only">Dish guess</label>
+              <input class="recipe-input" id="dishInput" type="text" inputmode="search" placeholder="Search a recipe..." aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false">
+              <ul class="suggestions" id="suggestions" role="listbox" aria-label="Dish choices"></ul>
+            </div>
+            <button class="submit-button" id="submitButton" type="submit">Guess</button>
+          </form>
+        </section>
+      </section>
+
+      <aside class="discovery-panel" aria-labelledby="poolTitle">
+        <div class="panel-head">
+          <h2 class="panel-title" id="poolTitle">Today&rsquo;s Pool <span id="poolFilteredCount">150 shown</span></h2>
+          <label class="sr-only" for="poolFilter">Filter today&rsquo;s 150 dishes</label>
+          <input class="pool-filter" id="poolFilter" type="text" inputmode="search" placeholder="Filter the 150 dishes">
+        </div>
+        <ul class="pool-list" id="poolList" aria-label="Daily possible answers"></ul>
+      </aside>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="statsTitle">Stats</h2>
+          <p id="statsSubtitle">Your cooking record.</p>
+        </div>
+        <button class="icon-button" id="closeStats" type="button" aria-label="Close statistics">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="answer-card" id="answerCard" hidden>
+          <img class="answer-image" id="answerImage" alt="">
+          <h3 class="answer-name" id="answerName"></h3>
+          <p class="answer-proclamation" id="answerProclamation"></p>
+          <a class="recipe-link" id="answerLink" href="https://www.hellofresh.com/recipes" target="_blank" rel="noopener">Explore Cooking Steps &#8599;</a>
+        </div>
+        <div class="stat-grid" id="statGrid"></div>
+        <div class="histogram" id="histogram" aria-label="Guess distribution"></div>
+        <div class="countdown-box"><span class="countdown-label">Next dish</span><span class="countdown-time" id="countdown">00:00:00</span></div>
+        <div class="modal-actions">
+          <button class="primary-button" id="shareButton" type="button">Share Results</button>
+          <button class="secondary-button" id="keepPlayingButton" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="helpTitle">How to Play</h2>
+          <p>Browse today&rsquo;s pool, pick a dish, and use the continental clue grid.</p>
+        </div>
+        <button class="icon-button" id="closeHelp" type="button" aria-label="Close help">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul class="help-list">
+          <li>The left dish label is only your guess name, never a scored tile.</li>
+          <li>The daily side panel contains exactly 150 possible answers and always includes the target.</li>
+          <li>Green means the attribute matches. Red means the region, protein, base, or temperature differs.</li>
+          <li>Calories use arrows: up means today&rsquo;s dish is heavier, down means lighter.</li>
+          <li>Click a side-list dish to guess it immediately, or use the search input with arrow keys and Enter.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="settingsTitle">Settings</h2>
+          <p>Tune the kitchen without changing the daily answer.</p>
+        </div>
+        <button class="icon-button" id="closeSettings" type="button" aria-label="Close settings">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="toggle-row">
+          <span><strong>Sound effects</strong><span>Soft synthesized taps for guesses, wins, and losses.</span></span>
+          <input class="toggle" id="soundToggle" type="checkbox">
+        </label>
+        <div class="settings-control-row">
+          <label for="sfxVolumeSlider">Sound Effects Volume</label>
+          <input type="range" id="sfxVolumeSlider" min="0" max="1" step="0.1" value="0.8">
+        </div>
+        <label class="toggle-row">
+          <span><strong>High contrast</strong><span>Stronger clue colors and text contrast.</span></span>
+          <input class="toggle" id="contrastToggle" type="checkbox">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const chefleGlobalMasterRegistry = [
+        { name: "Chicken Fajitas", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "chicken-fajitas" },
+        { name: "Classic Beef Burgers", cuisineRegion: "North American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "classic-bacon-cheeseburgers" },
+        { name: "Margherita Pizza", cuisineRegion: "European", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "margherita-pizza" },
+        { name: "Shrimp Scampi Pasta", cuisineRegion: "European", protein: "Seafood", carb: "Pasta", temp: "Hot", calories: 600, imgSlug: "shrimp-scampi" },
+        { name: "Caesar Salad with Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Greens/None", temp: "Cold", calories: 450, imgSlug: "chicken-caesar-salad" },
+        { name: "Pork Carnitas Tacos", cuisineRegion: "North American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "pork-carnitas-tacos" },
+        { name: "Chicken Tikka Masala", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "chicken-tikka-masala" },
+        { name: "Vegetable Stir Fry", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 500, imgSlug: "vegetable-stir-fry" },
+        { name: "Sushi Roll Combo", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 550, imgSlug: "sushi-roll-combo" },
+        { name: "Beef Bolognese Pasta", cuisineRegion: "European", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 700, imgSlug: "beef-bolognese" },
+        { name: "Greek Salad with Gyro", cuisineRegion: "European", protein: "Beef", carb: "Greens/None", temp: "Cold", calories: 600, imgSlug: "greek-salad" },
+        { name: "BBQ Pulled Pork Sandwich", cuisineRegion: "North American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "bbq-pulled-pork" },
+        { name: "Falafel Pita Pocket", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 550, imgSlug: "falafel-pita" },
+        { name: "Thai Green Curry Shrimp", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "thai-green-curry" },
+        { name: "Loaded Baked Potato Soup", cuisineRegion: "North American", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 600, imgSlug: "baked-potato-soup" },
+        { name: "Steak Fries & Chimichurri", cuisineRegion: "South American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "steak-fries" },
+        { name: "Feijoada Pork Stew", cuisineRegion: "South American", protein: "Pork", carb: "Rice", temp: "Hot", calories: 950, imgSlug: "feijoada-stew" },
+        { name: "Moroccan Couscous Tagine", cuisineRegion: "African", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 500, imgSlug: "couscous-tagine" },
+        { name: "Peri-Peri Chicken Bowl", cuisineRegion: "African", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "peri-peri-chicken" },
+        { name: "Lamb Souvlaki Wrap", cuisineRegion: "European", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "lamb-souvlaki" },
+        { name: "Fish and Chips", cuisineRegion: "European", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "fish-and-chips" },
+        { name: "Cottage Pie", cuisineRegion: "European", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "cottage-pie" },
+        { name: "Chicken Schnitzel", cuisineRegion: "European", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "chicken-schnitzel" },
+        { name: "Biryani Rice Pot", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 850, imgSlug: "biryani-rice" },
+        { name: "Chana Masala with Naan", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "chana-masala" },
+        { name: "Ph\u1EDF Noodle Soup", cuisineRegion: "Asian", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 600, imgSlug: "pho-soup" },
+        { name: "Ramen Bowl", cuisineRegion: "Asian", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "ramen-bowl" },
+        { name: "Gyoza Dumpling Plate", cuisineRegion: "Asian", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 450, imgSlug: "gyoza-plate" },
+        { name: "Ceviche Platter", cuisineRegion: "South American", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 350, imgSlug: "ceviche-platter" },
+        { name: "Empanada Pastry Trios", cuisineRegion: "South American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 600, imgSlug: "empanada-trios" },
+        { name: "Jambalaya Rice Skillet", cuisineRegion: "North American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "jambalaya-rice" },
+        { name: "Turkey Club Sandwich", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Cold", calories: 650, imgSlug: "turkey-club-sandwich" },
+        { name: "Cobb Salad", cuisineRegion: "North American", protein: "Poultry", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "cobb-salad" },
+        { name: "Buffalo Chicken Wrap", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "buffalo-chicken-wrap" },
+        { name: "Shrimp Po Boy", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 800, imgSlug: "shrimp-po-boy" },
+        { name: "Clam Chowder Bread Bowl", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "clam-chowder-bowl" },
+        { name: "Maple Salmon Plate", cuisineRegion: "North American", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "maple-salmon-plate" },
+        { name: "Chicken Pot Pie", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "chicken-pot-pie" },
+        { name: "Turkey Chili Bowl", cuisineRegion: "North American", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 600, imgSlug: "turkey-chili" },
+        { name: "Veggie Chili", cuisineRegion: "North American", protein: "Vegetarian", carb: "Greens/None", temp: "Hot", calories: 500, imgSlug: "veggie-chili" },
+        { name: "Macaroni and Cheese", cuisineRegion: "North American", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "macaroni-cheese" },
+        { name: "Brisket Plate", cuisineRegion: "North American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 950, imgSlug: "brisket-plate" },
+        { name: "Chicken Quesadilla", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "chicken-quesadilla" },
+        { name: "Beef Taco Salad", cuisineRegion: "North American", protein: "Beef", carb: "Greens/None", temp: "Cold", calories: 650, imgSlug: "beef-taco-salad" },
+        { name: "Lobster Roll", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 600, imgSlug: "lobster-roll" },
+        { name: "Nashville Hot Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "nashville-hot-chicken" },
+        { name: "Tomato Soup & Grilled Cheese", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "tomato-soup-grilled-cheese" },
+        { name: "Crab Cake Sandwich", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "crab-cake-sandwich" },
+        { name: "Veggie Burger", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "veggie-burger" },
+        { name: "Chicken Noodle Soup", cuisineRegion: "North American", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 500, imgSlug: "chicken-noodle-soup" },
+        { name: "Tuna Salad Sandwich", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 500, imgSlug: "tuna-salad-sandwich" },
+        { name: "Pulled Jackfruit Sandwich", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "pulled-jackfruit-sandwich" },
+        { name: "Argentine Beef Milanesa", cuisineRegion: "South American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "argentine-milanesa" },
+        { name: "Lomo Saltado", cuisineRegion: "South American", protein: "Beef", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "lomo-saltado" },
+        { name: "Moqueca Fish Stew", cuisineRegion: "South American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "moqueca-fish-stew" },
+        { name: "Arepa Chicken Pockets", cuisineRegion: "South American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "arepa-chicken-pockets" },
+        { name: "Pastel de Choclo", cuisineRegion: "South American", protein: "Beef", carb: "Grains", temp: "Hot", calories: 750, imgSlug: "pastel-de-choclo" },
+        { name: "Peruvian Chicken Rice", cuisineRegion: "South American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "peruvian-chicken-rice" },
+        { name: "Brazilian Cheese Bread Plate", cuisineRegion: "South American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 600, imgSlug: "brazilian-cheese-bread" },
+        { name: "Quinoa Avocado Bowl", cuisineRegion: "South American", protein: "Vegetarian", carb: "Grains", temp: "Cold", calories: 550, imgSlug: "quinoa-avocado-bowl" },
+        { name: "Choripan Sandwich", cuisineRegion: "South American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "choripan-sandwich" },
+        { name: "Aji de Gallina", cuisineRegion: "South American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "aji-de-gallina" },
+        { name: "Tacu Tacu Steak", cuisineRegion: "South American", protein: "Beef", carb: "Rice", temp: "Hot", calories: 850, imgSlug: "tacu-tacu-steak" },
+        { name: "Humita Corn Cakes", cuisineRegion: "South American", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 500, imgSlug: "humita-corn-cakes" },
+        { name: "Chilean Salmon Salad", cuisineRegion: "South American", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "chilean-salmon-salad" },
+        { name: "Pabellon Criollo", cuisineRegion: "South American", protein: "Beef", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "pabellon-criollo" },
+        { name: "Yuca Pork Bowl", cuisineRegion: "South American", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "yuca-pork-bowl" },
+        { name: "Carbonara Spaghetti", cuisineRegion: "European", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 850, imgSlug: "carbonara-spaghetti" },
+        { name: "Mushroom Risotto", cuisineRegion: "European", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "mushroom-risotto" },
+        { name: "Chicken Parmesan", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "chicken-parmesan" },
+        { name: "Eggplant Parmesan", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "eggplant-parmesan" },
+        { name: "Pesto Pasta", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 650, imgSlug: "pesto-pasta" },
+        { name: "Seafood Paella", cuisineRegion: "European", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "seafood-paella" },
+        { name: "Ratatouille Grain Bowl", cuisineRegion: "European", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 500, imgSlug: "ratatouille-grain-bowl" },
+        { name: "Swedish Meatballs", cuisineRegion: "European", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "swedish-meatballs" },
+        { name: "Beef Goulash", cuisineRegion: "European", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "beef-goulash" },
+        { name: "Croque Monsieur", cuisineRegion: "European", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "croque-monsieur" },
+        { name: "Nicoise Tuna Salad", cuisineRegion: "European", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "nicoise-tuna-salad" },
+        { name: "Pierogi Potato Plate", cuisineRegion: "European", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "pierogi-potato-plate" },
+        { name: "Duck Cassoulet", cuisineRegion: "European", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 900, imgSlug: "duck-cassoulet" },
+        { name: "Mussels with Fries", cuisineRegion: "European", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "mussels-fries" },
+        { name: "Pork Schnitzel", cuisineRegion: "European", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "pork-schnitzel" },
+        { name: "Spanakopita Plate", cuisineRegion: "European", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "spanakopita-plate" },
+        { name: "Chicken Cacciatore", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 700, imgSlug: "chicken-cacciatore" },
+        { name: "Smoked Salmon Tartine", cuisineRegion: "European", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 550, imgSlug: "smoked-salmon-tartine" },
+        { name: "Vegetable Lasagna", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "vegetable-lasagna" },
+        { name: "Teriyaki Chicken Bowl", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "teriyaki-chicken-bowl" },
+        { name: "Korean Beef Bibimbap", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "korean-beef-bibimbap" },
+        { name: "Mapo Tofu Rice", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "mapo-tofu-rice" },
+        { name: "Dan Dan Noodles", cuisineRegion: "Asian", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "dan-dan-noodles" },
+        { name: "Chicken Katsu Curry", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 850, imgSlug: "chicken-katsu-curry" },
+        { name: "Okonomiyaki Pancake", cuisineRegion: "Asian", protein: "Pork", carb: "Grains", temp: "Hot", calories: 700, imgSlug: "okonomiyaki-pancake" },
+        { name: "Nasi Goreng", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "nasi-goreng" },
+        { name: "Laksa Seafood Noodles", cuisineRegion: "Asian", protein: "Seafood", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "laksa-seafood-noodles" },
+        { name: "Cold Soba Salad", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Pasta", temp: "Cold", calories: 550, imgSlug: "cold-soba-salad" },
+        { name: "Pork Fried Rice", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "pork-fried-rice" },
+        { name: "Shrimp Fried Rice", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "shrimp-fried-rice" },
+        { name: "Tofu Pad Thai", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 650, imgSlug: "tofu-pad-thai" },
+        { name: "Butter Chicken", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "butter-chicken" },
+        { name: "Paneer Curry", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "paneer-curry" },
+        { name: "Aloo Gobi", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 550, imgSlug: "aloo-gobi" },
+        { name: "Beef Bulgogi Lettuce Wraps", cuisineRegion: "Asian", protein: "Beef", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "beef-bulgogi-wraps" },
+        { name: "Chicken Satay Skewers", cuisineRegion: "Asian", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "chicken-satay-skewers" },
+        { name: "Salmon Poke Bowl", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 650, imgSlug: "salmon-poke-bowl" },
+        { name: "Vegetable Bao Buns", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 550, imgSlug: "vegetable-bao-buns" },
+        { name: "Jollof Chicken Rice", cuisineRegion: "African", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "jollof-chicken-rice" },
+        { name: "Egusi Soup with Fufu", cuisineRegion: "African", protein: "Beef", carb: "Grains", temp: "Hot", calories: 850, imgSlug: "egusi-soup-fufu" },
+        { name: "Bunny Chow Curry", cuisineRegion: "African", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "bunny-chow-curry" },
+        { name: "Koshari Lentil Bowl", cuisineRegion: "African", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "koshari-lentil-bowl" },
+        { name: "Harira Chickpea Soup", cuisineRegion: "African", protein: "Vegetarian", carb: "Greens/None", temp: "Hot", calories: 450, imgSlug: "harira-chickpea-soup" },
+        { name: "Doro Wat Chicken", cuisineRegion: "African", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "doro-wat-chicken" },
+        { name: "Injera Lentil Platter", cuisineRegion: "African", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "injera-lentil-platter" },
+        { name: "Bobotie Rice Bake", cuisineRegion: "African", protein: "Beef", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "bobotie-rice-bake" },
+        { name: "Suya Beef Skewers", cuisineRegion: "African", protein: "Beef", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "suya-beef-skewers" },
+        { name: "Cape Malay Fish Curry", cuisineRegion: "African", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "cape-malay-fish-curry" },
+        { name: "Chermoula Shrimp Couscous", cuisineRegion: "African", protein: "Seafood", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "chermoula-shrimp-couscous" },
+        { name: "Plantain Black Bean Bowl", cuisineRegion: "African", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "plantain-black-bean-bowl" },
+        { name: "Lamb Kofta Couscous", cuisineRegion: "African", protein: "Beef", carb: "Grains", temp: "Hot", calories: 800, imgSlug: "lamb-kofta-couscous" },
+        { name: "Chicken Yassa", cuisineRegion: "African", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "chicken-yassa" },
+        { name: "Peanut Stew Bowl", cuisineRegion: "African", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "peanut-stew-bowl" },
+        { name: "Aussie Meat Pie", cuisineRegion: "Oceanic", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 800, imgSlug: "aussie-meat-pie" },
+        { name: "Chicken Parmy with Chips", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 900, imgSlug: "chicken-parmy-chips" },
+        { name: "Barramundi Potato Plate", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Potatoes", temp: "Hot", calories: 700, imgSlug: "barramundi-potato-plate" },
+        { name: "Lamb Roast Dinner", cuisineRegion: "Oceanic", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "lamb-roast-dinner" },
+        { name: "Sausage Sizzle", cuisineRegion: "Oceanic", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "sausage-sizzle" },
+        { name: "Pumpkin Feta Salad", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Greens/None", temp: "Cold", calories: 500, imgSlug: "pumpkin-feta-salad" },
+        { name: "Hangi Chicken Plate", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "hangi-chicken-plate" },
+        { name: "Prawn Avocado Salad", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 550, imgSlug: "prawn-avocado-salad" },
+        { name: "Kumara Veggie Bowl", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 600, imgSlug: "kumara-veggie-bowl" },
+        { name: "Beef Mince Toastie", cuisineRegion: "Oceanic", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "beef-mince-toastie" },
+        { name: "Tuna Rice Salad", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Rice", temp: "Cold", calories: 550, imgSlug: "tuna-rice-salad" },
+        { name: "Roast Pork Roll", cuisineRegion: "Oceanic", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 800, imgSlug: "roast-pork-roll" },
+        { name: "Vegemite Cheese Toastie", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 500, imgSlug: "vegemite-cheese-toastie" },
+        { name: "Chicken Laksa", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "chicken-laksa" },
+        { name: "Seafood Pie", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "seafood-pie" },
+        { name: "Black Bean Burrito Bowl", cuisineRegion: "North American", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "black-bean-burrito-bowl" },
+        { name: "Chicken Enchiladas", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "chicken-enchiladas" },
+        { name: "Carne Asada Fries", cuisineRegion: "North American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 950, imgSlug: "carne-asada-fries" },
+        { name: "Shrimp Tostadas", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Cold", calories: 600, imgSlug: "shrimp-tostadas" },
+        { name: "Pork Green Chile Stew", cuisineRegion: "North American", protein: "Pork", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "pork-green-chile-stew" },
+        { name: "Caprese Sandwich", cuisineRegion: "European", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Cold", calories: 550, imgSlug: "caprese-sandwich" },
+        { name: "Italian Antipasto Salad", cuisineRegion: "European", protein: "Pork", carb: "Greens/None", temp: "Cold", calories: 650, imgSlug: "italian-antipasto-salad" },
+        { name: "Beef Wellington Slice", cuisineRegion: "European", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "beef-wellington-slice" },
+        { name: "Chicken Kiev", cuisineRegion: "European", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "chicken-kiev" },
+        { name: "Tuna Pasta Salad", cuisineRegion: "European", protein: "Seafood", carb: "Pasta", temp: "Cold", calories: 600, imgSlug: "tuna-pasta-salad" },
+        { name: "Miso Salmon Rice Bowl", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "miso-salmon-rice-bowl" },
+        { name: "Mongolian Beef Noodles", cuisineRegion: "Asian", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "mongolian-beef-noodles" },
+        { name: "Vegetable Biryani", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "vegetable-biryani" },
+        { name: "Pork Belly Bao", cuisineRegion: "Asian", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "pork-belly-bao" },
+        { name: "Chicken Lettuce Cups", cuisineRegion: "Asian", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 500, imgSlug: "chicken-lettuce-cups" },
+        { name: "Berbere Chicken Bowl", cuisineRegion: "African", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 700, imgSlug: "berbere-chicken-bowl" },
+        { name: "North African Tuna Salad", cuisineRegion: "African", protein: "Seafood", carb: "Greens/None", temp: "Cold", calories: 500, imgSlug: "north-african-tuna-salad" },
+        { name: "Beef Tagine with Apricots", cuisineRegion: "African", protein: "Beef", carb: "Grains", temp: "Hot", calories: 800, imgSlug: "beef-tagine-apricots" },
+        { name: "Pork Sosatie Skewers", cuisineRegion: "African", protein: "Pork", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "pork-sosatie-skewers" },
+        { name: "Sweet Potato Mafe", cuisineRegion: "African", protein: "Vegetarian", carb: "Potatoes", temp: "Hot", calories: 650, imgSlug: "sweet-potato-mafe" },
+        { name: "Peruvian Quinoa Chicken", cuisineRegion: "South American", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "peruvian-quinoa-chicken" },
+        { name: "Brazilian Shrimp Rice", cuisineRegion: "South American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "brazilian-shrimp-rice" },
+        { name: "Argentine Provoleta Salad", cuisineRegion: "South American", protein: "Vegetarian", carb: "Greens/None", temp: "Hot", calories: 600, imgSlug: "argentine-provoleta-salad" },
+        { name: "Colombian Pork Arepas", cuisineRegion: "South American", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "colombian-pork-arepas" },
+        { name: "Chilean Beef Stew", cuisineRegion: "South American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "chilean-beef-stew" },
+        { name: "Oceanic Chicken Rice Salad", cuisineRegion: "Oceanic", protein: "Poultry", carb: "Rice", temp: "Cold", calories: 600, imgSlug: "oceanic-chicken-rice-salad" },
+        { name: "Barramundi Tacos", cuisineRegion: "Oceanic", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "barramundi-tacos" },
+        { name: "Kiwi Beef Burger", cuisineRegion: "Oceanic", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 850, imgSlug: "kiwi-beef-burger" },
+        { name: "Pork Pineapple Skewers", cuisineRegion: "Oceanic", protein: "Pork", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "pork-pineapple-skewers" },
+        { name: "Roasted Vegetable Damper", cuisineRegion: "Oceanic", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 600, imgSlug: "roasted-vegetable-damper" },
+        { name: "Firecracker Meatballs", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "firecracker-meatballs" },
+        { name: "Creamy Dill Chicken", cuisineRegion: "European", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 650, imgSlug: "creamy-dill-chicken" },
+        { name: "Spicy Salsa Verde Shrimp Tacos", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "spicy-salsa-verde-shrimp-tacos" },
+        { name: "Firecracker Shrimp Rice Bowls", cuisineRegion: "Asian", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "firecracker-shrimp-and-mushroom-rice-bowls" },
+        { name: "Crispy Chipotle Shrimp Tacos", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "crispy-chipotle-shrimp-tacos" },
+        { name: "Baja Shrimp Quesadillas", cuisineRegion: "North American", protein: "Seafood", carb: "Tortillas/Bread", temp: "Hot", calories: 750, imgSlug: "baja-shrimp-quesadillas" },
+        { name: "Fuego Chicken Fajita Tacos", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "fuego-shrimp-fajita-tacos" },
+        { name: "Tex-Mex Shrimp and Yellow Rice", cuisineRegion: "North American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "tex-mex-shrimp-yellow-rice" },
+        { name: "Greek Shrimp over Lemony Spinach Rice", cuisineRegion: "European", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 600, imgSlug: "greek-shrimp-over-lemony-spinach-rice" },
+        { name: "One-Pot Italian Vegetable and Shrimp Soup", cuisineRegion: "European", protein: "Seafood", carb: "Grains", temp: "Hot", calories: 550, imgSlug: "one-pot-italian-vegetable-shrimp-soup" },
+        { name: "Creamy Dreamy Mushroom Cavatappi", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "creamy-dreamy-mushroom-cavatappi" },
+        { name: "Pork Sausage Rigatoni Rosa", cuisineRegion: "European", protein: "Pork", carb: "Pasta", temp: "Hot", calories: 850, imgSlug: "pork-sausage-rigatoni-rosa" },
+        { name: "Chicken Sausage Spaghetti Bolognese", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "chicken-sausage-spaghetti-bolognese" },
+        { name: "Ricotta Tomato Ravioli", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 650, imgSlug: "ricotta-tomato-ravioli" },
+        { name: "Tuscan Chicken Linguine", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 800, imgSlug: "tuscan-chicken-linguine" },
+        { name: "Chicken Ramen in a Shoyu-Style Broth", cuisineRegion: "Asian", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 750, imgSlug: "chicken-ramen-in-a-shoyu-style-broth" },
+        { name: "Sweet Chili Pork Bowls", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "sweet-chili-pork-bowls" },
+        { name: "Sesame Soy Beef Bowls", cuisineRegion: "Asian", protein: "Beef", carb: "Rice", temp: "Hot", calories: 800, imgSlug: "sesame-soy-beef-bowls" },
+        { name: "Banh Mi Meatball Bowls", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 750, imgSlug: "banh-mi-meatball-bowls" },
+        { name: "Bulgogi Pork Tenderloin", cuisineRegion: "Asian", protein: "Pork", carb: "Rice", temp: "Hot", calories: 700, imgSlug: "bulgogi-pork-tenderloin" },
+        { name: "Sweet Potato Lentil Curry", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "sweet-potato-lentil-curry" },
+        { name: "Chickpea Powered Mediterranean Couscous", cuisineRegion: "Asian", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "chickpea-powered-mediterranean-couscous" },
+        { name: "Chicken Harissa Bowls", cuisineRegion: "African", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 700, imgSlug: "chicken-harissa-bowls" },
+        { name: "Moroccan Chicken Sausage Tagine", cuisineRegion: "African", protein: "Poultry", carb: "Grains", temp: "Hot", calories: 750, imgSlug: "moroccan-chicken-sausage-tagine" },
+        { name: "North African Spiced Shrimp Couscous", cuisineRegion: "African", protein: "Seafood", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "north-african-spiced-shrimp-couscous" },
+        { name: "Apricot Almond Chickpea Tagine", cuisineRegion: "African", protein: "Vegetarian", carb: "Grains", temp: "Hot", calories: 650, imgSlug: "apricot-almond-chickpea-tagine" },
+        { name: "Louisiana-Style Tilapia", cuisineRegion: "North American", protein: "Seafood", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "louisiana-style-tilapia" },
+        { name: "Pub-Style Shepherd's Pie", cuisineRegion: "European", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "pub-style-shepherds-pie" },
+        { name: "Cheesy Smothered Mushroom Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "cheesy-smothered-mushroom-chicken" },
+        { name: "Crispy Buffalo-Spiced Chicken", cuisineRegion: "North American", protein: "Poultry", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "crispy-buffalo-spiced-chicken" },
+        { name: "Maple Mustard Pork Chops", cuisineRegion: "North American", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "maple-mustard-pork-chops" },
+        { name: "Cherry Balsamic Pork Chops", cuisineRegion: "European", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 750, imgSlug: "cherry-balsamic-pork-chops" },
+        { name: "Figgy Balsamic Pork", cuisineRegion: "European", protein: "Pork", carb: "Potatoes", temp: "Hot", calories: 800, imgSlug: "figgy-balsamic-pork" },
+        { name: "Meatloaf Parm", cuisineRegion: "North American", protein: "Beef", carb: "Potatoes", temp: "Hot", calories: 850, imgSlug: "meatloaf-parm" },
+        { name: "Gouda Vibes Burgers", cuisineRegion: "North American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "gouda-vibes-burgers" },
+        { name: "Firehouse Cheeseburgers", cuisineRegion: "North American", protein: "Beef", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "firehouse-cheeseburgers" },
+        { name: "Tex-Mex Turkey Stuffed Peppers", cuisineRegion: "North American", protein: "Poultry", carb: "Rice", temp: "Hot", calories: 650, imgSlug: "tex-mex-turkey-stuffed-peppers" },
+        { name: "BBQ Pulled Chicken Tacos", cuisineRegion: "North American", protein: "Poultry", carb: "Tortillas/Bread", temp: "Hot", calories: 700, imgSlug: "bbq-pulled-chicken-tacos" },
+        { name: "Buffalo Cauliflower Tacos", cuisineRegion: "North American", protein: "Vegetarian", carb: "Tortillas/Bread", temp: "Hot", calories: 650, imgSlug: "buffalo-cauliflower-tacos" },
+        { name: "Lemony Spaghetti with Brussels Sprouts", cuisineRegion: "European", protein: "Vegetarian", carb: "Pasta", temp: "Hot", calories: 700, imgSlug: "lemony-spaghetti-with-brussels-sprouts" },
+        { name: "One-Pot Creamy Lemon Dill Chicken Soup", cuisineRegion: "European", protein: "Poultry", carb: "Pasta", temp: "Hot", calories: 600, imgSlug: "one-pot-creamy-lemon-dill-chicken-soup" },
+        { name: "Stuffed Meatball Rigatoni Bake", cuisineRegion: "European", protein: "Beef", carb: "Pasta", temp: "Hot", calories: 850, imgSlug: "stuffed-meatball-rigatoni-bake" },
+        { name: "Hot Honey Pepperoni Pizza", cuisineRegion: "European", protein: "Pork", carb: "Tortillas/Bread", temp: "Hot", calories: 900, imgSlug: "hot-honey-pepperoni-pizza" },
+        { name: "Prosciutto Caprese Sandwich", cuisineRegion: "European", protein: "Pork", carb: "Tortillas/Bread", temp: "Cold", calories: 650, imgSlug: "prosciutto-caprese-sandwich" },
+        { name: "Greek Chicken and Brown Rice Salad", cuisineRegion: "European", protein: "Poultry", carb: "Rice", temp: "Cold", calories: 550, imgSlug: "greek-chicken-and-brown-rice-salad" },
+        { name: "Garlic Chicken with Fattoush Salad", cuisineRegion: "Asian", protein: "Poultry", carb: "Greens/None", temp: "Hot", calories: 650, imgSlug: "garlic-chicken-with-fattoush-salad" }
+      ];
+
+      const MAX_GUESSES = 6;
+      const DAILY_POOL_SIZE = 150;
+      const DATA_VERSION = "minimal-hf-archive-2026-05-19";
+      const GAME_KEY = "chefle:continental:v1:game";
+      const STATS_KEY = "chefle:continental:v1:stats";
+      const SETTINGS_KEY = "chefle:continental:v1:settings";
+      const IMAGE_ENDPOINT = "https://img.hellofresh.com/c_fill,f_auto,fl_lossy,h_300,q_auto,w_400/hellofresh_s3/recipe_covers/sub/";
+      const GREEN = "\u{1F7E9}";
+      const RED = "\u{1F7E5}";
+      const UP = "\u25B2";
+      const DOWN = "\u25BC";
+      const CHECK = "\u2713";
+      const FIELDS = [
+        { key: "cuisineRegion", label: "Region" },
+        { key: "protein", label: "Protein" },
+        { key: "carb", label: "Base" },
+        { key: "temp", label: "Temp" },
+        { key: "calories", label: "Calories", type: "number" }
+      ];
+      const els = {
+        board: document.getElementById("board"),
+        gameId: document.getElementById("gameId"),
+        gameStatus: document.getElementById("gameStatus"),
+        attemptPill: document.getElementById("attemptPill"),
+        form: document.getElementById("guessForm"),
+        input: document.getElementById("dishInput"),
+        submit: document.getElementById("submitButton"),
+        suggestions: document.getElementById("suggestions"),
+        poolFilter: document.getElementById("poolFilter"),
+        poolFilteredCount: document.getElementById("poolFilteredCount"),
+        poolList: document.getElementById("poolList"),
+        toast: document.getElementById("toast"),
+        statsModal: document.getElementById("statsModal"),
+        helpModal: document.getElementById("helpModal"),
+        settingsModal: document.getElementById("settingsModal"),
+        statsTitle: document.getElementById("statsTitle"),
+        statsSubtitle: document.getElementById("statsSubtitle"),
+        answerCard: document.getElementById("answerCard"),
+        answerImage: document.getElementById("answerImage"),
+        answerName: document.getElementById("answerName"),
+        answerProclamation: document.getElementById("answerProclamation"),
+        answerLink: document.getElementById("answerLink"),
+        statGrid: document.getElementById("statGrid"),
+        histogram: document.getElementById("histogram"),
+        countdown: document.getElementById("countdown"),
+        shareButton: document.getElementById("shareButton"),
+        keepPlayingButton: document.getElementById("keepPlayingButton"),
+        closeStats: document.getElementById("closeStats"),
+        closeHelp: document.getElementById("closeHelp"),
+        closeSettings: document.getElementById("closeSettings"),
+        statsButton: document.getElementById("statsButton"),
+        helpButton: document.getElementById("helpButton"),
+        settingsButton: document.getElementById("settingsButton"),
+        soundToggle: document.getElementById("soundToggle"),
+        sfxVolumeSlider: document.getElementById("sfxVolumeSlider"),
+        contrastToggle: document.getElementById("contrastToggle")
+      };
+
+      const audio = { ctx: null };
+      let masterRegistry = [];
+      let dailyPool = [];
+      let todayKey = "";
+      let gameId = 0;
+      let targetDish = null;
+      let gameState;
+      let stats;
+      let settings;
+      let visibleSuggestions = [];
+      let activeSuggestion = 0;
+      let toastTimer = null;
+      let submitting = false;
+
+      function localDateKey(date = new Date()) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + d;
+      }
+
+      function gameNumberFromDate(key) {
+        const [year, month, day] = key.split("-").map(Number);
+        return Math.floor((Date.UTC(year, month - 1, day) - Date.UTC(2024, 0, 1)) / 86400000) + 1;
+      }
+
+      function hashString(value) {
+        let hash = 2166136261;
+        for (let i = 0; i < value.length; i += 1) {
+          hash ^= value.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return hash >>> 0;
+      }
+
+      function normalizeName(value) {
+        return String(value).trim().toLowerCase().replace(/\s+/g, " ");
+      }
+
+      function slugify(value) {
+        return normalizeName(value).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      }
+
+      function dishImageUrl(dish) {
+        return IMAGE_ENDPOINT + slugify(dish.imgSlug || dish.name) + ".jpg";
+      }
+
+      function recipeUrl(dish) {
+        return "https://www.hellofresh.com/recipes/" + slugify(dish.imgSlug || dish.name);
+      }
+
+      function fallbackImageUrl(dish) {
+        const initials = dish.name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><rect width="300" height="300" fill="#f4c45f"/><rect x="18" y="18" width="264" height="264" rx="18" fill="#fff8e8" opacity=".72"/><text x="150" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="700" fill="#3b2418">' + escapeHtml(initials || "CF") + '</text></svg>';
+        return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+      }
+
+      function applyImageFallback(img, dish) {
+        img.addEventListener("error", () => {
+          img.src = fallbackImageUrl(dish);
+        }, { once: true });
+      }
+
+      function makeDishImage(dish, className, altText) {
+        const img = document.createElement("img");
+        img.className = className;
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.alt = altText;
+        applyImageFallback(img, dish);
+        img.dataset.cdnSrc = dishImageUrl(dish);
+        img.src = img.dataset.cdnSrc;
+        return img;
+      }
+
+      function ensureMasterRegistry(base) {
+        const requiredKeys = ["name", "cuisineRegion", "protein", "carb", "temp", "calories", "imgSlug"];
+        const seen = new Set();
+        const registry = [];
+        base.forEach((dish) => {
+          if (!requiredKeys.every((key) => Object.prototype.hasOwnProperty.call(dish, key))) return;
+          const key = normalizeName(dish.name);
+          if (seen.has(key)) return;
+          seen.add(key);
+          registry.push({ ...dish, calories: Math.round(Number(dish.calories) / 50) * 50, imgSlug: slugify(dish.imgSlug || dish.name) });
+        });
+        const adjectives = ["Grilled", "Roasted", "Street-Style", "Herbed", "Crispy", "Market", "Smoky", "Golden", "Garden", "Supper"];
+        let cursor = 0;
+        while (registry.length < DAILY_POOL_SIZE) {
+          const source = registry[cursor % registry.length];
+          const name = adjectives[Math.floor(cursor / registry.length) % adjectives.length] + " " + source.name;
+          const key = normalizeName(name);
+          if (!seen.has(key)) {
+            seen.add(key);
+            registry.push({ ...source, name, calories: Math.max(300, Math.min(1000, source.calories + ((cursor % 5) - 2) * 50)), imgSlug: slugify(name) });
+          }
+          cursor += 1;
+        }
+        return registry;
+      }
+
+      function targetForDate(key) {
+        return masterRegistry[hashString("target:" + DATA_VERSION + ":" + key) % masterRegistry.length];
+      }
+
+      function dailyPoolForDate(key) {
+        const target = targetForDate(key);
+        const ranked = masterRegistry
+          .map((dish) => ({ dish, rank: hashString("pool:" + DATA_VERSION + ":" + key + ":" + dish.name) }))
+          .sort((a, b) => a.rank - b.rank || a.dish.name.localeCompare(b.dish.name))
+          .map((item) => item.dish);
+        const pool = [target];
+        const used = new Set([target.name]);
+        ranked.forEach((dish) => {
+          if (pool.length < DAILY_POOL_SIZE && !used.has(dish.name)) {
+            used.add(dish.name);
+            pool.push(dish);
+          }
+        });
+        return pool;
+      }
+
+      function readJson(key, fallback) {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key));
+          return parsed && typeof parsed === "object" ? parsed : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function saveGame() { localStorage.setItem(GAME_KEY, JSON.stringify(gameState)); }
+      function saveStats() { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); }
+      function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+
+      function freshStats() {
+        return { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, guessDistribution: [0,0,0,0,0,0], lastCompletedDate: null, lastWinDate: null };
+      }
+
+      function normalizeStats(raw) {
+        const base = freshStats();
+        const dist = Array.isArray(raw.guessDistribution) ? raw.guessDistribution.slice(0, 6) : base.guessDistribution;
+        while (dist.length < 6) dist.push(0);
+        return { ...base, ...raw, played: Number(raw.played) || 0, wins: Number(raw.wins) || 0, currentStreak: Number(raw.currentStreak) || 0, maxStreak: Number(raw.maxStreak) || 0, guessDistribution: dist.map((n) => Number(n) || 0) };
+      }
+
+      function normalizeSettings(raw) {
+        const volume = Number(raw.sfxVolume);
+        return { sound: false, contrast: false, ...raw, sfxVolume: Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 0.8 };
+      }
+
+      function freshGameState(key) {
+        return { dateKey: key, dataVersion: DATA_VERSION, targetName: targetForDate(key).name, guesses: [], status: "playing", statsRecorded: false };
+      }
+
+      function normalizeGameState(raw, key) {
+        if (!raw || raw.dateKey !== key || raw.dataVersion !== DATA_VERSION || raw.targetName !== targetForDate(key).name) return freshGameState(key);
+        const valid = new Set(dailyPool.map((dish) => dish.name));
+        const guesses = Array.isArray(raw.guesses)
+          ? raw.guesses.filter((name, index, arr) => valid.has(name) && arr.indexOf(name) === index).slice(0, MAX_GUESSES)
+          : [];
+        const won = guesses.includes(targetForDate(key).name);
+        const status = won ? "won" : guesses.length >= MAX_GUESSES ? "lost" : "playing";
+        return { ...freshGameState(key), guesses, status, statsRecorded: Boolean(raw.statsRecorded) && status !== "playing" };
+      }
+
+      function previousDateKey(key) {
+        const [year, month, day] = key.split("-").map(Number);
+        const date = new Date(year, month - 1, day);
+        date.setDate(date.getDate() - 1);
+        return localDateKey(date);
+      }
+
+      function formatGameDate(key) {
+        const [year, month, day] = key.split("-").map(Number);
+        return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(year, month - 1, day));
+      }
+
+      function escapeHtml(value) {
+        return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      }
+
+      function findDishByName(name) {
+        const normalized = normalizeName(name);
+        return dailyPool.find((dish) => normalizeName(dish.name) === normalized) || null;
+      }
+
+      function compareDish(guess, target) {
+        return FIELDS.map((field) => {
+          const guessValue = guess[field.key];
+          const targetValue = target[field.key];
+          const match = guessValue === targetValue;
+          let state = match ? "match" : "miss";
+          let hint = match ? CHECK : "";
+          let share = match ? GREEN : RED;
+          if (!match && field.type === "number") {
+            hint = targetValue > guessValue ? UP : DOWN;
+            share = hint;
+          }
+          return { field, state, hint, share, value: String(guessValue), title: field.label + ": " + guessValue };
+        });
+      }
+
+      function clearNode(node) {
+        while (node.firstChild) node.firstChild.remove();
+      }
+
+      function addGuessRow(dish, animate) {
+        const row = document.createElement("div");
+        row.className = "guess-row";
+        row.setAttribute("role", "row");
+
+        const label = document.createElement("div");
+        label.className = "dish-label";
+        label.setAttribute("role", "rowheader");
+        label.innerHTML = '<span class="dish-name">' + escapeHtml(dish.name) + '</span>';
+        row.appendChild(label);
+
+        compareDish(dish, targetDish).forEach((result, index) => {
+          const tile = document.createElement("div");
+          tile.className = "tile " + result.state + (animate ? " reveal" : "");
+          tile.style.setProperty("--delay", (index * 90) + "ms");
+          tile.setAttribute("role", "cell");
+          tile.title = result.title;
+          tile.innerHTML = '<span class="tile-label">' + result.field.label + '</span><span class="tile-value">' + escapeHtml(result.value) + '</span><span class="tile-hint" aria-hidden="true">' + result.hint + '</span>';
+          row.appendChild(tile);
+        });
+
+        els.board.appendChild(row);
+      }
+
+      function addEmptyRow(index) {
+        const row = document.createElement("div");
+        row.className = "empty-row";
+        row.setAttribute("aria-hidden", "true");
+        const dish = document.createElement("div");
+        dish.className = "empty-dish";
+        dish.textContent = "Guess " + (index + 1);
+        row.appendChild(dish);
+        FIELDS.forEach(() => {
+          const cell = document.createElement("div");
+          cell.className = "empty-cell";
+          row.appendChild(cell);
+        });
+        els.board.appendChild(row);
+      }
+
+      function renderBoard() {
+        clearNode(els.board);
+        gameState.guesses.map(findDishByName).filter(Boolean).forEach((dish) => addGuessRow(dish, false));
+        for (let i = gameState.guesses.length; i < MAX_GUESSES; i += 1) addEmptyRow(i);
+      }
+
+      function showToast(message) {
+        clearTimeout(toastTimer);
+        els.toast.textContent = message;
+        els.toast.classList.add("visible");
+        toastTimer = setTimeout(() => els.toast.classList.remove("visible"), 1900);
+      }
+
+      function updateStatus() {
+        els.gameId.textContent = "Chefle #" + gameId + " | " + formatGameDate(todayKey);
+        els.attemptPill.textContent = "Guesses Used: " + gameState.guesses.length + " / " + MAX_GUESSES;
+        if (gameState.status === "won") {
+          els.gameStatus.textContent = "Game Complete";
+        } else if (gameState.status === "lost") {
+          els.gameStatus.textContent = "Game Over";
+        } else {
+          const remaining = MAX_GUESSES - gameState.guesses.length;
+          els.gameStatus.textContent = "Guesses Remaining: " + remaining;
+        }
+        const done = gameState.status !== "playing";
+        els.input.disabled = done;
+        els.submit.disabled = done;
+        els.input.setAttribute("aria-expanded", "false");
+        if (done) closeSuggestions();
+      }
+
+      function poolSearch(query, list = dailyPool) {
+        const terms = normalizeName(query).split(" ").filter(Boolean);
+        const guessed = new Set(gameState.guesses);
+        const scored = list.map((dish) => {
+          const haystack = normalizeName([dish.name, dish.cuisineRegion, dish.protein, dish.carb, dish.temp, dish.calories].join(" "));
+          const starts = normalizeName(dish.name).startsWith(normalizeName(query)) ? 3 : 0;
+          const everyTerm = terms.every((term) => haystack.includes(term));
+          const score = everyTerm ? starts + terms.reduce((sum, term) => sum + (haystack.includes(term) ? 1 : 0), 0) : -1;
+          return { dish, score, guessed: guessed.has(dish.name) };
+        });
+        const matches = normalizeName(query)
+          ? scored.filter((item) => item.score >= 0).sort((a, b) => b.score - a.score || a.dish.name.localeCompare(b.dish.name))
+          : scored.sort((a, b) => a.dish.name.localeCompare(b.dish.name));
+        return matches.map((item) => item.dish);
+      }
+
+      function renderSuggestions() {
+        clearNode(els.suggestions);
+        visibleSuggestions = poolSearch(els.input.value);
+        activeSuggestion = Math.min(activeSuggestion, Math.max(visibleSuggestions.length - 1, 0));
+
+        visibleSuggestions.forEach((dish, index) => {
+          const item = document.createElement("li");
+          const alreadyGuessed = gameState.guesses.includes(dish.name);
+          item.className = "suggestion";
+          item.id = "dish-option-" + index;
+          item.setAttribute("role", "option");
+          item.setAttribute("aria-selected", String(index === activeSuggestion));
+          item.setAttribute("aria-disabled", String(alreadyGuessed));
+          item.appendChild(makeDishImage(dish, "dish-thumb", ""));
+          const name = document.createElement("span");
+          name.textContent = dish.name;
+          item.appendChild(name);
+          item.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            chooseSuggestion(index, true);
+          });
+          els.suggestions.appendChild(item);
+        });
+
+        const shouldShow = visibleSuggestions.length > 0 && !els.input.disabled && document.activeElement === els.input;
+        els.suggestions.classList.toggle("visible", shouldShow);
+        els.input.setAttribute("aria-expanded", String(shouldShow));
+        els.input.setAttribute("aria-activedescendant", shouldShow ? "dish-option-" + activeSuggestion : "");
+        scrollActiveOptionIntoView();
+      }
+
+      function closeSuggestions() {
+        els.suggestions.classList.remove("visible");
+        els.input.setAttribute("aria-expanded", "false");
+        els.input.setAttribute("aria-activedescendant", "");
+      }
+
+      function scrollActiveOptionIntoView() {
+        const option = document.getElementById("dish-option-" + activeSuggestion);
+        if (option) option.scrollIntoView({ block: "nearest" });
+      }
+
+      function chooseSuggestion(index, submitAfter) {
+        const dish = visibleSuggestions[index];
+        if (!dish) return;
+        activeSuggestion = index;
+        els.input.value = dish.name;
+        renderSuggestions();
+        if (submitAfter) submitGuess();
+      }
+
+      function renderDiscoveryList() {
+        const filtered = poolSearch(els.poolFilter.value, dailyPool);
+        clearNode(els.poolList);
+        els.poolFilteredCount.textContent = filtered.length + " shown";
+        filtered.forEach((dish) => {
+          const li = document.createElement("li");
+          const button = document.createElement("button");
+          const guessed = gameState.guesses.includes(dish.name);
+          button.type = "button";
+          button.className = "pool-item" + (guessed ? " guessed" : "") + (dish.name === targetDish.name && gameState.status !== "playing" ? " correct" : "");
+          button.appendChild(makeDishImage(dish, "dish-thumb", ""));
+          const name = document.createElement("span");
+          name.className = "pool-name";
+          name.textContent = dish.name;
+          button.appendChild(name);
+          button.addEventListener("click", () => {
+            els.input.value = dish.name;
+            submitGuess();
+          });
+          li.appendChild(button);
+          els.poolList.appendChild(li);
+        });
+      }
+
+      function recordStats() {
+        if (gameState.statsRecorded || gameState.status === "playing") return;
+        stats.played += 1;
+        if (gameState.status === "won") {
+          stats.wins += 1;
+          stats.currentStreak = stats.lastWinDate === previousDateKey(todayKey) ? stats.currentStreak + 1 : 1;
+          stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+          stats.guessDistribution[Math.max(0, gameState.guesses.length - 1)] += 1;
+          stats.lastWinDate = todayKey;
+        } else {
+          stats.currentStreak = 0;
+        }
+        stats.lastCompletedDate = todayKey;
+        gameState.statsRecorded = true;
+        saveStats();
+        saveGame();
+      }
+
+      function submitGuess() {
+        if (submitting || gameState.status !== "playing") return;
+        const dish = findDishByName(els.input.value);
+        if (!dish) {
+          showToast("Pick a dish from today's 150.");
+          renderSuggestions();
+          return;
+        }
+        if (gameState.guesses.includes(dish.name)) {
+          showToast("You already tried that one.");
+          els.input.value = "";
+          renderSuggestions();
+          renderDiscoveryList();
+          return;
+        }
+        submitting = true;
+        gameState.guesses.push(dish.name);
+        if (dish.name === targetDish.name) gameState.status = "won";
+        else if (gameState.guesses.length >= MAX_GUESSES) gameState.status = "lost";
+        saveGame();
+        clearNode(els.board);
+        gameState.guesses.slice(0, -1).map(findDishByName).filter(Boolean).forEach((oldDish) => addGuessRow(oldDish, false));
+        addGuessRow(dish, true);
+        for (let i = gameState.guesses.length; i < MAX_GUESSES; i += 1) addEmptyRow(i);
+        els.input.value = "";
+        closeSuggestions();
+        updateStatus();
+        renderDiscoveryList();
+        playEventSound(gameState.status === "won" ? "win" : gameState.status === "lost" ? "loss" : "guess");
+        if (gameState.status !== "playing") {
+          recordStats();
+          window.setTimeout(() => openStats(true), 800);
+        }
+        window.setTimeout(() => { submitting = false; }, 150);
+      }
+
+      function statCard(value, label) {
+        return '<div class="stat"><strong>' + escapeHtml(value) + '</strong><span>' + escapeHtml(label) + '</span></div>';
+      }
+
+      function renderStats() {
+        const winPct = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
+        els.statGrid.innerHTML = [
+          statCard(stats.played, "Played"),
+          statCard(winPct, "Win %"),
+          statCard(stats.currentStreak, "Streak"),
+          statCard(stats.maxStreak, "Max")
+        ].join("");
+
+        clearNode(els.histogram);
+        const max = Math.max(1, ...stats.guessDistribution);
+        stats.guessDistribution.forEach((count, index) => {
+          const row = document.createElement("div");
+          row.className = "hist-row";
+          row.innerHTML = '<span>' + (index + 1) + '</span><span class="hist-track"><span class="hist-fill" style="--w:' + ((count / max) * 100) + '%"></span></span><span>' + count + '</span>';
+          els.histogram.appendChild(row);
+        });
+      }
+
+      function renderAnswerCard(showAnswer) {
+        els.answerCard.hidden = !showAnswer;
+        if (!showAnswer) return;
+        applyImageFallback(els.answerImage, targetDish);
+        els.answerImage.dataset.cdnSrc = dishImageUrl(targetDish);
+        els.answerImage.src = els.answerImage.dataset.cdnSrc;
+        els.answerImage.alt = targetDish.name;
+        els.answerName.textContent = targetDish.name;
+        els.answerProclamation.textContent = gameState.status === "won"
+          ? "Solved in " + gameState.guesses.length + " guess" + (gameState.guesses.length === 1 ? "" : "es") + "."
+          : "The correct dish is shown above.";
+        els.answerLink.href = recipeUrl(targetDish);
+      }
+
+      function openStats(fromGameEnd = false) {
+        renderStats();
+        const done = gameState.status !== "playing";
+        renderAnswerCard(done);
+        els.statsTitle.textContent = gameState.status === "won" ? "Game Complete" : gameState.status === "lost" ? "Game Over" : "Stats";
+        els.statsSubtitle.textContent = gameState.status === "won"
+          ? "Solved in " + gameState.guesses.length + " of " + MAX_GUESSES + " guesses."
+          : gameState.status === "lost"
+            ? "Answer: " + targetDish.name + "."
+            : "Your cooking record.";
+        els.shareButton.disabled = !done;
+        els.shareButton.textContent = done ? "Share Results" : "Finish to Share";
+        els.statsModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        if (fromGameEnd) els.shareButton.focus();
+      }
+
+      function closeStats() {
+        els.statsModal.classList.remove("open");
+        if (!els.helpModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
+      }
+
+      function openHelp() {
+        els.helpModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        els.closeHelp.focus();
+      }
+
+      function closeHelp() {
+        els.helpModal.classList.remove("open");
+        if (!els.statsModal.classList.contains("open") && !els.settingsModal.classList.contains("open")) document.body.style.overflow = "";
+      }
+
+      function openSettings() {
+        els.settingsModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        els.closeSettings.focus();
+      }
+
+      function closeSettings() {
+        els.settingsModal.classList.remove("open");
+        if (!els.statsModal.classList.contains("open") && !els.helpModal.classList.contains("open")) document.body.style.overflow = "";
+      }
+
+      function shareRows() {
+        return gameState.guesses.map(findDishByName).filter(Boolean).map((dish) => compareDish(dish, targetDish).map((result) => result.share).join("")).join("\n");
+      }
+
+      function shareText() {
+        const attempts = gameState.status === "won" ? gameState.guesses.length + "/" + MAX_GUESSES : "X/" + MAX_GUESSES;
+        const url = /^https?:$/.test(window.location.protocol) ? window.location.href.split("#")[0] : "https://chefle.game/";
+        return "Chefle " + todayKey + "/#" + gameId + " - " + attempts + " Attempts\n" + shareRows() + "\nPlay here: " + url;
+      }
+
+      async function copyShare() {
+        if (gameState.status === "playing") return;
+        const text = shareText();
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("Copied results.");
+          playEventSound("copy");
+        } catch {
+          showToast("Copy failed. Select and copy from your browser.");
+        }
+      }
+
+      function getAudioContext() {
+        const Ctor = window.AudioContext || window.webkitAudioContext;
+        if (!Ctor) return null;
+        if (!audio.ctx) audio.ctx = new Ctor();
+        if (audio.ctx.state === "suspended") audio.ctx.resume();
+        return audio.ctx;
+      }
+
+      function tone(ctx, frequency, duration, type, gainValue, startDelay = 0) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const start = ctx.currentTime + startDelay;
+        const volume = Math.max(0, Math.min(1, Number(settings.sfxVolume) || 0));
+        osc.frequency.value = frequency;
+        osc.type = type;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, gainValue * volume), start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.03);
+      }
+
+      function playEventSound(kind) {
+        if (!settings.sound) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        if (kind === "win") {
+          tone(ctx, 523, .18, "sine", .2, 0);
+          tone(ctx, 659, .18, "sine", .18, .08);
+          tone(ctx, 784, .24, "sine", .16, .16);
+        } else if (kind === "loss") {
+          tone(ctx, 220, .22, "triangle", .18, 0);
+          tone(ctx, 165, .26, "triangle", .15, .12);
+        } else if (kind === "copy") {
+          tone(ctx, 700, .12, "sine", .14, 0);
+        } else {
+          tone(ctx, 320, .09, "triangle", .14, 0);
+          tone(ctx, 430, .1, "triangle", .11, .04);
+        }
+      }
+
+      function applySettings() {
+        document.body.classList.toggle("high-contrast", Boolean(settings.contrast));
+        els.soundToggle.checked = Boolean(settings.sound);
+        els.sfxVolumeSlider.value = String(settings.sfxVolume);
+        els.contrastToggle.checked = Boolean(settings.contrast);
+      }
+
+      function updateCountdown() {
+        const now = new Date();
+        const next = new Date(now);
+        next.setHours(24, 0, 0, 0);
+        const diff = Math.max(0, next - now);
+        const h = String(Math.floor(diff / 3600000)).padStart(2, "0");
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+        els.countdown.textContent = h + ":" + m + ":" + s;
+        const currentKey = localDateKey();
+        if (todayKey && currentKey !== todayKey) initialize();
+      }
+
+      function updateViewportOffset() {
+        if (!window.visualViewport) {
+          document.documentElement.style.setProperty("--keyboard-offset", "0px");
+          return;
+        }
+        const offset = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+        document.documentElement.style.setProperty("--keyboard-offset", Math.round(offset) + "px");
+      }
+
+      function initialize() {
+        masterRegistry = ensureMasterRegistry(chefleGlobalMasterRegistry);
+        todayKey = localDateKey();
+        gameId = gameNumberFromDate(todayKey);
+        targetDish = targetForDate(todayKey);
+        dailyPool = dailyPoolForDate(todayKey);
+        stats = normalizeStats(readJson(STATS_KEY, freshStats()));
+        settings = normalizeSettings(readJson(SETTINGS_KEY, {}));
+        gameState = normalizeGameState(readJson(GAME_KEY, null), todayKey);
+        if (gameState.status !== "playing" && !gameState.statsRecorded) recordStats();
+        closeStats();
+        closeHelp();
+        closeSettings();
+        applySettings();
+        renderBoard();
+        updateStatus();
+        renderStats();
+        renderDiscoveryList();
+        updateCountdown();
+        updateViewportOffset();
+      }
+
+      els.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitGuess();
+      });
+
+      els.input.addEventListener("input", () => {
+        activeSuggestion = 0;
+        renderSuggestions();
+      });
+
+      els.input.addEventListener("focus", () => {
+        activeSuggestion = 0;
+        renderSuggestions();
+      });
+
+      els.input.addEventListener("keydown", (event) => {
+        const open = els.suggestions.classList.contains("visible");
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          if (!open) renderSuggestions();
+          activeSuggestion = Math.min(activeSuggestion + 1, Math.max(visibleSuggestions.length - 1, 0));
+          renderSuggestions();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          activeSuggestion = Math.max(activeSuggestion - 1, 0);
+          renderSuggestions();
+        } else if (event.key === "Enter" && open && visibleSuggestions[activeSuggestion]) {
+          event.preventDefault();
+          chooseSuggestion(activeSuggestion, true);
+        } else if (event.key === "Escape") {
+          closeSuggestions();
+        }
+      });
+
+      els.poolFilter.addEventListener("input", renderDiscoveryList);
+
+      document.addEventListener("pointerdown", (event) => {
+        if (!els.form.contains(event.target)) closeSuggestions();
+      });
+
+      els.statsButton.addEventListener("click", () => openStats(false));
+      els.helpButton.addEventListener("click", openHelp);
+      els.settingsButton.addEventListener("click", openSettings);
+      els.closeStats.addEventListener("click", closeStats);
+      els.keepPlayingButton.addEventListener("click", closeStats);
+      els.closeHelp.addEventListener("click", closeHelp);
+      els.closeSettings.addEventListener("click", closeSettings);
+      els.shareButton.addEventListener("click", copyShare);
+      els.statsModal.addEventListener("pointerdown", (event) => { if (event.target === els.statsModal) closeStats(); });
+      els.helpModal.addEventListener("pointerdown", (event) => { if (event.target === els.helpModal) closeHelp(); });
+      els.settingsModal.addEventListener("pointerdown", (event) => { if (event.target === els.settingsModal) closeSettings(); });
+
+      els.soundToggle.addEventListener("change", () => {
+        settings.sound = els.soundToggle.checked;
+        saveSettings();
+        applySettings();
+        playEventSound("copy");
+      });
+
+      els.sfxVolumeSlider.addEventListener("input", () => {
+        settings.sfxVolume = Number(els.sfxVolumeSlider.value);
+        saveSettings();
+        applySettings();
+      });
+
+      els.sfxVolumeSlider.addEventListener("change", () => {
+        if (settings.sound) playEventSound("copy");
+      });
+
+      els.contrastToggle.addEventListener("change", () => {
+        settings.contrast = els.contrastToggle.checked;
+        saveSettings();
+        applySettings();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeSuggestions();
+          closeStats();
+          closeHelp();
+          closeSettings();
+        }
+      });
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", updateViewportOffset);
+        window.visualViewport.addEventListener("scroll", updateViewportOffset);
+      }
+
+      initialize();
+      window.setInterval(updateCountdown, 1000);
+    })();
+  </script>
+</body>
+</html>
