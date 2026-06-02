@@ -1,0 +1,12 @@
+# Review/download/generated source artifacts. The production bundle is generated in /publish.
+/food-photo-review/
+/food-photo-review-generated-test/
+/food-photo-review-specific-only/
+/food-photo-review-specific-only-v2/
+/food-photo-review-specific-only-v3/
+/data/nutrition/
+/chefle-dishes-with-images.json
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

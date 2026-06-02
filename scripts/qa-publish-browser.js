@@ -1,0 +1,333 @@
+const { spawn } = require("child_process");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const { parseJsonConst } = require("./chefle-constants");
+
+const root = path.resolve(__dirname, "..");
+const publishPath = path.join(root, "publish", "index.html");
+const targetUrl = "file:///" + publishPath.replace(/\\/g, "/");
+const publishHtml = fs.existsSync(publishPath) ? fs.readFileSync(publishPath, "utf8") : "";
+const dataVersion = (publishHtml.match(/const DATA_VERSION = "([^"]+)"/) || [])[1] || "";
+const registry = publishHtml ? parseJsonConst(publishHtml, "chefleGlobalMasterRegistry") : [];
+const gameKey = "chefle:regional-temp:v3:game";
+const requiredFooterLinks = ["privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const chromePaths = [
+  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+];
+
+function findChrome() {
+  const chrome = chromePaths.find((candidate) => fs.existsSync(candidate));
+  if (!chrome) throw new Error("Could not find installed Chrome.");
+  return chrome;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function targetNameForDate(dateKey) {
+  if (!registry.length || !dataVersion) throw new Error("Could not read publish registry or data version.");
+  return registry[hashString(`target:${dataVersion}:${dateKey}:0`) % registry.length].name;
+}
+
+function waitForDevTools(child) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Timed out waiting for Chrome DevTools.")), 15000);
+    child.stderr.on("data", (chunk) => {
+      const text = String(chunk);
+      const match = text.match(/DevTools listening on (ws:\/\/[^\s]+)/);
+      if (!match) return;
+      clearTimeout(timer);
+      resolve(match[1]);
+    });
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      clearTimeout(timer);
+      reject(new Error(`Chrome exited before DevTools was ready: ${code}`));
+    });
+  });
+}
+
+function openWebSocket(url) {
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(url);
+    socket.addEventListener("open", () => resolve(socket), { once: true });
+    socket.addEventListener("error", () => reject(new Error(`Could not open ${url}`)), { once: true });
+  });
+}
+
+function createCdp(socket) {
+  let id = 0;
+  const pending = new Map();
+
+  socket.addEventListener("message", (event) => {
+    const message = JSON.parse(event.data);
+    if (!message.id || !pending.has(message.id)) return;
+    const { resolve, reject } = pending.get(message.id);
+    pending.delete(message.id);
+    if (message.error) reject(new Error(message.error.message));
+    else resolve(message.result || {});
+  });
+
+  return function send(method, params = {}) {
+    const messageId = ++id;
+    socket.send(JSON.stringify({ id: messageId, method, params }));
+    return new Promise((resolve, reject) => pending.set(messageId, { resolve, reject }));
+  };
+}
+
+async function openPage(browserWsUrl) {
+  const port = new URL(browserWsUrl).port;
+  const response = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(targetUrl)}`, { method: "PUT" });
+  if (!response.ok) throw new Error(`Could not create Chrome tab: ${response.status}`);
+  const tab = await response.json();
+  if (!tab.webSocketDebuggerUrl) throw new Error("Chrome tab did not expose a debugger URL.");
+  return tab.webSocketDebuggerUrl;
+}
+
+async function evaluate(send, expression) {
+  const result = await send("Runtime.evaluate", {
+    expression,
+    awaitPromise: true,
+    returnByValue: true
+  });
+  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || "Runtime evaluation failed.");
+  return result.result.value;
+}
+
+async function waitForInitialized(send) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const state = await evaluate(send, `(() => ({
+      game: document.getElementById("gameId")?.textContent || "",
+      pool: document.getElementById("poolFilteredCount")?.textContent || ""
+    }))()`);
+    if (/#\d+/.test(state.game) && /\d+ shown/i.test(state.pool) && !/^0 shown$/i.test(state.pool)) {
+      return state;
+    }
+    await delay(100);
+  }
+  throw new Error("Page did not initialize the game state.");
+}
+
+async function boardMetrics(send, label) {
+  return evaluate(send, `(() => {
+    const rows = Array.from(document.querySelectorAll(".guess-row, .empty-row"));
+    const board = document.getElementById("board");
+    return {
+      label: ${JSON.stringify(label)},
+      rows: rows.length,
+      guessRows: document.querySelectorAll(".guess-row").length,
+      emptyRows: document.querySelectorAll(".empty-row").length,
+      labels: rows.map((row) => row.querySelector(".dish-name, .empty-dish")?.textContent || ""),
+      boardClientHeight: board.clientHeight,
+      boardScrollHeight: board.scrollHeight,
+      boardHasInternalScroll: board.scrollHeight > board.clientHeight + 1,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      documentClientWidth: document.documentElement.clientWidth
+    };
+  })()`);
+}
+
+async function reloadAndMeasure(send, label) {
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  return boardMetrics(send, label);
+}
+
+async function setStoredGame(send, state) {
+  await evaluate(send, `localStorage.setItem(${JSON.stringify(gameKey)}, ${JSON.stringify(JSON.stringify(state))})`);
+}
+
+function assertScenario(scenario, expectedRows, expectedLastLabel = null) {
+  if (scenario.rows !== expectedRows) {
+    throw new Error(`${scenario.label} expected ${expectedRows} board rows, found ${scenario.rows}.`);
+  }
+  if (expectedLastLabel && scenario.labels[scenario.labels.length - 1] !== expectedLastLabel) {
+    throw new Error(`${scenario.label} expected last row ${expectedLastLabel}, found ${scenario.labels[scenario.labels.length - 1] || "none"}.`);
+  }
+  if (scenario.documentScrollWidth > scenario.documentClientWidth + 1) {
+    throw new Error(`${scenario.label} widened the document.`);
+  }
+}
+
+async function runBoardStateScenarios(send) {
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true
+  });
+  const initial = await reloadAndMeasure(send, "initial");
+  assertScenario(initial, 7, "Guess 7");
+
+  const setup = await evaluate(send, `(() => {
+    const gameText = document.getElementById("gameId")?.textContent || "";
+    const dateText = gameText.split("|")[1]?.trim() || "";
+    const dateKey = new Date(dateText + " 12:00 UTC").toISOString().slice(0, 10);
+    const poolNames = Array.from(document.querySelectorAll(".pool-name")).map((element) => element.textContent);
+    return { dateKey, poolNames };
+  })()`);
+  const targetName = targetNameForDate(setup.dateKey);
+  const wrongs = setup.poolNames.filter((name) => name !== targetName).slice(0, 9);
+  if (wrongs.length < 9) throw new Error("Not enough non-target pool dishes for board-state QA.");
+  const base = {
+    dateKey: setup.dateKey,
+    dataVersion,
+    targetName,
+    statsRecorded: true,
+    answerRevealed: false
+  };
+
+  await setStoredGame(send, { ...base, guesses: wrongs.slice(0, 7), status: "failed" });
+  const failed = await reloadAndMeasure(send, "failed");
+  assertScenario(failed, 7, wrongs[6]);
+
+  await setStoredGame(send, { ...base, guesses: wrongs.slice(0, 7), status: "freeplay" });
+  const continued = await reloadAndMeasure(send, "continued");
+  assertScenario(continued, 8, "Guess 8");
+
+  await setStoredGame(send, { ...base, guesses: wrongs.slice(0, 8), status: "freeplay" });
+  const freeplayMiss = await reloadAndMeasure(send, "freeplay-miss");
+  assertScenario(freeplayMiss, 9, "Guess 9");
+  if (!freeplayMiss.boardHasInternalScroll) throw new Error("Freeplay board should scroll inside the table area.");
+
+  await setStoredGame(send, { ...base, guesses: [...wrongs.slice(0, 7), targetName], status: "freeplay-won" });
+  const freeplayWon = await reloadAndMeasure(send, "freeplay-won");
+  assertScenario(freeplayWon, 8, targetName);
+
+  await setStoredGame(send, { ...base, guesses: [targetName], status: "won" });
+  const won = await reloadAndMeasure(send, "won");
+  assertScenario(won, 7, "Guess 7");
+
+  await evaluate(send, `localStorage.removeItem(${JSON.stringify(gameKey)})`);
+  return [initial, failed, continued, freeplayMiss, freeplayWon, won];
+}
+
+async function runViewport(send, viewport) {
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: viewport.width,
+    height: viewport.height,
+    deviceScaleFactor: 1,
+    mobile: viewport.mobile
+  });
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+
+  return evaluate(send, `(() => {
+    const doc = document.documentElement;
+    const body = document.body;
+    const visibleOverflow = Array.from(document.querySelectorAll("body *"))
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return rect.width > 0
+          && rect.height > 0
+          && style.display !== "none"
+          && style.visibility !== "hidden"
+          && rect.right > window.innerWidth + 1;
+      })
+      .slice(0, 12)
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: String(element.className || ""),
+          id: element.id || "",
+          right: Math.round(rect.right),
+          width: Math.round(rect.width)
+        };
+      });
+    return {
+      label: ${JSON.stringify(viewport.label)},
+      innerWidth: window.innerWidth,
+      clientWidth: doc.clientWidth,
+      scrollWidth: doc.scrollWidth,
+      bodyScrollWidth: body.scrollWidth,
+      initialized: document.getElementById("gameId")?.textContent || "",
+      region: document.getElementById("regionInsightTitle")?.textContent || "",
+      pool: document.getElementById("poolFilteredCount")?.textContent || "",
+      footerLinks: Array.from(document.querySelectorAll(".legal-footer a")).map((link) => link.getAttribute("href")),
+      boardRows: document.querySelectorAll(".guess-row, .empty-row").length,
+      lastBoardLabel: Array.from(document.querySelectorAll(".guess-row, .empty-row")).at(-1)?.querySelector(".dish-name, .empty-dish")?.textContent || "",
+      poolListClientHeight: document.getElementById("poolList")?.clientHeight || 0,
+      poolListScrollHeight: document.getElementById("poolList")?.scrollHeight || 0,
+      poolListHasInternalScroll: (document.getElementById("poolList")?.scrollHeight || 0) > (document.getElementById("poolList")?.clientHeight || 0) + 1,
+      discoveryPanelHeight: Math.round(document.querySelector(".discovery-panel")?.getBoundingClientRect().height || 0),
+      boardToGuessGap: Math.round((document.querySelector(".guess-panel")?.getBoundingClientRect().top || 0) - (document.querySelector(".board-wrap")?.getBoundingClientRect().bottom || 0)),
+      playgroundToPoolBottomDelta: Math.round(Math.abs((document.querySelector(".playground")?.getBoundingClientRect().bottom || 0) - (document.querySelector(".discovery-panel")?.getBoundingClientRect().bottom || 0))),
+      topbarRight: Math.round(document.querySelector(".topbar-inner")?.getBoundingClientRect().right || 0),
+      visibleOverflow
+    };
+  })()`);
+}
+
+async function main() {
+  if (!fs.existsSync(publishPath)) throw new Error("Run scripts/build-publish.js before QA.");
+
+  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), "chefle-chrome-"));
+  const chrome = spawn(findChrome(), [
+    "--headless=new",
+    "--disable-gpu",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--allow-file-access-from-files",
+    "--remote-debugging-port=0",
+    `--user-data-dir=${profileDir}`,
+    "about:blank"
+  ], { stdio: ["ignore", "ignore", "pipe"] });
+
+  try {
+    const browserWsUrl = await waitForDevTools(chrome);
+    const pageWsUrl = await openPage(browserWsUrl);
+    const socket = await openWebSocket(pageWsUrl);
+    const send = createCdp(socket);
+    await send("Page.enable");
+    await send("Runtime.enable");
+
+    const results = [];
+    results.push(await runViewport(send, { label: "mobile", width: 390, height: 844, mobile: true }));
+    results.push(await runViewport(send, { label: "desktop", width: 1365, height: 768, mobile: false }));
+    const boardScenarios = await runBoardStateScenarios(send);
+    socket.close();
+
+    console.log(JSON.stringify({ targetUrl, results, boardScenarios }, null, 2));
+
+    const failures = results.filter((result) =>
+      result.scrollWidth > result.clientWidth + 1
+      || result.topbarRight > result.innerWidth + 1
+      || /^0 shown$/i.test(result.pool)
+      || result.boardRows !== 7
+      || !result.poolListHasInternalScroll
+      || result.boardToGuessGap > 24
+      || (result.label === "desktop" && result.playgroundToPoolBottomDelta > 2)
+      || requiredFooterLinks.some((href) => !result.footerLinks.includes(href))
+    );
+    if (failures.length) process.exitCode = 1;
+  } finally {
+    chrome.kill();
+    await delay(300);
+    try {
+      fs.rmSync(profileDir, { recursive: true, force: true });
+    } catch {
+      // Windows can hold Chrome's temporary profile briefly after process exit.
+    }
+  }
+}
+
+main().catch((error) => {
+  console.error(error.message);
+  process.exit(1);
+});
