@@ -9,6 +9,35 @@ Use the generated `publish/` folder as the production artifact.
 3. Put the hosted `index.html` URL into `publish/squarespace-iframe-snippet.html`.
 4. Paste that iframe snippet into a Squarespace Code Block.
 
+For `chefle.org`, the repository is also wired for direct GitHub Pages deployment. The `.github/workflows/deploy-pages.yml` workflow rebuilds `publish/`, validates the game data and launch bundle, then deploys the generated folder as the public site.
+
+To finish the GitHub-side setup after pushing:
+
+1. In `DecentDuck1/Food-Daily-game`, open Settings -> Pages.
+2. Under "Build and deployment", set Source to "GitHub Actions".
+3. Set the custom domain to `chefle.org`.
+4. After DNS propagates and GitHub offers it, enable "Enforce HTTPS".
+
+At the DNS provider for `chefle.org`, configure the apex domain:
+
+- `A` record, name `@`, value `185.199.108.153`
+- `A` record, name `@`, value `185.199.109.153`
+- `A` record, name `@`, value `185.199.110.153`
+- `A` record, name `@`, value `185.199.111.153`
+
+If the DNS provider supports IPv6, also add:
+
+- `AAAA` record, name `@`, value `2606:50c0:8000::153`
+- `AAAA` record, name `@`, value `2606:50c0:8001::153`
+- `AAAA` record, name `@`, value `2606:50c0:8002::153`
+- `AAAA` record, name `@`, value `2606:50c0:8003::153`
+
+For the `www` variant, add:
+
+- `CNAME` record, name `www`, value `DecentDuck1.github.io`
+
+Do not add wildcard DNS records such as `*.chefle.org`.
+
 Do not paste the full `chefle.html` document directly into a Squarespace Code Block. Squarespace Code Blocks are page content, not a full document shell, so `<head>` metadata, global CSS, fixed positioning, and local asset paths can behave differently than they do in a standalone file.
 
 Also, Squarespace Code Blocks have a 400 KB code limit. The HTML may fit today, but a Code Block cannot carry the complete image bundle or preserve the standalone document environment. The reliable path is to host the generated static bundle elsewhere and embed it.
@@ -44,7 +73,7 @@ The build script copies only the 273 production dish images referenced by the ap
 
 The source app keeps an inline-script-compatible CSP for local single-file testing. The generated `publish/index.html` and `publish/_headers` file use a hash-based script policy for the production bundle.
 
-The generated `publish/_headers` file includes the same stricter script hash CSP, `Referrer-Policy`, `X-Content-Type-Options`, and a restrictive `Permissions-Policy` for hosts that support `_headers`, such as Netlify-style static hosting. It intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block the Squarespace iframe. If you add `frame-ancestors`, include the final Squarespace and custom-domain origins.
+The generated `publish/_headers` file includes the same stricter script hash CSP, `Referrer-Policy`, `X-Content-Type-Options`, and a restrictive `Permissions-Policy` for hosts that support `_headers`, such as Netlify-style static hosting. GitHub Pages ignores `_headers`, but `publish/index.html` still applies the production script CSP through its meta tag. The `_headers` file intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block Squarespace iframe embedding. If you add `frame-ancestors` at another host, include the final Squarespace and custom-domain origins.
 
 Configure HTTPS and HSTS at the final host after confirming the site is served only over HTTPS. Do not enable HSTS preload until the final domain setup is stable.
 

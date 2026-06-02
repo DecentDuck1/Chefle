@@ -89,6 +89,8 @@ function main() {
   assert(!/(resetFoodButton|devResetStatus|dev-block|Restart Today)/.test(sourceHtml + publishHtml), "Dev food reset control still appears in game HTML.", failures);
   assert(!/(adsbygoogle|pagead2\.googlesyndication|ca-pub-\d{8,})/.test(publishHtml), "publish/index.html appears to contain active AdSense code.", failures);
   assert(read("publish/_headers").includes("Content-Security-Policy:"), "publish/_headers missing CSP.", failures);
+  assert(read("publish/CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
+  assert(exists("publish/.nojekyll"), "publish/.nojekyll is missing.", failures);
 
   if (failures.length) {
     throw new Error(failures.join("\n"));
