@@ -21,7 +21,7 @@ Squarespace Code Blocks have a 400 KB code limit. The HTML may fit today, but a 
 
 Host this folder on a static host or file host that preserves the relative paths exactly. Then put the hosted `index.html` URL into `squarespace-iframe-snippet.html`.
 
-The generated `_headers` file intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block Squarespace iframe embedding. If you add `frame-ancestors` at the host, include your final Squarespace and custom-domain origins.
+The generated `index.html` and `_headers` file use a hash-based script policy. The `_headers` file intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block Squarespace iframe embedding. If you add `frame-ancestors` at the host, include your final Squarespace and custom-domain origins.
 
 For Google AdSense setup, read `ADSENSE.md`. The AdSense templates are placeholders only and do not turn ads on until you replace them with real Google account values.
 

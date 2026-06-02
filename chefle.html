@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Chefle is a daily food guessing game that compares dishes by protein, base carb, temperature, calories, texture, and prep time.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#fff8e8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+  <link rel="icon" href="chefle-logo.png" type="image/png">
   <title>Chefle</title>
   <style>
     :root {
@@ -888,6 +891,10 @@
       color: rgba(122, 86, 63, .42);
     }
 
+    .legal-footer .footer-note {
+      color: inherit;
+    }
+
     .legal-footer a {
       color: inherit;
       text-decoration: underline;
@@ -898,6 +905,20 @@
     .legal-footer a:focus-visible {
       color: var(--basil-dark);
       outline: 0;
+    }
+
+    .noscript-card {
+      width: min(560px, calc(100% - 32px));
+      margin: 84px auto 0;
+      padding: 18px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 900;
+      text-align: center;
+      box-shadow: var(--shadow);
     }
 
     .modal-backdrop {
@@ -1157,12 +1178,14 @@
 
     .hist-row {
       display: grid;
-      grid-template-columns: 18px minmax(0, 1fr) 28px;
+      grid-template-columns: 42px minmax(0, 1fr) 28px;
       gap: 8px;
       align-items: center;
       font-size: .72rem;
       font-weight: 1000;
     }
+
+    .hist-row > span:first-child { white-space: nowrap; }
 
     .hist-track {
       position: relative;
@@ -1180,6 +1203,8 @@
       border-radius: 999px;
       background: var(--basil);
     }
+
+    .hist-fill.failure { background: var(--tomato); }
 
     .hist-fill.nonzero { min-width: 15px; }
 
@@ -1442,26 +1467,6 @@
       accent-color: var(--basil);
     }
 
-    .dev-block h3 {
-      margin: 0;
-      color: var(--ink);
-      font-size: .95rem;
-      font-weight: 900;
-    }
-
-    .dev-block p,
-    .dev-status {
-      margin: 0;
-      color: var(--muted);
-      font-size: .82rem;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .dev-block .secondary-button {
-      width: 100%;
-    }
-
     .toggle-row strong {
       display: block;
       margin-bottom: 3px;
@@ -1627,6 +1632,7 @@
   </style>
 </head>
 <body>
+  <noscript><main class="noscript-card">Chefle needs JavaScript enabled to run.</main></noscript>
   <header class="topbar">
     <div class="topbar-inner">
       <button class="icon-button" id="helpButton" type="button" aria-label="Open help">
@@ -1726,6 +1732,8 @@
       <a href="accessibility.html" target="_blank" rel="noopener">Accessibility</a>
       <span aria-hidden="true">|</span>
       <a href="disclaimer.html" target="_blank" rel="noopener">Disclaimer</a>
+      <span aria-hidden="true">|</span>
+      <span class="footer-note">Made with love ❤️</span>
     </footer>
   </main>
 
@@ -1748,7 +1756,7 @@
           <a class="recipe-link" id="answerLink" href="https://www.allrecipes.com/search?q=" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Find on Allrecipes &#8599;</a>
         </div>
         <div class="stat-grid" id="statGrid"></div>
-        <div class="histogram" id="histogram" aria-label="Guess distribution"></div>
+        <div class="histogram" id="histogram" aria-label="Guess and failure distribution"></div>
         <div class="reveal-panel" id="revealPanel" hidden>
           <div>
             <span>Need the answer?</span>
@@ -1812,7 +1820,7 @@
 
           <section class="help-card">
             <h3>Stats and Sharing</h3>
-            <p>Stats use the official 7-guess result: played games, win percentage, streaks, and a 1-7 guess distribution. The share summary includes the game link and emoji rows for the official guesses.</p>
+            <p>Stats use the official 7-guess result: played games, win percentage, streaks, a 1-7 guess distribution, and failed games. The share summary includes the game link and emoji rows for the official guesses.</p>
           </section>
         </div>
       </div>
@@ -1865,14 +1873,6 @@
           <label for="sfxVolumeSlider">Sound Effects Volume</label>
           <input type="range" id="sfxVolumeSlider" min="0" max="1" step="0.1" value="0.8">
         </div>
-        <section class="settings-control-row dev-block" aria-labelledby="devToolsTitle">
-          <div>
-            <h3 id="devToolsTitle">Dev</h3>
-            <p>Reset the current date to a different answer.</p>
-          </div>
-          <button class="secondary-button" id="resetFoodButton" type="button">Reset Today&rsquo;s Dish</button>
-          <p class="dev-status" id="devResetStatus" role="status" aria-live="polite"></p>
-        </section>
       </div>
     </div>
   </div>
@@ -4343,12 +4343,12 @@
 
       const MAX_GUESSES = 7;
       const BOARD_SCROLL_START_GUESS_COUNT = 7;
-      const ENABLE_DEV_TOOLS = false;
+      const GAME_NUMBER_START_DATE = "2026-06-02";
+      const RECENT_TARGET_LOOKBACK_DAYS = 9;
       const DATA_VERSION = "metadata-grid-2026-05-19";
       const GAME_KEY = "chefle:regional-temp:v3:game";
       const STATS_KEY = "chefle:regional-temp:v3:stats";
       const SETTINGS_KEY = "chefle:continental:v1:settings";
-      const DEV_KEY = "chefle:regional-temp:v3:dev";
       const TRUSTED_TIME_KEY = "chefle:regional-temp:v3:trusted-time";
       const PACIFIC_TIME_ZONE = "America/Los_Angeles";
       const TIME_SYNC_INTERVAL_MS = 5 * 60 * 1000;
@@ -4526,7 +4526,7 @@
         dairy: "Dairy",
         legume: "Legume",
         plant: "Plant-Based",
-        none: "No Primary Protein",
+        none: "No Primary",
         lamb: "Lamb",
         veal: "Veal",
         "bread & wraps": "Bread & Wraps",
@@ -4602,9 +4602,6 @@
         settingsButton: document.getElementById("settingsButton"),
         soundToggle: document.getElementById("soundToggle"),
         sfxVolumeSlider: document.getElementById("sfxVolumeSlider"),
-        devBlock: document.querySelector(".dev-block"),
-        resetFoodButton: document.getElementById("resetFoodButton"),
-        devResetStatus: document.getElementById("devResetStatus"),
         classificationsBody: document.getElementById("classificationsBody")
       };
 
@@ -4617,7 +4614,7 @@
       let gameState;
       let stats;
       let settings;
-      let devState;
+      const targetCache = new Map();
       let timeState = {
         serverNowMs: 0,
         syncedAtPerfMs: 0,
@@ -4755,7 +4752,9 @@
 
       function gameNumberFromDate(key) {
         const [year, month, day] = key.split("-").map(Number);
-        return Math.floor((Date.UTC(year, month - 1, day) - Date.UTC(2024, 0, 1)) / 86400000) + 1;
+        const [startYear, startMonth, startDay] = GAME_NUMBER_START_DATE.split("-").map(Number);
+        const dateNumber = Math.floor((Date.UTC(year, month - 1, day) - Date.UTC(startYear, startMonth - 1, startDay)) / 86400000) + 1;
+        return Math.max(1, dateNumber);
       }
 
       function hashString(value) {
@@ -5044,8 +5043,30 @@
         return registry;
       }
 
+      function targetRankForDate(key, dish) {
+        return hashString("target:" + DATA_VERSION + ":" + key + ":" + dish.name);
+      }
+
+      function recentTargetNamesForDate(key) {
+        const names = new Set();
+        let cursor = addDaysToDateKey(key, -1);
+        for (let offset = 0; offset < RECENT_TARGET_LOOKBACK_DAYS && cursor >= GAME_NUMBER_START_DATE; offset += 1) {
+          const target = targetForDate(cursor);
+          if (target) names.add(target.name);
+          cursor = addDaysToDateKey(cursor, -1);
+        }
+        return names;
+      }
+
       function targetForDate(key) {
-        return masterRegistry[hashString("target:" + DATA_VERSION + ":" + key + ":" + targetSeedForDate(key)) % masterRegistry.length];
+        if (targetCache.has(key)) return targetCache.get(key);
+        const recentTargets = recentTargetNamesForDate(key);
+        const rankedTargets = masterRegistry
+          .map((dish) => ({ dish, rank: targetRankForDate(key, dish) }))
+          .sort((a, b) => a.rank - b.rank || a.dish.name.localeCompare(b.dish.name));
+        const target = (rankedTargets.find((item) => !recentTargets.has(item.dish.name)) || rankedTargets[0]).dish;
+        targetCache.set(key, target);
+        return target;
       }
 
       function regionGroupForDish(dish) {
@@ -5077,7 +5098,6 @@
         localStorage.setItem(STATS_KEY, JSON.stringify(stats));
       }
       function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
-      function saveDevState() { localStorage.setItem(DEV_KEY, JSON.stringify(devState)); }
 
       function freshStats() {
         return {
@@ -5126,21 +5146,6 @@
           sound: Boolean(source.sound),
           sfxVolume: Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 0.8
         };
-      }
-
-      function normalizeDevState(raw) {
-        return { targetSeeds: {}, ...raw, targetSeeds: raw && typeof raw.targetSeeds === "object" && raw.targetSeeds ? raw.targetSeeds : {} };
-      }
-
-      function targetSeedForDate(key) {
-        if (!ENABLE_DEV_TOOLS) return 0;
-        const seed = Number(devState && devState.targetSeeds ? devState.targetSeeds[key] : 0);
-        return Number.isFinite(seed) ? seed : 0;
-      }
-
-      function setTargetSeedForDate(key, seed) {
-        if (!ENABLE_DEV_TOOLS) return;
-        devState.targetSeeds[key] = seed;
       }
 
       function freshGameState(key) {
@@ -5850,25 +5855,30 @@
         ].forEach(([value, label]) => els.statGrid.appendChild(statCard(value, label)));
 
         clearNode(els.histogram);
-        const max = Math.max(1, ...stats.guessDistribution);
-        for (let index = 0; index < MAX_GUESSES; index += 1) {
-          const count = stats.guessDistribution[index] || 0;
-          const fillWidth = count ? (count / max) * 100 : 0;
+        const totalPlays = Math.max(1, stats.played);
+        const appendHistogramRow = (labelText, titleText, count, extraClass = "") => {
+          const fillWidth = count ? Math.min(100, (count / totalPlays) * 100) : 0;
+          const percent = stats.played > 0 ? Math.round((count / totalPlays) * 100) : 0;
           const row = document.createElement("div");
           row.className = "hist-row";
+          row.title = titleText + ": " + count + " of " + stats.played + " plays, " + percent + "%";
           const label = document.createElement("span");
-          label.textContent = String(index + 1);
+          label.textContent = labelText;
           const track = document.createElement("span");
           track.className = "hist-track";
           const fill = document.createElement("span");
-          fill.className = "hist-fill" + (count ? " nonzero" : "");
+          fill.className = "hist-fill" + extraClass + (count ? " nonzero" : "");
           fill.style.setProperty("--w", fillWidth + "%");
           const countLabel = document.createElement("span");
           countLabel.textContent = String(count);
           track.appendChild(fill);
           row.append(label, track, countLabel);
           els.histogram.appendChild(row);
+        };
+        for (let index = 0; index < MAX_GUESSES; index += 1) {
+          appendHistogramRow(String(index + 1), (index + 1) + " guesses", stats.guessDistribution[index] || 0);
         }
+        appendHistogramRow("Failed", "Failed games", Math.max(0, stats.played - stats.wins), " failure");
       }
 
       function renderAnswerCard(showAnswer) {
@@ -6173,37 +6183,6 @@
         els.sfxVolumeSlider.value = String(settings.sfxVolume);
       }
 
-      function resetTodaysDish() {
-        if (!ENABLE_DEV_TOOLS) return;
-        const previousTarget = targetDish ? targetDish.name : "";
-        let seed = targetSeedForDate(todayKey);
-        for (let i = 0; i < Math.max(1, masterRegistry.length); i += 1) {
-          seed += 1;
-          setTargetSeedForDate(todayKey, seed);
-          if (!previousTarget || targetForDate(todayKey).name !== previousTarget) break;
-        }
-        saveDevState();
-        targetDish = targetForDate(todayKey);
-        dailyPool = dailyPoolForDate(todayKey);
-        gameState = freshGameState(todayKey);
-        stats = normalizeStats(stats);
-        gameState.statsRecorded = stats.lastCompletedGameKey === currentStatsGameKey();
-        saveGame();
-        els.input.value = "";
-        els.poolFilter.value = "";
-        els.proteinFilter.value = "";
-        els.carbFilter.value = "";
-        activeSuggestion = 0;
-        closeSuggestions();
-        populatePoolFilters();
-        updateStatus();
-        renderBoard();
-        renderStats();
-        renderDiscoveryList();
-        if (els.devResetStatus) els.devResetStatus.textContent = "Today's dish reset. Guesses cleared.";
-        playEventSound("copy");
-      }
-
       function updateCountdown() {
         const now = trustedNow();
         const diff = Math.max(0, nextPacificMidnightMs(now) - now.getTime());
@@ -6233,11 +6212,10 @@
       }
 
       function initialize() {
-        if (!ENABLE_DEV_TOOLS) els.devBlock?.remove();
         masterRegistry = ensureMasterRegistry(chefleGlobalMasterRegistry);
+        targetCache.clear();
         todayKey = localDateKey();
         gameId = gameNumberFromDate(todayKey);
-        devState = ENABLE_DEV_TOOLS ? normalizeDevState(readJson(DEV_KEY, {})) : normalizeDevState({});
         targetDish = targetForDate(todayKey);
         dailyPool = dailyPoolForDate(todayKey);
         stats = normalizeStats(readJson(STATS_KEY, freshStats()));
@@ -6249,7 +6227,6 @@
         closeClassifications();
         closeSettings();
         applySettings();
-        if (els.devResetStatus) els.devResetStatus.textContent = "";
         populatePoolFilters();
         updateStatus();
         renderBoard();
@@ -6334,8 +6311,6 @@
       els.sfxVolumeSlider.addEventListener("change", () => {
         if (settings.sound) playEventSound("copy");
       });
-
-      if (ENABLE_DEV_TOOLS && els.resetFoodButton) els.resetFoodButton.addEventListener("click", resetTodaysDish);
 
       document.addEventListener("keydown", (event) => {
         trapModalFocus(event);

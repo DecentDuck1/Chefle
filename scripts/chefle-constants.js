@@ -145,6 +145,7 @@ module.exports = {
   parseJsonConst,
   parseJsonLiteral,
   parseJsonObjectConst,
+  quoteObjectKeys,
   scriptHash,
   withUpdatedCspScriptHash
 };

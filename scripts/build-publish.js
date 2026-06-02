@@ -32,6 +32,15 @@ function copyFile(relativePath) {
   fs.copyFileSync(source, target);
 }
 
+function copyLegalPage(relativePath) {
+  const source = path.join(ROOT, relativePath);
+  const target = path.join(OUT_DIR, relativePath);
+  if (!fs.existsSync(source)) throw new Error(`Missing publish legal page: ${relativePath}`);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  const html = fs.readFileSync(source, "utf8").replace(/href="chefle\.html"/g, 'href="index.html"');
+  fs.writeFileSync(target, html, "utf8");
+}
+
 function fileSize(dir) {
   let total = 0;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -99,6 +108,24 @@ function securityHeaders(html) {
 `;
 }
 
+function publishHtmlWithHashedCsp(html) {
+  const scripts = inlineScripts(html);
+  if (scripts.length !== 1) throw new Error(`Expected one inline app script for CSP hash, found ${scripts.length}.`);
+  const hash = scriptHash(scripts[0]);
+  const metaPattern = /(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")/i;
+  const match = html.match(metaPattern);
+  if (!match) throw new Error("Could not find Content-Security-Policy meta tag.");
+
+  const directives = match[2].split(";").map((directive) => directive.trim()).filter(Boolean);
+  const nextDirectives = directives.map((directive) => (
+    directive.startsWith("script-src ")
+      ? `script-src 'self' 'sha256-${hash}'`
+      : directive
+  ));
+
+  return html.replace(metaPattern, `${match[1]}${nextDirectives.join("; ")}${match[3]}`);
+}
+
 function publishingReadme(stats) {
   return `# Chefle Publish Bundle
 
@@ -123,7 +150,7 @@ Squarespace Code Blocks have a 400 KB code limit. The HTML may fit today, but a 
 
 Host this folder on a static host or file host that preserves the relative paths exactly. Then put the hosted \`index.html\` URL into \`squarespace-iframe-snippet.html\`.
 
-The generated \`_headers\` file intentionally omits \`X-Frame-Options\` and \`frame-ancestors\` because those can block Squarespace iframe embedding. If you add \`frame-ancestors\` at the host, include your final Squarespace and custom-domain origins.
+The generated \`index.html\` and \`_headers\` file use a hash-based script policy. The \`_headers\` file intentionally omits \`X-Frame-Options\` and \`frame-ancestors\` because those can block Squarespace iframe embedding. If you add \`frame-ancestors\` at the host, include your final Squarespace and custom-domain origins.
 
 For Google AdSense setup, read \`ADSENSE.md\`. The AdSense templates are placeholders only and do not turn ads on until you replace them with real Google account values.
 
@@ -143,14 +170,15 @@ For Google AdSense setup, read \`ADSENSE.md\`. The AdSense templates are placeho
 function main() {
   cleanDir(OUT_DIR);
 
-  const html = fs.readFileSync(HTML_PATH, "utf8");
-  const registry = parseJsonConst(html, "chefleGlobalMasterRegistry");
+  const sourceHtml = fs.readFileSync(HTML_PATH, "utf8");
+  const html = publishHtmlWithHashedCsp(sourceHtml);
+  const registry = parseJsonConst(sourceHtml, "chefleGlobalMasterRegistry");
   const imageUrls = Array.from(new Set(registry.map((dish) => dish.imageUrl))).sort();
 
   fs.writeFileSync(path.join(OUT_DIR, "index.html"), html, "utf8");
   fs.writeFileSync(path.join(OUT_DIR, "_headers"), securityHeaders(html), "utf8");
   copyFile("chefle-logo.png");
-  LEGAL_PAGES.forEach(copyFile);
+  LEGAL_PAGES.forEach(copyLegalPage);
   ADSENSE_TEMPLATES.forEach(copyFile);
   copyFile(path.join("assets", "food-pattern.svg"));
 

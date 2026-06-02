@@ -42,9 +42,9 @@ The build script copies only the 273 production dish images referenced by the ap
 
 ## CSP
 
-The source app keeps an inline-script-compatible CSP because Squarespace and single-file local testing are brittle with strict hash policies. If the app is hosted on a controlled static host and verified in browsers, a stricter hashed CSP can be added at the host/header layer.
+The source app keeps an inline-script-compatible CSP for local single-file testing. The generated `publish/index.html` and `publish/_headers` file use a hash-based script policy for the production bundle.
 
-The generated `publish/_headers` file includes a stricter script hash CSP, `Referrer-Policy`, `X-Content-Type-Options`, and a restrictive `Permissions-Policy` for hosts that support `_headers`, such as Netlify-style static hosting. It intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block the Squarespace iframe. If you add `frame-ancestors`, include the final Squarespace and custom-domain origins.
+The generated `publish/_headers` file includes the same stricter script hash CSP, `Referrer-Policy`, `X-Content-Type-Options`, and a restrictive `Permissions-Policy` for hosts that support `_headers`, such as Netlify-style static hosting. It intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block the Squarespace iframe. If you add `frame-ancestors`, include the final Squarespace and custom-domain origins.
 
 Configure HTTPS and HSTS at the final host after confirming the site is served only over HTTPS. Do not enable HSTS preload until the final domain setup is stable.
 
