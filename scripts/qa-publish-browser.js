@@ -168,6 +168,41 @@ async function evaluate(send, expression) {
   return result.result.value;
 }
 
+async function clickBySelector(send, selector) {
+  const rect = await evaluate(send, `(() => {
+    const element = document.querySelector(${JSON.stringify(selector)});
+    if (!element) return null;
+    const bounds = element.getBoundingClientRect();
+    return {
+      x: bounds.left + bounds.width / 2,
+      y: bounds.top + bounds.height / 2,
+      width: bounds.width,
+      height: bounds.height,
+      disabled: Boolean(element.disabled),
+      text: element.textContent || ""
+    };
+  })()`);
+  if (!rect || rect.disabled || rect.width <= 0 || rect.height <= 0) {
+    throw new Error(`Cannot click ${selector}: ${JSON.stringify(rect)}`);
+  }
+  await send("Input.dispatchMouseEvent", {
+    type: "mousePressed",
+    x: rect.x,
+    y: rect.y,
+    button: "left",
+    clickCount: 1
+  });
+  await send("Input.dispatchMouseEvent", {
+    type: "mouseReleased",
+    x: rect.x,
+    y: rect.y,
+    button: "left",
+    clickCount: 1
+  });
+  await delay(150);
+  return rect;
+}
+
 async function waitForInitialized(send) {
   for (let attempt = 0; attempt < 40; attempt += 1) {
     const state = await evaluate(send, `(() => ({
@@ -258,6 +293,40 @@ async function runHistogramScenario(send) {
   });
   await evaluate(send, `localStorage.removeItem(${JSON.stringify(statsKey)})`);
   return rows;
+}
+
+async function runShareCopyScenario(send) {
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1365,
+    height: 768,
+    deviceScaleFactor: 1,
+    mobile: false
+  });
+  const dateKey = gameNumberStartDate;
+  const targetName = targetNameForDate(dateKey);
+  await setStoredGame(send, {
+    dateKey,
+    dataVersion,
+    targetName,
+    guesses: [targetName],
+    status: "won",
+    statsRecorded: true,
+    answerRevealed: false
+  });
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  await clickBySelector(send, "#statsButton");
+  await clickBySelector(send, "#copySummaryButton");
+  const copyToast = await evaluate(send, `document.getElementById("toast")?.textContent || ""`);
+  await evaluate(send, `Object.defineProperty(navigator, "share", { value: undefined, configurable: true })`);
+  await clickBySelector(send, "#shareButton");
+  const shareToast = await evaluate(send, `document.getElementById("toast")?.textContent || ""`);
+  await evaluate(send, `localStorage.removeItem(${JSON.stringify(gameKey)})`);
+  if (/failed/i.test(copyToast) || /failed/i.test(shareToast)) {
+    throw new Error(`Share/copy toast should not fail. Copy: ${copyToast || "empty"} Share: ${shareToast || "empty"}`);
+  }
+  return { copyToast, shareToast };
 }
 
 function assertScenario(scenario, expectedRows, expectedLastLabel = null) {
@@ -414,9 +483,10 @@ async function main() {
     results.push(await runViewport(send, { label: "desktop", width: 1365, height: 768, mobile: false }));
     const boardScenarios = await runBoardStateScenarios(send);
     const histogramWidths = await runHistogramScenario(send);
+    const shareCopy = await runShareCopyScenario(send);
     socket.close();
 
-    console.log(JSON.stringify({ targetUrl, results, boardScenarios, histogramWidths }, null, 2));
+    console.log(JSON.stringify({ targetUrl, results, boardScenarios, histogramWidths, shareCopy }, null, 2));
 
     const failures = results.filter((result) =>
       result.scrollWidth > result.clientWidth + 1

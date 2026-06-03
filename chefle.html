@@ -6073,15 +6073,48 @@
         return "Chefle #" + gameId + " - " + score + "\n\n" + shareRows() + "\n\nPlay: " + url;
       }
 
+      async function writeClipboardText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch {
+            // Fall through to the legacy copy path below.
+          }
+        }
+
+        const activeElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        let copied = false;
+        try {
+          copied = document.execCommand("copy");
+        } catch {
+          copied = false;
+        }
+        textarea.remove();
+        if (activeElement && document.contains(activeElement)) activeElement.focus();
+        return copied;
+      }
+
       async function copyShare(successMessage = "Copied results.") {
         if (officialStatus() === "playing") return;
+        const message = typeof successMessage === "string" ? successMessage : "Copied results.";
         const text = shareText();
-        try {
-          await navigator.clipboard.writeText(text);
-          showToast(successMessage);
+        if (await writeClipboardText(text)) {
+          showToast(message);
           playEventSound("copy");
-        } catch {
-          showToast("Copy failed. Select and copy from your browser.");
+        } else {
+          showToast("Copy failed. Select the result text and copy it manually.");
         }
       }
 
@@ -6287,7 +6320,7 @@
       els.closeSettings.addEventListener("click", closeSettings);
       els.shareButton.addEventListener("click", handleStatsPrimaryAction);
       els.revealAnswerButton.addEventListener("click", revealAnswer);
-      els.copySummaryButton.addEventListener("click", copyShare);
+      els.copySummaryButton.addEventListener("click", () => copyShare());
       els.statsModal.addEventListener("pointerdown", (event) => { if (event.target === els.statsModal) closeStats(); });
       els.helpModal.addEventListener("pointerdown", (event) => { if (event.target === els.helpModal) closeHelp(); });
       els.classificationsModal.addEventListener("pointerdown", (event) => { if (event.target === els.classificationsModal) closeClassifications(); });
