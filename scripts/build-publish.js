@@ -95,7 +95,7 @@ function securityHeaders(html) {
     `script-src 'self' 'sha256-${hash}' ${ADSENSE_ORIGIN}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
-    "connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
+    "connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google",
     "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
     "object-src 'none'",
     "base-uri 'none'",
