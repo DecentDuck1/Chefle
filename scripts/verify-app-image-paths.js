@@ -49,10 +49,10 @@ function startStaticServer() {
 
 function extractInlineScripts(html) {
   const scripts = [];
-  const pattern = /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi;
+  const pattern = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
   let match;
   while ((match = pattern.exec(html)) !== null) {
-    scripts.push(match[1]);
+    if (!/\bsrc\s*=/i.test(match[1])) scripts.push(match[2]);
   }
   return scripts;
 }

@@ -5,6 +5,9 @@ const { inlineScripts, scriptHash } = require("./chefle-constants");
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_PAGES = ["chefle.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const PUBLISH_PAGES = ["index.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const ADSENSE_CLIENT = "ca-pub-4681241502820822";
+const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
+const ADSENSE_SCRIPT_ORIGIN = "https://pagead2.googlesyndication.com";
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
@@ -84,13 +87,19 @@ function main() {
   if (sourceScripts.length === 1 && publishScripts.length === 1) {
     assert(scriptHash(sourceScripts[0]) === scriptHash(publishScripts[0]), "publish/index.html app script is not in sync with chefle.html; run node scripts/build-publish.js", failures);
     const publishScriptHash = scriptHash(publishScripts[0]);
-    assert(publishHtml.includes(`script-src 'self' 'sha256-${publishScriptHash}'`), "publish/index.html CSP script hash does not match browser-normalized inline script content.", failures);
-    assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}'`), "publish/_headers CSP script hash does not match browser-normalized inline script content.", failures);
+    assert(publishHtml.includes(`script-src 'self' 'sha256-${publishScriptHash}' ${ADSENSE_SCRIPT_ORIGIN}`), "publish/index.html CSP script hash or AdSense origin does not match browser-normalized inline script content.", failures);
+    assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}' ${ADSENSE_SCRIPT_ORIGIN}`), "publish/_headers CSP script hash or AdSense origin does not match browser-normalized inline script content.", failures);
   }
   assert(!/script-src[^;"]*'unsafe-inline'/.test(publishHtml), "publish/index.html script CSP still allows unsafe-inline.", failures);
+  for (const page of SOURCE_PAGES) {
+    assert(read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: missing AdSense verification script.`, failures);
+  }
+  for (const page of PUBLISH_PAGES) {
+    assert(read(`publish/${page}`).includes(ADSENSE_SCRIPT_SRC), `publish/${page}: missing AdSense verification script.`, failures);
+  }
   assert(!/No Primary Protein/.test(sourceHtml + publishHtml), "Old protein label still appears in game HTML.", failures);
   assert(!/(resetFoodButton|devResetStatus|dev-block|Restart Today)/.test(sourceHtml + publishHtml), "Dev food reset control still appears in game HTML.", failures);
-  assert(!/(adsbygoogle|pagead2\.googlesyndication|ca-pub-\d{8,})/.test(publishHtml), "publish/index.html appears to contain active AdSense code.", failures);
+  assert(!/ca-pub-0000000000000000/.test(publishHtml), "publish/index.html still contains placeholder AdSense publisher ID.", failures);
   assert(read("publish/_headers").includes("Content-Security-Policy:"), "publish/_headers missing CSP.", failures);
   assert(read("publish/CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
   assert(exists("publish/.nojekyll"), "publish/.nojekyll is missing.", failures);

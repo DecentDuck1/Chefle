@@ -111,7 +111,9 @@ function parseJsonObjectConst(source, name) {
 }
 
 function inlineScripts(html) {
-  return [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map((match) => match[1]);
+  return [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter((match) => !/\bsrc\s*=/i.test(match[1]))
+    .map((match) => match[2]);
 }
 
 function scriptHash(script) {

@@ -14,6 +14,8 @@ const INDEX_PATH = path.join(PUBLISH_ROOT, "index.html");
 const EXPECTED_DISH_COUNT = 273;
 const TARGET_SCHEDULE_SAMPLE_DAYS = 365;
 const PAGES = ["index.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const ADSENSE_CLIENT = "ca-pub-4681241502820822";
+const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
 
 function read(relativePath) {
   return fs.readFileSync(path.join(PUBLISH_ROOT, relativePath), "utf8");
@@ -285,13 +287,16 @@ function main() {
   if (exists("CNAME")) assert(read("CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
 
   auditPages(failures);
+  for (const page of PAGES) {
+    if (exists(page)) assert(read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: missing AdSense verification script.`, failures);
+  }
 
   let dishSummary = null;
   if (fs.existsSync(INDEX_PATH)) {
     const html = fs.readFileSync(INDEX_PATH, "utf8");
     assert(!/No Primary Protein/.test(html), "Old protein label still appears in publish/index.html.", failures);
     assert(!/(resetFoodButton|devResetStatus|dev-block|Restart Today)/.test(html), "Dev food reset control still appears in publish/index.html.", failures);
-    assert(!/(adsbygoogle|pagead2\.googlesyndication|ca-pub-\d{8,})/.test(html), "publish/index.html appears to contain active AdSense code.", failures);
+    assert(!/ca-pub-0000000000000000/.test(html), "publish/index.html still contains placeholder AdSense publisher ID.", failures);
     dishSummary = auditDishData(html, failures);
   }
 

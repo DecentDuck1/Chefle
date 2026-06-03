@@ -8,6 +8,7 @@ const HTML_PATH = path.join(ROOT, "chefle.html");
 const OUT_DIR = path.join(ROOT, "publish");
 const PYTHON = process.env.CODEX_PYTHON || process.env.PYTHON || "python";
 const CUSTOM_DOMAIN = "chefle.org";
+const ADSENSE_ORIGIN = "https://pagead2.googlesyndication.com";
 const LEGAL_PAGES = ["privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const ADSENSE_TEMPLATES = ["ADSENSE.md", "adsense-auto-ads-template.html", "adsense-manual-ad-unit-template.html", "ads.txt.template"];
 
@@ -91,10 +92,11 @@ function securityHeaders(html) {
   const hash = scriptHash(scripts[0]);
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'sha256-${hash}'`,
+    `script-src 'self' 'sha256-${hash}' ${ADSENSE_ORIGIN}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data:",
-    "connect-src 'self'",
+    "img-src 'self' data: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
+    "connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
+    "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'none'"
@@ -119,7 +121,7 @@ function publishHtmlWithHashedCsp(html) {
   const directives = match[2].split(";").map((directive) => directive.trim()).filter(Boolean);
   const nextDirectives = directives.map((directive) => (
     directive.startsWith("script-src ")
-      ? `script-src 'self' 'sha256-${hash}'`
+      ? `script-src 'self' 'sha256-${hash}' ${ADSENSE_ORIGIN}`
       : directive
   ));
 
