@@ -115,7 +115,7 @@ function inlineScripts(html) {
 }
 
 function scriptHash(script) {
-  return crypto.createHash("sha256").update(script, "utf8").digest("base64");
+  return crypto.createHash("sha256").update(script.replace(/\r\n/g, "\n"), "utf8").digest("base64");
 }
 
 function withUpdatedCspScriptHash(html) {

@@ -97,8 +97,7 @@ function securityHeaders(html) {
     "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'none'",
-    "form-action 'none'",
-    "upgrade-insecure-requests"
+    "form-action 'none'"
   ].join("; ");
 
   return `/*

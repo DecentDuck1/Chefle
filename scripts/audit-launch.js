@@ -83,6 +83,9 @@ function main() {
   assert(sourceScripts.length === 1 && publishScripts.length === 1, "Source and publish should each contain one app script.", failures);
   if (sourceScripts.length === 1 && publishScripts.length === 1) {
     assert(scriptHash(sourceScripts[0]) === scriptHash(publishScripts[0]), "publish/index.html app script is not in sync with chefle.html; run node scripts/build-publish.js", failures);
+    const publishScriptHash = scriptHash(publishScripts[0]);
+    assert(publishHtml.includes(`script-src 'self' 'sha256-${publishScriptHash}'`), "publish/index.html CSP script hash does not match browser-normalized inline script content.", failures);
+    assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}'`), "publish/_headers CSP script hash does not match browser-normalized inline script content.", failures);
   }
   assert(!/script-src[^;"]*'unsafe-inline'/.test(publishHtml), "publish/index.html script CSP still allows unsafe-inline.", failures);
   assert(!/No Primary Protein/.test(sourceHtml + publishHtml), "Old protein label still appears in game HTML.", failures);
