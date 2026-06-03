@@ -516,7 +516,7 @@ async function main() {
       || result.devResetPresent
       || !result.poolListHasInternalScroll
       || result.boardToGuessGap > 24
-      || (result.label === "adsense-preview" && (result.appLeftGutter < 40 || result.appRightGutter < 40))
+      || (result.label === "adsense-preview" && (result.appLeftGutter < 140 || result.appRightGutter < 140))
       || (result.label === "desktop" && result.playgroundToPoolBottomDelta > 2)
       || requiredFooterLinks.some((href) => !result.footerLinks.includes(href))
     );
