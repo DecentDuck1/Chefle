@@ -28,18 +28,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install image optimizer dependencies
-        run: python -m pip install --upgrade pip pillow
-
-      - name: Build publish bundle
-        run: node scripts/build-publish.js
-
-      - name: Validate launch bundle
+      - name: Validate committed launch bundle
         run: |
           node scripts/validate-dish-data.js
           node scripts/audit-food-data.js
