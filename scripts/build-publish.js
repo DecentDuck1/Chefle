@@ -93,7 +93,8 @@ function securityHeaders(html) {
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'sha256-${hash}' ${ADSENSE_ORIGIN}`,
-    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src https://fonts.gstatic.com",
     "img-src 'self' data: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
     "connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google",
     "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
