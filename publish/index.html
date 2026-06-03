@@ -1558,9 +1558,9 @@
       body::before { animation: none !important; }
     }
 
-    @media (min-width: 1180px) {
+    @media (min-width: 960px) {
       :root {
-        --site-content-width: min(1320px, max(1060px, calc(100vw - 240px)));
+        --site-content-width: min(1320px, max(860px, calc(100vw - 240px)));
       }
 
       .site-frame {
@@ -1707,7 +1707,7 @@
 
   <div class="site-frame">
     <aside class="ad-rail ad-rail-left" aria-hidden="true" data-ad-rail="left"></aside>
-    <main class="app-shell">
+    <main class="app-shell" google-side-rail-overlap="false">
       <section class="intro" aria-labelledby="gameStatus">
         <div class="intro-main">
           <p class="kicker" id="gameId">Chefle</p>

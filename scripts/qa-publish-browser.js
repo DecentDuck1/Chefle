@@ -302,7 +302,14 @@ async function runShareCopyScenario(send) {
     deviceScaleFactor: 1,
     mobile: false
   });
-  const dateKey = gameNumberStartDate;
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  const dateKey = await evaluate(send, `(() => {
+    const gameText = document.getElementById("gameId")?.textContent || "";
+    const dateText = gameText.split("|")[1]?.trim() || "";
+    return new Date(dateText + " 12:00 UTC").toISOString().slice(0, 10);
+  })()`);
   const targetName = targetNameForDate(dateKey);
   await setStoredGame(send, {
     dateKey,
@@ -429,12 +436,24 @@ async function runViewport(send, viewport) {
           width: Math.round(rect.width)
         };
       });
+    const appRect = document.querySelector(".app-shell")?.getBoundingClientRect() || { left: 0, right: window.innerWidth, width: window.innerWidth };
+    const leftRail = document.querySelector(".ad-rail-left");
+    const rightRail = document.querySelector(".ad-rail-right");
+    const leftRailRect = leftRail?.getBoundingClientRect() || { width: 0 };
+    const rightRailRect = rightRail?.getBoundingClientRect() || { width: 0 };
     return {
       label: ${JSON.stringify(viewport.label)},
       innerWidth: window.innerWidth,
       clientWidth: doc.clientWidth,
       scrollWidth: doc.scrollWidth,
       bodyScrollWidth: body.scrollWidth,
+      appWidth: Math.round(appRect.width),
+      appLeftGutter: Math.round(appRect.left),
+      appRightGutter: Math.round(window.innerWidth - appRect.right),
+      leftRailWidth: Math.round(leftRailRect.width),
+      rightRailWidth: Math.round(rightRailRect.width),
+      leftRailDisplay: leftRail ? getComputedStyle(leftRail).display : "",
+      rightRailDisplay: rightRail ? getComputedStyle(rightRail).display : "",
       initialized: document.getElementById("gameId")?.textContent || "",
       region: document.getElementById("regionInsightTitle")?.textContent || "",
       pool: document.getElementById("poolFilteredCount")?.textContent || "",
@@ -480,6 +499,7 @@ async function main() {
 
     const results = [];
     results.push(await runViewport(send, { label: "mobile", width: 390, height: 844, mobile: true }));
+    results.push(await runViewport(send, { label: "adsense-preview", width: 1000, height: 768, mobile: false }));
     results.push(await runViewport(send, { label: "desktop", width: 1365, height: 768, mobile: false }));
     const boardScenarios = await runBoardStateScenarios(send);
     const histogramWidths = await runHistogramScenario(send);
@@ -496,6 +516,7 @@ async function main() {
       || result.devResetPresent
       || !result.poolListHasInternalScroll
       || result.boardToGuessGap > 24
+      || (result.label === "adsense-preview" && (result.appLeftGutter < 40 || result.appRightGutter < 40))
       || (result.label === "desktop" && result.playgroundToPoolBottomDelta > 2)
       || requiredFooterLinks.some((href) => !result.footerLinks.includes(href))
     );
