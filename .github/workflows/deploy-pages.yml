@@ -30,9 +30,7 @@ jobs:
 
       - name: Validate committed launch bundle
         run: |
-          node scripts/validate-dish-data.js
-          node scripts/audit-food-data.js
-          node scripts/verify-app-image-paths.js
+          node scripts/audit-publish-bundle.js
           node scripts/audit-launch.js
 
       - name: Configure GitHub Pages
