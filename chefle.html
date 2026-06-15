@@ -36,7 +36,14 @@
       --site-content-width: min(1320px, 100%);
       --ad-rail-max-width: 160px;
       --board-min-width: 780px;
-      --game-panel-height: clamp(530px, calc(100svh - 238px), 700px);
+      --game-panel-height: clamp(500px, calc(100svh - 238px), 700px);
+      --board-row-min-height: 72px;
+      --board-row-gap: 7px;
+      --board-column-gap: 6px;
+      --board-pad: 10px;
+      --board-dish-image-size: 44px;
+      --pool-panel-height: clamp(300px, 44svh, 460px);
+      --pool-thumb-size: 48px;
       --rounded: Merriweather, Georgia, "Times New Roman", serif;
       --body: Merriweather, Georgia, "Times New Roman", serif;
     }
@@ -47,6 +54,7 @@
     html {
       min-width: 320px;
       overflow-x: hidden;
+      scrollbar-gutter: stable;
       background: var(--cream);
       scroll-padding-top: 74px;
     }
@@ -92,7 +100,7 @@
 
     .topbar-inner {
       display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) 138px;
+      grid-template-columns: 92px minmax(0, 1fr) 138px;
       align-items: center;
       width: var(--site-content-width);
       height: 62px;
@@ -127,6 +135,10 @@
       gap: 6px;
     }
 
+    .icon-group-left {
+      justify-content: flex-start;
+    }
+
     .icon-button {
       display: inline-grid;
       place-items: center;
@@ -146,7 +158,21 @@
       outline: 0;
     }
 
+    .icon-button.active {
+      border-color: rgba(63,125,69,.34);
+      background: #e7f3db;
+      color: var(--basil-dark);
+    }
+
     .icon-button:active { transform: scale(.96); }
+
+    .infinity-mark {
+      font-family: var(--rounded);
+      font-size: 1.7rem;
+      font-weight: 900;
+      line-height: 1;
+      transform: translateY(-1px);
+    }
 
     .icon {
       width: 22px;
@@ -233,6 +259,45 @@
       font-size: .86rem;
       font-weight: 750;
       line-height: 1.32;
+    }
+
+    .infinite-scoreboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      min-height: 42px;
+      opacity: 1;
+      transition: opacity .16s ease;
+    }
+
+    .infinite-scoreboard.inactive {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .infinite-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 11px;
+      border: 2px solid rgba(234,212,166,.92);
+      border-radius: var(--radius);
+      background: rgba(255,253,246,.86);
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+      box-shadow: 0 7px 18px rgba(97, 64, 31, .07);
+    }
+
+    .infinite-chip strong {
+      color: var(--basil-dark);
+      font-family: var(--rounded);
+      font-size: 1.18rem;
+      line-height: 1;
     }
 
     .region-insight {
@@ -421,7 +486,7 @@
     .empty-row {
       display: grid;
       grid-template-columns: minmax(142px, 1.18fr) repeat(6, minmax(82px, 1fr));
-      gap: 6px;
+      gap: var(--board-column-gap);
     }
 
     .board-header {
@@ -447,11 +512,11 @@
     .board {
       display: grid;
       align-content: start;
-      gap: 7px;
+      gap: var(--board-row-gap);
       width: max(100%, var(--board-min-width));
       min-width: var(--board-min-width);
       min-height: 0;
-      padding: 10px;
+      padding: var(--board-pad);
       overflow-y: auto;
       overscroll-behavior: contain;
       scrollbar-color: #b68847 #fff1cf;
@@ -478,13 +543,13 @@
     .empty-cell,
     .empty-dish {
       min-width: 0;
-      min-height: 72px;
+      min-height: var(--board-row-min-height);
       border-radius: var(--radius);
     }
 
     .dish-label {
       display: grid;
-      grid-template-columns: 44px minmax(0, 1fr);
+      grid-template-columns: var(--board-dish-image-size) minmax(0, 1fr);
       gap: 9px;
       align-items: center;
       padding: 7px 9px;
@@ -495,8 +560,8 @@
     }
 
     .dish-row-image {
-      width: 44px;
-      height: 44px;
+      width: var(--board-dish-image-size);
+      height: var(--board-dish-image-size);
       border-radius: 50%;
       background: #fffdf6;
       object-fit: contain;
@@ -617,6 +682,68 @@
     }
 
     .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+    .celebration-popover {
+      position: fixed;
+      inset: 0;
+      z-index: 95;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      place-items: center;
+      align-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 18px;
+      border: 0;
+      background: rgba(255,248,232,.22);
+      backdrop-filter: blur(7px) saturate(1.08);
+      -webkit-backdrop-filter: blur(7px) saturate(1.08);
+      color: var(--ink);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px) scale(.96);
+      transition:
+        opacity .56s cubic-bezier(.16, 1, .3, 1),
+        transform .56s cubic-bezier(.16, 1, .3, 1);
+      will-change: opacity, transform;
+    }
+
+    .celebration-popover.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .celebration-fire {
+      min-width: 0;
+      color: var(--tomato);
+      font-size: clamp(4.2rem, 11vw, 8.5rem);
+      font-weight: 1000;
+      line-height: 1;
+      text-align: center;
+      text-shadow:
+        0 8px 18px rgba(65,38,19,.24),
+        0 20px 38px rgba(65,38,19,.20);
+    }
+
+    .celebration-title {
+      min-width: 0;
+      max-width: min(900px, 94vw);
+      color: var(--tomato);
+      font-family: var(--rounded);
+      font-size: clamp(3rem, 9vw, 7rem);
+      font-weight: 1000;
+      line-height: .9;
+      overflow-wrap: anywhere;
+      text-shadow:
+        0 5px 0 rgba(255,248,232,.74),
+        0 14px 26px rgba(65,38,19,.26),
+        0 28px 46px rgba(65,38,19,.18);
+    }
+
+    .celebration-meta {
+      display: none;
+    }
 
     .guess-form {
       position: relative;
@@ -850,7 +977,7 @@
 
     .pool-item {
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr);
+      grid-template-columns: var(--pool-thumb-size) minmax(0, 1fr);
       gap: 10px;
       align-items: center;
       width: 100%;
@@ -877,8 +1004,8 @@
     .pool-item.correct { border-color: var(--basil); background: #e7f3db; opacity: 1; }
 
     .dish-thumb {
-      width: 48px;
-      height: 48px;
+      width: var(--pool-thumb-size);
+      height: var(--pool-thumb-size);
       border-radius: 50%;
       background: #fffdf6;
       object-fit: contain;
@@ -967,6 +1094,10 @@
 
     .help-modal {
       width: min(680px, 100%);
+    }
+
+    .game-over-modal {
+      width: min(560px, 100%);
     }
 
     .stats-modal {
@@ -1089,6 +1220,19 @@
       background: #fffdf6;
     }
 
+    .game-over-answer {
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 5px 12px;
+      align-items: center;
+    }
+
+    .game-over-answer .answer-image {
+      grid-row: 1 / 4;
+      width: 86px;
+      height: 86px;
+      aspect-ratio: 1;
+    }
+
     .stats-modal .answer-card {
       grid-template-columns: 72px minmax(0, 1fr);
       gap: 5px 10px;
@@ -1119,6 +1263,20 @@
       font-size: 1.15rem;
       line-height: 1.08;
       text-align: center;
+    }
+
+    .game-over-eyebrow {
+      margin: 0;
+      color: var(--tomato);
+      font-size: .7rem;
+      font-weight: 1000;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .game-over-answer .answer-name,
+    .game-over-answer .answer-proclamation {
+      text-align: left;
     }
 
     .stats-modal .answer-name {
@@ -1595,6 +1753,42 @@
       }
     }
 
+    @media (min-width: 1101px) and (min-height: 720px) {
+      body {
+        overflow-y: hidden;
+      }
+
+      .site-frame {
+        height: 100svh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .app-shell {
+        grid-template-rows: min-content minmax(0, 1fr) min-content;
+        height: 100svh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .intro {
+        min-height: 306px;
+      }
+
+      .game-layout {
+        height: 100%;
+        min-height: 0;
+      }
+
+      .playground {
+        height: 100%;
+      }
+
+      .discovery-panel {
+        height: 100% !important;
+      }
+    }
+
     @media (max-width: 1100px) {
       .game-layout { grid-template-columns: 1fr; }
       .playground {
@@ -1603,21 +1797,30 @@
       }
       .intro { grid-template-columns: 1fr; }
       .board-wrap {
-        height: clamp(520px, 58svh, 620px);
-        min-height: 500px;
+        height: clamp(420px, 56svh, 620px);
+        min-height: 0;
       }
       .discovery-panel {
         align-self: auto;
-        height: clamp(360px, 48svh, 460px) !important;
-        min-height: 360px;
+        height: var(--pool-panel-height) !important;
+        min-height: 0;
       }
     }
 
     @media (max-width: 760px) {
-      :root { --board-min-width: 0px; }
+      :root {
+        --board-min-width: 0px;
+        --board-row-min-height: clamp(52px, 8.1svh, 68px);
+        --board-row-gap: clamp(3px, 1.2vw, 5px);
+        --board-column-gap: clamp(2px, .9vw, 3px);
+        --board-pad: clamp(4px, 1.5vw, 6px);
+        --board-dish-image-size: clamp(28px, 8.8vw, 34px);
+        --pool-panel-height: clamp(260px, 42svh, 430px);
+        --pool-thumb-size: 42px;
+      }
 
-      .app-shell { padding: 74px 8px max(10px, var(--safe-bottom)); }
-      .topbar-inner { grid-template-columns: 38px minmax(0, 1fr) 116px; height: 58px; padding: 0 8px; }
+      .app-shell { gap: 12px; padding: 74px 8px max(10px, var(--safe-bottom)); }
+      .topbar-inner { grid-template-columns: 76px minmax(0, 1fr) 116px; height: 58px; padding: 0 8px; }
       .brand { min-width: 0; font-size: 1.48rem; }
       .brand-logo { width: 38px; height: 34px; }
       .icon-group { gap: 4px; }
@@ -1625,8 +1828,8 @@
       .icon { width: 20px; height: 20px; }
       .intro { padding: 16px; }
       .board-wrap {
-        height: clamp(540px, 68svh, 620px);
-        min-height: 520px;
+        height: clamp(320px, calc(100svh - 300px), 560px);
+        min-height: 0;
       }
       .region-insight { grid-template-columns: 106px minmax(0, 1fr); gap: 12px; padding: 10px; }
       .region-globe { width: 106px; }
@@ -1646,10 +1849,10 @@
         min-width: 0;
       }
       .board-header { padding: 7px 5px; font-size: .45rem; }
-      .board { min-height: 0; padding: 6px; gap: 5px; }
-      .dish-label, .tile, .empty-cell, .empty-dish { min-height: 68px; border-radius: 12px; }
-      .dish-label { grid-template-columns: 34px minmax(0, 1fr); gap: 5px; padding: 5px; }
-      .dish-row-image { width: 34px; height: 34px; border-radius: 50%; }
+      .board { min-height: 0; padding: var(--board-pad); gap: var(--board-row-gap); }
+      .dish-label, .tile, .empty-cell, .empty-dish { min-height: var(--board-row-min-height); border-radius: 12px; }
+      .dish-label { grid-template-columns: var(--board-dish-image-size) minmax(0, 1fr); gap: 5px; padding: 5px; }
+      .dish-row-image { width: var(--board-dish-image-size); height: var(--board-dish-image-size); border-radius: 50%; }
       .dish-name { font-size: .58rem; line-height: 1.04; -webkit-line-clamp: 3; }
       .tile { padding: 5px 2px; }
       .tile-label { font-size: .34rem; }
@@ -1671,9 +1874,90 @@
       .filter-bar { grid-template-columns: 1fr; }
       .legal-footer { padding-bottom: 6px; }
       .discovery-panel {
-        height: clamp(340px, 46svh, 430px) !important;
-        min-height: 340px;
+        height: var(--pool-panel-height) !important;
+        min-height: 0;
       }
+    }
+
+    @media (max-width: 520px) {
+      :root {
+        --pool-thumb-size: 38px;
+      }
+
+      .topbar-inner { grid-template-columns: 72px minmax(0, 1fr) 112px; }
+      .brand { font-size: 1.34rem; gap: 6px; }
+      .brand-logo { width: 32px; height: 30px; }
+      .icon-group { gap: 3px; }
+      .icon-button { width: 34px; height: 34px; }
+      .intro { gap: 12px; padding: 12px; }
+      .daily-title { font-size: 1.64rem; }
+      .daily-copy { font-size: .88rem; }
+      .daily-note { font-size: .78rem; }
+      .region-insight { grid-template-columns: 82px minmax(0, 1fr); gap: 10px; padding: 9px; }
+      .region-globe { width: 82px; }
+      .region-title { font-size: .9rem; }
+      .region-description { margin-top: 5px; font-size: .72rem; }
+      .region-list { margin-top: 5px; font-size: .6rem; }
+      .board-header,
+      .guess-row,
+      .empty-row {
+        grid-template-columns: minmax(76px, 1.5fr) repeat(6, minmax(0, 1fr));
+      }
+      .tile-label { display: none; }
+      .tile { grid-template-rows: 1fr auto; }
+      .pool-item { min-height: 50px; gap: 8px; }
+      .pool-name { font-size: .78rem; }
+      .celebration-popover { padding: 12px; }
+      .game-over-answer {
+        grid-template-columns: 68px minmax(0, 1fr);
+      }
+      .game-over-answer .answer-image {
+        width: 68px;
+        height: 68px;
+      }
+    }
+
+    @media (max-height: 700px) {
+      :root {
+        --game-panel-height: clamp(430px, calc(100svh - 206px), 600px);
+      }
+
+      .app-shell { gap: 12px; }
+      .intro { padding: 14px; }
+      .daily-title { font-size: 2.1rem; }
+      .region-globe { width: min(126px, 100%); }
+    }
+
+    @media (max-width: 760px) and (max-height: 700px) {
+      :root {
+        --board-row-min-height: clamp(46px, 8.3svh, 58px);
+        --pool-panel-height: clamp(230px, 40svh, 340px);
+      }
+
+      .board-wrap { height: clamp(280px, calc(100svh - 270px), 440px); }
+      .daily-title { font-size: 1.5rem; }
+    }
+
+    @media (max-width: 940px) and (orientation: landscape) {
+      :root {
+        --pool-panel-height: clamp(230px, 58svh, 340px);
+      }
+
+      .app-shell { padding-top: 66px; }
+      .intro {
+        grid-template-columns: minmax(0, 1fr) minmax(240px, .86fr);
+        gap: 12px;
+        padding: 12px;
+      }
+      .daily-title { font-size: 1.55rem; }
+      .daily-copy,
+      .daily-note { font-size: .82rem; }
+      .region-insight { grid-template-columns: 74px minmax(0, 1fr); gap: 10px; padding: 9px; }
+      .region-globe { width: 74px; }
+      .region-title { font-size: .86rem; }
+      .region-description,
+      .region-list { font-size: .62rem; }
+      .board-wrap { height: clamp(260px, 64svh, 360px); }
     }
 
     @media (max-width: 360px) {
@@ -1686,11 +1970,21 @@
 </head>
 <body>
   <noscript><main class="noscript-card">Chefle needs JavaScript enabled to run.</main></noscript>
+  <div class="celebration-popover" id="celebrationPopover" role="status" aria-live="polite" aria-hidden="true">
+    <span class="celebration-fire" id="celebrationFire" aria-hidden="true"></span>
+    <strong class="celebration-title" id="celebrationTitle"></strong>
+    <span class="celebration-meta" id="celebrationMeta"></span>
+  </div>
   <header class="topbar">
     <div class="topbar-inner">
-      <button class="icon-button" id="helpButton" type="button" aria-label="Open help">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 1 1 4.8 2.4c-1.1.8-1.9 1.4-1.9 2.6"></path><path d="M12 17h.01"></path></svg>
-      </button>
+      <div class="icon-group icon-group-left">
+        <button class="icon-button" id="infiniteModeButton" type="button" aria-label="Switch to infinite mode" aria-pressed="false" title="Infinite mode">
+          <span class="infinity-mark" aria-hidden="true">&infin;</span>
+        </button>
+        <button class="icon-button" id="helpButton" type="button" aria-label="Open help">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 1 1 4.8 2.4c-1.1.8-1.9 1.4-1.9 2.6"></path><path d="M12 17h.01"></path></svg>
+        </button>
+      </div>
       <h1 class="brand"><span>Chefle</span><img class="brand-logo" src="chefle-logo.png" alt="" aria-hidden="true"></h1>
       <div class="icon-group">
         <button class="icon-button" id="statsButton" type="button" aria-label="Open statistics">
@@ -1713,8 +2007,12 @@
         <div class="intro-main">
           <p class="kicker" id="gameId">Chefle</p>
           <h2 class="daily-title" id="gameStatus" role="status" aria-live="polite">Make your first guess</h2>
-          <p class="daily-copy">Select from today&rsquo;s balanced regional dish list. Each row compares protein, base carb, serving temperature, calories, texture, and prep/cook time.</p>
-          <p class="daily-note">Values and attributes, including calories, are estimated from a typical serving.</p>
+          <p class="daily-copy" id="gameCopy">Select from today&rsquo;s balanced regional dish list. Each row compares protein, base carb, serving temperature, calories, texture, and prep/cook time.</p>
+          <p class="daily-note" id="gameNote">Values and attributes, including calories, are estimated from a typical serving.</p>
+          <div class="infinite-scoreboard inactive" id="infiniteScoreboard" aria-live="polite" aria-hidden="true">
+            <span class="infinite-chip"><span>Streak</span><strong id="infiniteCurrentStreak">0</strong></span>
+            <span class="infinite-chip"><span>Best</span><strong id="infiniteBestStreak">0</strong></span>
+          </div>
         </div>
         <aside class="region-insight" id="regionInsight" aria-labelledby="regionInsightTitle">
           <div class="region-globe" aria-label="3D globe showing today's food region">
@@ -1759,7 +2057,7 @@
 
         <aside class="discovery-panel" aria-labelledby="poolTitle">
           <div class="panel-head">
-            <h2 class="panel-title" id="poolTitle">Today&rsquo;s Pool <span id="poolFilteredCount" aria-live="polite">0 shown</span></h2>
+            <h2 class="panel-title" id="poolTitle"><span id="poolTitleLabel">Today&rsquo;s Pool</span> <span id="poolFilteredCount" aria-live="polite">0 shown</span></h2>
             <label class="sr-only" for="poolFilter">Filter today&rsquo;s dish list</label>
             <input class="pool-filter" id="poolFilter" type="text" inputmode="search" placeholder="Filter dishes">
             <div class="filter-bar" aria-label="Pool filters">
@@ -1837,6 +2135,33 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="infiniteGameOverModal" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+    <div class="modal game-over-modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="gameOverTitle">Game Over</h2>
+          <p id="gameOverSubtitle">Your streak ended.</p>
+        </div>
+        <button class="icon-button" id="closeGameOver" type="button" aria-label="Review board">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="answer-card game-over-answer">
+          <img class="answer-image" id="gameOverImage" alt="">
+          <p class="game-over-eyebrow">Answer</p>
+          <h3 class="answer-name" id="gameOverAnswerName"></h3>
+          <p class="answer-proclamation" id="gameOverMessage"></p>
+        </div>
+        <div class="stat-grid" id="gameOverStatGrid"></div>
+        <div class="modal-actions">
+          <button class="primary-button" id="newInfiniteStreakButton" type="button">Start New Streak</button>
+          <button class="secondary-button" id="reviewBoardButton" type="button">Review Board</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="modal help-modal">
       <div class="modal-head">
@@ -1873,6 +2198,11 @@
           <section class="help-card">
             <h3>Categories</h3>
             <p>Temperature is one of Cold, Room Temperature, or Hot. Texture uses broad groups such as Creamy, Crispy, Soft, and Tender. Base carb uses grouped categories such as Bread &amp; Wraps, Pasta &amp; Noodles, Rice &amp; Grains, Potatoes, and No Starch.</p>
+          </section>
+
+          <section class="help-card">
+            <h3>Infinite Mode</h3>
+            <p>Use the &infin; button beside help to switch modes. Infinite mode gives you a fresh hidden dish after every correct answer or failed 7-guess round; correct answers raise your streak, and a failed round resets it. Your best streak is saved on this device.</p>
           </section>
 
           <section class="help-card">
@@ -2881,7 +3211,7 @@
                     "protein": "Pork",
                     "carb": "Dough",
                     "temp": "Hot",
-                    "calories": 350,
+                    "calories": 330,
                     "imageUrl": "food-photo-review-specific-only-v3/105-hawaiian-pizza.jpg"
           },
           {
@@ -4403,18 +4733,26 @@
       const GAME_NUMBER_START_DATE = "2026-06-02";
       const RECENT_TARGET_LOOKBACK_DAYS = 9;
       const DATA_VERSION = "metadata-grid-2026-05-19";
+      const MODE_DAILY = "daily";
+      const MODE_INFINITE = "infinite";
       const GAME_KEY = "chefle:regional-temp:v3:game";
+      const MODE_KEY = "chefle:regional-temp:v3:mode";
+      const INFINITE_GAME_KEY = "chefle:regional-temp:v3:infinite";
       const STATS_KEY = "chefle:regional-temp:v3:stats";
       const SETTINGS_KEY = "chefle:continental:v1:settings";
       const TRUSTED_TIME_KEY = "chefle:regional-temp:v3:trusted-time";
       const PACIFIC_TIME_ZONE = "America/Los_Angeles";
       const TIME_SYNC_INTERVAL_MS = 5 * 60 * 1000;
       const TIME_SYNC_TIMEOUT_MS = 2500;
+      const INFINITE_RECENT_TARGET_LIMIT = 18;
+      const CELEBRATION_DURATION_MS = 3000;
+      const INFINITE_ADVANCE_DELAY_MS = CELEBRATION_DURATION_MS;
       const GREEN = "\u{1F7E9}";
       const GRAY = "\u2B1B";
       const CHECK = "\u2713";
       const HIGHER = "\u25B2";
       const LOWER = "\u25BC";
+      const FIRE = "\u{1F525}";
       const TEMP_CATEGORIES = ["Cold", "Room Temperature", "Hot"];
       const CALORIE_ESTIMATES = [
         200, 610, 350, 400, 450, 160, 280, 390, 520, 320, 540, 310,
@@ -4425,7 +4763,7 @@
         450, 230, 210, 120, 150, 45, 450, 650, 165, 380, 410, 290,
         270, 185, 140, 210, 90, 330, 350, 220, 360, 285, 235, 250,
         535, 285, 350, 590, 420, 380, 640, 780, 610, 720, 680, 510,
-        450, 395, 410, 620, 570, 540, 490, 350, 350, 840, 460, 690,
+        450, 395, 410, 620, 570, 540, 490, 350, 330, 840, 460, 690,
         450, 620, 380, 560, 740, 710, 390, 310, 480, 465, 420, 510,
         340, 430, 670, 520, 550, 600, 530, 360, 580, 310, 440, 380,
         550, 480, 390, 570, 840, 410, 350, 610, 490, 520, 460, 430,
@@ -4611,8 +4949,17 @@
         playground: document.querySelector(".playground"),
         discoveryPanel: document.querySelector(".discovery-panel"),
         board: document.getElementById("board"),
+        celebrationPopover: document.getElementById("celebrationPopover"),
+        celebrationFire: document.getElementById("celebrationFire"),
+        celebrationTitle: document.getElementById("celebrationTitle"),
+        celebrationMeta: document.getElementById("celebrationMeta"),
         gameId: document.getElementById("gameId"),
         gameStatus: document.getElementById("gameStatus"),
+        gameCopy: document.getElementById("gameCopy"),
+        gameNote: document.getElementById("gameNote"),
+        infiniteScoreboard: document.getElementById("infiniteScoreboard"),
+        infiniteCurrentStreak: document.getElementById("infiniteCurrentStreak"),
+        infiniteBestStreak: document.getElementById("infiniteBestStreak"),
         regionInsight: document.getElementById("regionInsight"),
         regionInsightTitle: document.getElementById("regionInsightTitle"),
         regionInsightCopy: document.getElementById("regionInsightCopy"),
@@ -4625,10 +4972,12 @@
         poolFilter: document.getElementById("poolFilter"),
         proteinFilter: document.getElementById("proteinFilter"),
         carbFilter: document.getElementById("carbFilter"),
+        poolTitleLabel: document.getElementById("poolTitleLabel"),
         poolFilteredCount: document.getElementById("poolFilteredCount"),
         poolList: document.getElementById("poolList"),
         toast: document.getElementById("toast"),
         statsModal: document.getElementById("statsModal"),
+        infiniteGameOverModal: document.getElementById("infiniteGameOverModal"),
         helpModal: document.getElementById("helpModal"),
         classificationsModal: document.getElementById("classificationsModal"),
         settingsModal: document.getElementById("settingsModal"),
@@ -4649,16 +4998,26 @@
         countdown: document.getElementById("countdown"),
         shareButton: document.getElementById("shareButton"),
         keepPlayingButton: document.getElementById("keepPlayingButton"),
+        gameOverSubtitle: document.getElementById("gameOverSubtitle"),
+        gameOverImage: document.getElementById("gameOverImage"),
+        gameOverAnswerName: document.getElementById("gameOverAnswerName"),
+        gameOverMessage: document.getElementById("gameOverMessage"),
+        gameOverStatGrid: document.getElementById("gameOverStatGrid"),
+        newInfiniteStreakButton: document.getElementById("newInfiniteStreakButton"),
+        reviewBoardButton: document.getElementById("reviewBoardButton"),
         closeStats: document.getElementById("closeStats"),
+        closeGameOver: document.getElementById("closeGameOver"),
         closeHelp: document.getElementById("closeHelp"),
         closeClassifications: document.getElementById("closeClassifications"),
         closeSettings: document.getElementById("closeSettings"),
         statsButton: document.getElementById("statsButton"),
+        infiniteModeButton: document.getElementById("infiniteModeButton"),
         helpButton: document.getElementById("helpButton"),
         classificationsButton: document.getElementById("classificationsButton"),
         settingsButton: document.getElementById("settingsButton"),
         soundToggle: document.getElementById("soundToggle"),
         sfxVolumeSlider: document.getElementById("sfxVolumeSlider"),
+        countdownBox: document.querySelector(".countdown-box"),
         classificationsBody: document.getElementById("classificationsBody")
       };
 
@@ -4671,6 +5030,8 @@
       let gameState;
       let stats;
       let settings;
+      let activeMode = MODE_DAILY;
+      let infiniteAdvanceTimer = 0;
       const targetCache = new Map();
       let timeState = {
         serverNowMs: 0,
@@ -4682,6 +5043,7 @@
       let visibleSuggestions = [];
       let activeSuggestion = 0;
       let toastTimer = null;
+      let celebrationTimer = null;
       let submitting = false;
       let activeModal = null;
       let restoreFocusElement = null;
@@ -5140,6 +5502,136 @@
           .map((item) => item.dish);
       }
 
+      function wholeNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+      }
+
+      function isInfiniteMode() {
+        return activeMode === MODE_INFINITE;
+      }
+
+      function readMode() {
+        try {
+          return localStorage.getItem(MODE_KEY) === MODE_INFINITE ? MODE_INFINITE : MODE_DAILY;
+        } catch {
+          return MODE_DAILY;
+        }
+      }
+
+      function saveMode() {
+        localStorage.setItem(MODE_KEY, activeMode);
+      }
+
+      function masterDishByName(name) {
+        const normalized = normalizeName(name);
+        return masterRegistry.find((dish) => normalizeName(dish.name) === normalized) || null;
+      }
+
+      function randomInt(max) {
+        if (!Number.isFinite(max) || max <= 0) return 0;
+        if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+          const values = new Uint32Array(1);
+          window.crypto.getRandomValues(values);
+          return values[0] % max;
+        }
+        return Math.floor(Math.random() * max);
+      }
+
+      function newInfiniteRoundId() {
+        return Date.now().toString(36) + "-" + randomInt(0xFFFFFF).toString(36).padStart(5, "0");
+      }
+
+      function sanitizeRecentTargets(value) {
+        if (!Array.isArray(value)) return [];
+        const seen = new Set();
+        return value
+          .filter((name) => typeof name === "string" && masterDishByName(name))
+          .filter((name) => {
+            if (seen.has(name)) return false;
+            seen.add(name);
+            return true;
+          })
+          .slice(-INFINITE_RECENT_TARGET_LIMIT);
+      }
+
+      function infinitePoolForTarget(target, roundId) {
+        const source = target ? masterRegistry.filter((dish) => regionGroupForDish(dish) === regionGroupForDish(target)) : masterRegistry;
+        const pool = source.length ? source : masterRegistry;
+        const seed = roundId || target?.name || "fresh";
+        return pool
+          .map((dish) => ({ dish, rank: hashString("infinite-pool:" + DATA_VERSION + ":" + seed + ":" + dish.name) }))
+          .sort((a, b) => a.rank - b.rank || a.dish.name.localeCompare(b.dish.name))
+          .map((item) => item.dish);
+      }
+
+      function updateRecentTargets(recentTargets, completedTargetName) {
+        const names = sanitizeRecentTargets(recentTargets).filter((name) => name !== completedTargetName);
+        if (completedTargetName && masterDishByName(completedTargetName)) names.push(completedTargetName);
+        return names.slice(-INFINITE_RECENT_TARGET_LIMIT);
+      }
+
+      function nextInfiniteTargetName(recentTargets, previousName) {
+        const blocked = new Set(sanitizeRecentTargets(recentTargets));
+        if (previousName) blocked.add(previousName);
+        let candidates = masterRegistry.filter((dish) => !blocked.has(dish.name));
+        if (!candidates.length && previousName) candidates = masterRegistry.filter((dish) => dish.name !== previousName);
+        if (!candidates.length) candidates = masterRegistry.slice();
+        const next = candidates[randomInt(candidates.length)];
+        return next ? next.name : "";
+      }
+
+      function freshInfiniteState(source = {}) {
+        const currentStreak = wholeNumber(source.currentStreak);
+        const bestStreak = Math.max(wholeNumber(source.bestStreak), currentStreak);
+        const recentTargets = sanitizeRecentTargets(source.recentTargets);
+        return {
+          dataVersion: DATA_VERSION,
+          targetName: nextInfiniteTargetName(recentTargets, null),
+          roundId: newInfiniteRoundId(),
+          guesses: [],
+          status: "playing",
+          roundRecorded: false,
+          currentStreak,
+          bestStreak,
+          recentTargets
+        };
+      }
+
+      function withInfiniteRoundResult(state, won) {
+        const priorStreak = wholeNumber(state.currentStreak);
+        const guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
+        const currentStreak = won ? priorStreak + 1 : 0;
+        return {
+          ...state,
+          status: won ? "won" : "failed",
+          roundRecorded: true,
+          currentStreak,
+          bestStreak: Math.max(wholeNumber(state.bestStreak), currentStreak),
+          lastRoundGuessCount: guessCount,
+          lastRoundStreak: won ? currentStreak : priorStreak,
+          lastRoundTargetName: state.targetName
+        };
+      }
+
+      function nextInfiniteRoundState(state) {
+        const recentTargets = updateRecentTargets(state.recentTargets, state.targetName);
+        return {
+          dataVersion: DATA_VERSION,
+          targetName: nextInfiniteTargetName(recentTargets, state.targetName),
+          roundId: newInfiniteRoundId(),
+          guesses: [],
+          status: "playing",
+          roundRecorded: false,
+          currentStreak: wholeNumber(state.currentStreak),
+          bestStreak: Math.max(wholeNumber(state.bestStreak), wholeNumber(state.currentStreak)),
+          recentTargets,
+          lastRoundGuessCount: 0,
+          lastRoundStreak: 0,
+          lastRoundTargetName: null
+        };
+      }
+
       function readJson(key, fallback) {
         try {
           const parsed = JSON.parse(localStorage.getItem(key));
@@ -5149,7 +5641,9 @@
         }
       }
 
-      function saveGame() { localStorage.setItem(GAME_KEY, JSON.stringify(gameState)); }
+      function saveGame() {
+        localStorage.setItem(isInfiniteMode() ? INFINITE_GAME_KEY : GAME_KEY, JSON.stringify(gameState));
+      }
       function saveStats() {
         stats = normalizeStats(stats);
         localStorage.setItem(STATS_KEY, JSON.stringify(stats));
@@ -5218,7 +5712,8 @@
       }
 
       function targetGuessIndex(guesses) {
-        return guesses.findIndex((name) => name === targetForDate(todayKey).name);
+        const targetName = targetDish ? targetDish.name : targetForDate(todayKey).name;
+        return guesses.findIndex((name) => name === targetName);
       }
 
       function officialGuessCount() {
@@ -5236,7 +5731,8 @@
       }
 
       function isGuessingOpen() {
-        return gameState && (gameState.status === "playing" || gameState.status === "freeplay");
+        if (!gameState) return false;
+        return isInfiniteMode() ? gameState.status === "playing" : (gameState.status === "playing" || gameState.status === "freeplay");
       }
 
       function normalizeGameState(raw, key) {
@@ -5256,6 +5752,70 @@
         }
         const answerRevealed = Boolean(raw.answerRevealed) && ["failed", "freeplay", "freeplay-won"].includes(status);
         return { ...freshGameState(key), guesses, status, statsRecorded: Boolean(raw.statsRecorded) && status !== "playing", answerRevealed };
+      }
+
+      function normalizeInfiniteState(raw) {
+        const source = raw && typeof raw === "object" ? raw : {};
+        if (source.dataVersion !== DATA_VERSION) return freshInfiniteState(source);
+        let target = masterDishByName(source.targetName);
+        if (!target) {
+          return freshInfiniteState(source);
+        }
+        const roundId = typeof source.roundId === "string" && source.roundId ? source.roundId : newInfiniteRoundId();
+        const valid = new Set(infinitePoolForTarget(target, roundId).map((dish) => dish.name));
+        const guesses = Array.isArray(source.guesses)
+          ? source.guesses.filter((name) => valid.has(name))
+          : [];
+        const targetIndex = guesses.indexOf(target.name);
+        let status = "playing";
+        if (targetIndex >= 0 && targetIndex < MAX_GUESSES) {
+          status = "won";
+        } else if (guesses.length >= MAX_GUESSES) {
+          status = "failed";
+        }
+        let normalized = {
+          dataVersion: DATA_VERSION,
+          targetName: target.name,
+          roundId,
+          guesses,
+          status,
+          roundRecorded: Boolean(source.roundRecorded) && status !== "playing",
+          currentStreak: wholeNumber(source.currentStreak),
+          bestStreak: Math.max(wholeNumber(source.bestStreak), wholeNumber(source.currentStreak)),
+          recentTargets: sanitizeRecentTargets(source.recentTargets),
+          lastRoundGuessCount: wholeNumber(source.lastRoundGuessCount),
+          lastRoundStreak: wholeNumber(source.lastRoundStreak),
+          lastRoundTargetName: typeof source.lastRoundTargetName === "string" ? source.lastRoundTargetName : null
+        };
+        if (status !== "playing" && !normalized.roundRecorded) {
+          normalized = withInfiniteRoundResult(normalized, status === "won");
+        }
+        if (normalized.status === "won" && normalized.roundRecorded) {
+          normalized = nextInfiniteRoundState(normalized);
+        }
+        return normalized;
+      }
+
+      function applyDailyModeState() {
+        targetDish = targetForDate(todayKey);
+        dailyPool = dailyPoolForDate(todayKey);
+        gameState = normalizeGameState(readJson(GAME_KEY, null), todayKey);
+      }
+
+      function applyInfiniteModeState() {
+        gameState = normalizeInfiniteState(readJson(INFINITE_GAME_KEY, null));
+        targetDish = masterDishByName(gameState.targetName) || masterRegistry[0];
+        if (!targetDish) return;
+        if (targetDish.name !== gameState.targetName) {
+          gameState.targetName = targetDish.name;
+        }
+        dailyPool = infinitePoolForTarget(targetDish, gameState.roundId);
+        saveGame();
+      }
+
+      function applyActiveModeState() {
+        if (isInfiniteMode()) applyInfiniteModeState();
+        else applyDailyModeState();
       }
 
       function previousDateKey(key) {
@@ -5649,6 +6209,39 @@
         toastTimer = setTimeout(() => els.toast.classList.remove("visible"), 1900);
       }
 
+      function clearCelebration() {
+        clearTimeout(celebrationTimer);
+        celebrationTimer = null;
+        els.celebrationPopover.classList.remove("visible");
+        els.celebrationPopover.setAttribute("aria-hidden", "true");
+      }
+
+      function fireForCorrectGuess(streak, guessCount) {
+        let count = 1;
+        if (guessCount <= 3) count += 1;
+        if (guessCount <= 1 || streak >= 5) count += 1;
+        if (streak >= 10) count += 1;
+        return FIRE.repeat(Math.min(4, count));
+      }
+
+      function correctGuessMessage(guessCount) {
+        const count = wholeNumber(guessCount);
+        if (count >= 6) return "Cutting it Close";
+        if (count >= 3) return "Nice job";
+        return "Great Job";
+      }
+
+      function showCorrectGuessCelebration(guessCount, streak = 0) {
+        clearCelebration();
+        els.celebrationFire.textContent = fireForCorrectGuess(streak, guessCount);
+        els.celebrationTitle.textContent = correctGuessMessage(guessCount);
+        els.celebrationMeta.textContent = "";
+        els.celebrationPopover.setAttribute("aria-hidden", "false");
+        void els.celebrationPopover.offsetWidth;
+        els.celebrationPopover.classList.add("visible");
+        celebrationTimer = window.setTimeout(clearCelebration, CELEBRATION_DURATION_MS);
+      }
+
       function renderRegionInsight() {
         const groupLabel = regionGroupForDish(targetDish);
         const group = REGION_GROUPS.find((candidate) => candidate.label === groupLabel);
@@ -5660,10 +6253,48 @@
         renderRegionGlobe(groupLabel, regions);
       }
 
+      function renderInfiniteScoreboard() {
+        const show = isInfiniteMode();
+        els.infiniteScoreboard.classList.toggle("inactive", !show);
+        els.infiniteScoreboard.setAttribute("aria-hidden", String(!show));
+        els.infiniteCurrentStreak.textContent = String(wholeNumber(gameState.currentStreak));
+        els.infiniteBestStreak.textContent = String(Math.max(wholeNumber(gameState.bestStreak), wholeNumber(gameState.currentStreak)));
+      }
+
+      function syncModeChrome() {
+        const infinite = isInfiniteMode();
+        document.body.dataset.mode = activeMode;
+        els.infiniteModeButton.classList.toggle("active", infinite);
+        els.infiniteModeButton.setAttribute("aria-pressed", String(infinite));
+        els.infiniteModeButton.setAttribute("aria-label", infinite ? "Return to daily mode" : "Switch to infinite mode");
+        els.infiniteModeButton.title = infinite ? "Daily mode" : "Infinite mode";
+        els.poolTitleLabel.textContent = infinite ? "Infinite Pool" : "Today\u2019s Pool";
+        els.gameCopy.textContent = infinite
+          ? "Keep solving fresh dishes. Each correct answer starts a new food and raises your streak; a miss after 7 guesses resets it."
+          : "Select from today\u2019s balanced regional dish list. Each row compares protein, base carb, serving temperature, calories, texture, and prep/cook time.";
+        els.gameNote.textContent = infinite
+          ? "Your best infinite streak is saved on this device. Values and attributes are estimated from a typical serving."
+          : "Values and attributes, including calories, are estimated from a typical serving.";
+        renderInfiniteScoreboard();
+      }
+
       function updateStatus() {
-        els.gameId.textContent = "Chefle #" + gameId + " | " + formatGameDate(todayKey);
+        syncModeChrome();
+        els.gameId.textContent = isInfiniteMode() ? "Infinite Mode" : "Chefle #" + gameId + " | " + formatGameDate(todayKey);
         renderRegionInsight();
-        if (gameState.status === "won") {
+        if (isInfiniteMode()) {
+          if (gameState.status === "won") {
+            els.gameStatus.textContent = "Correct! Streak " + wholeNumber(gameState.currentStreak);
+          } else if (gameState.status === "failed") {
+            els.gameStatus.textContent = "Streak Ended";
+          } else {
+            els.gameStatus.textContent = gameState.guesses.length
+              ? "Keep Guessing"
+              : wholeNumber(gameState.currentStreak)
+                ? "Keep It Going"
+                : "Start Your Streak";
+          }
+        } else if (gameState.status === "won") {
           els.gameStatus.textContent = "Game Complete";
         } else if (gameState.status === "failed") {
           els.gameStatus.textContent = "Out of Guesses";
@@ -5801,7 +6432,9 @@
           const guessed = gameState.guesses.includes(dish.name);
           button.type = "button";
           button.disabled = guessed;
-          const revealed = ["won", "freeplay-won"].includes(gameState.status) || gameState.answerRevealed;
+          const revealed = ["won", "freeplay-won"].includes(gameState.status)
+            || Boolean(gameState.answerRevealed)
+            || (isInfiniteMode() && gameState.status === "failed");
           button.className = "pool-item" + (guessed ? " guessed" : "") + (dish.name === targetDish.name && revealed ? " correct" : "");
           button.appendChild(makeDishImage(dish, "dish-thumb", ""));
           const name = document.createElement("span");
@@ -5822,6 +6455,7 @@
       }
 
       function recordStats() {
+        if (isInfiniteMode()) return;
         const result = officialStatus();
         if (result === "playing") return;
         stats = normalizeStats(stats);
@@ -5866,12 +6500,30 @@
           return;
         }
         submitting = true;
-        const wasFreeplay = gameState.status === "freeplay";
+        const infinite = isInfiniteMode();
+        const wasFreeplay = !infinite && gameState.status === "freeplay";
         gameState.guesses.push(dish.name);
-        if (dish.name === targetDish.name) {
-          gameState.status = wasFreeplay ? "freeplay-won" : "won";
-        } else if (!wasFreeplay && gameState.guesses.length >= MAX_GUESSES) {
-          gameState.status = "failed";
+        let completedInfiniteRound = false;
+        let completedInfiniteWin = false;
+        let correctGuessCount = 0;
+        const correctGuess = dish.name === targetDish.name;
+        if (infinite) {
+          if (correctGuess) {
+            gameState = withInfiniteRoundResult(gameState, true);
+            completedInfiniteRound = true;
+            completedInfiniteWin = true;
+            correctGuessCount = gameState.lastRoundGuessCount;
+          } else if (gameState.guesses.length >= MAX_GUESSES) {
+            gameState = withInfiniteRoundResult(gameState, false);
+            completedInfiniteRound = true;
+          }
+        } else {
+          if (correctGuess) {
+            gameState.status = wasFreeplay ? "freeplay-won" : "won";
+            correctGuessCount = gameState.guesses.length;
+          } else if (!wasFreeplay && gameState.guesses.length >= MAX_GUESSES) {
+            gameState.status = "failed";
+          }
         }
         saveGame();
         els.input.value = "";
@@ -5880,7 +6532,14 @@
         renderBoard({ animateLatest: true, scrollToBottom: true });
         renderDiscoveryList();
         playEventSound(["won", "freeplay-won"].includes(gameState.status) ? "win" : "guess");
-        if (["won", "failed"].includes(gameState.status)) {
+        if (correctGuessCount) {
+          showCorrectGuessCelebration(correctGuessCount, infinite ? wholeNumber(gameState.currentStreak) : 0);
+        }
+        if (completedInfiniteWin) {
+          scheduleNextInfiniteRound();
+        } else if (completedInfiniteRound) {
+          window.setTimeout(() => openInfiniteGameOver(true), 700);
+        } else if (["won", "failed"].includes(gameState.status)) {
           recordStats();
           window.setTimeout(() => openStats(true), 800);
         } else if (gameState.status === "freeplay-won") {
@@ -5902,6 +6561,8 @@
 
       function renderStats() {
         stats = normalizeStats(stats);
+        els.histogram.hidden = false;
+        els.countdownBox.hidden = false;
         const winPct = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
         clearNode(els.statGrid);
         [
@@ -5938,6 +6599,45 @@
         appendHistogramRow("Failed", "Failed games", Math.max(0, stats.played - stats.wins), " failure");
       }
 
+      function renderInfiniteStats() {
+        clearNode(els.statGrid);
+        [
+          [wholeNumber(gameState.currentStreak), "Current"],
+          [Math.max(wholeNumber(gameState.bestStreak), wholeNumber(gameState.currentStreak)), "Best"],
+          [gameState.guesses.length, "Guesses"],
+          [Math.max(0, MAX_GUESSES - gameState.guesses.length), "Left"]
+        ].forEach(([value, label]) => els.statGrid.appendChild(statCard(value, label)));
+        clearNode(els.histogram);
+        els.histogram.hidden = true;
+        els.countdownBox.hidden = true;
+      }
+
+      function renderInfiniteGameOver() {
+        const answer = targetDish || masterDishByName(gameState.lastRoundTargetName) || masterRegistry[0];
+        const endedStreak = wholeNumber(gameState.lastRoundStreak);
+        const bestStreak = Math.max(wholeNumber(gameState.bestStreak), endedStreak);
+        const guessCount = wholeNumber(gameState.lastRoundGuessCount) || gameState.guesses.length;
+        const foodsSeen = updateRecentTargets(gameState.recentTargets, gameState.targetName).length;
+        els.gameOverSubtitle.textContent = endedStreak
+          ? "Your streak stopped at " + endedStreak + "."
+          : "No streak yet, but the next round is ready when you are.";
+        if (answer) {
+          applyImageFallback(els.gameOverImage, answer);
+          els.gameOverImage.dataset.cdnSrc = dishImageUrl(answer);
+          els.gameOverImage.src = els.gameOverImage.dataset.cdnSrc;
+          els.gameOverImage.alt = answer.name;
+          els.gameOverAnswerName.textContent = answer.name;
+          els.gameOverMessage.textContent = "The answer was " + answer.name + ". You used " + guessCount + "/" + MAX_GUESSES + " guesses this round.";
+        }
+        clearNode(els.gameOverStatGrid);
+        [
+          [endedStreak, "Ended Streak"],
+          [bestStreak, "Best"],
+          [guessCount + "/" + MAX_GUESSES, "Guesses"],
+          [foodsSeen, "Foods Seen"]
+        ].forEach(([value, label]) => els.gameOverStatGrid.appendChild(statCard(value, label)));
+      }
+
       function renderAnswerCard(showAnswer) {
         els.answerCard.hidden = !showAnswer;
         if (!showAnswer) return;
@@ -5946,11 +6646,15 @@
         els.answerImage.src = els.answerImage.dataset.cdnSrc;
         els.answerImage.alt = targetDish.name;
         els.answerName.textContent = targetDish.name;
-        els.answerProclamation.textContent = gameState.status === "won"
-          ? "Solved in " + officialGuessCount() + "/" + MAX_GUESSES + "."
-          : gameState.status === "freeplay-won"
-            ? "Found in free play after " + gameState.guesses.length + " guesses."
-            : "Official result: X/" + MAX_GUESSES + ".";
+        els.answerProclamation.textContent = isInfiniteMode()
+          ? gameState.status === "won"
+            ? "Streak raised to " + wholeNumber(gameState.currentStreak) + "."
+            : "Streak reset after " + MAX_GUESSES + " guesses."
+          : gameState.status === "won"
+            ? "Solved in " + officialGuessCount() + "/" + MAX_GUESSES + "."
+            : gameState.status === "freeplay-won"
+              ? "Found in free play after " + gameState.guesses.length + " guesses."
+              : "Official result: X/" + MAX_GUESSES + ".";
         els.answerLink.href = recipeUrl(targetDish);
       }
 
@@ -5966,6 +6670,7 @@
       }
 
       function canRevealAnswer() {
+        if (isInfiniteMode()) return false;
         return ["failed", "freeplay"].includes(gameState.status) && !gameState.answerRevealed;
       }
 
@@ -5993,6 +6698,7 @@
         const shouldRestoreFocus = activeModal === modal;
         modal.classList.remove("open");
         if (!els.statsModal.classList.contains("open")
+          && !els.infiniteGameOverModal.classList.contains("open")
           && !els.helpModal.classList.contains("open")
           && !els.classificationsModal.classList.contains("open")
           && !els.settingsModal.classList.contains("open")) {
@@ -6023,7 +6729,26 @@
       }
 
       function openStats(fromGameEnd = false) {
+        if (isInfiniteMode()) {
+          if (gameState.status === "failed") {
+            openInfiniteGameOver(fromGameEnd);
+            return;
+          }
+          renderInfiniteStats();
+          renderAnswerCard(gameState.status !== "playing");
+          renderRevealPanel(false);
+          renderSharePreview(false);
+          els.statsTitle.textContent = "Infinite Streak";
+          const bestStreak = Math.max(wholeNumber(gameState.bestStreak), wholeNumber(gameState.currentStreak));
+          els.statsSubtitle.textContent = "Best streak: " + bestStreak + ". Saved on this device.";
+          els.statsSubtitle.hidden = false;
+          els.shareButton.hidden = true;
+          els.keepPlayingButton.textContent = "Close";
+          openModal(els.statsModal, els.closeStats);
+          return;
+        }
         renderStats();
+        els.shareButton.hidden = false;
         const result = officialStatus();
         const officialDone = result !== "playing";
         const revealable = canRevealAnswer();
@@ -6054,6 +6779,16 @@
 
       function closeStats() {
         closeModal(els.statsModal);
+      }
+
+      function openInfiniteGameOver(fromGameEnd = false) {
+        if (!isInfiniteMode() || gameState.status !== "failed") return;
+        renderInfiniteGameOver();
+        openModal(els.infiniteGameOverModal, fromGameEnd ? els.newInfiniteStreakButton : els.closeGameOver);
+      }
+
+      function closeInfiniteGameOver() {
+        closeModal(els.infiniteGameOverModal);
       }
 
       function openHelp() {
@@ -6196,8 +6931,46 @@
         await copyShare("Share sheet unavailable. Copied results.");
       }
 
+      function clearInfiniteAdvanceTimer() {
+        if (!infiniteAdvanceTimer) return;
+        window.clearTimeout(infiniteAdvanceTimer);
+        infiniteAdvanceTimer = 0;
+      }
+
+      function startNextInfiniteRound(message = "") {
+        if (!isInfiniteMode()) return;
+        clearInfiniteAdvanceTimer();
+        gameState = nextInfiniteRoundState(gameState);
+        targetDish = masterDishByName(gameState.targetName) || masterRegistry[0];
+        dailyPool = infinitePoolForTarget(targetDish, gameState.roundId);
+        saveGame();
+        closeInfiniteGameOver();
+        closeSuggestions();
+        populatePoolFilters();
+        updateStatus();
+        renderBoard({ scrollToBottom: false });
+        renderDiscoveryList();
+        if (els.statsModal.classList.contains("open")) {
+          renderInfiniteStats();
+          renderAnswerCard(false);
+          els.statsSubtitle.textContent = "Best streak: " + Math.max(wholeNumber(gameState.bestStreak), wholeNumber(gameState.currentStreak)) + ". Saved on this device.";
+          els.statsSubtitle.hidden = false;
+        }
+        if (message) showToast(message);
+        if (!els.input.disabled) els.input.focus();
+      }
+
+      function scheduleNextInfiniteRound() {
+        clearInfiniteAdvanceTimer();
+        infiniteAdvanceTimer = window.setTimeout(() => {
+          infiniteAdvanceTimer = 0;
+          if (!isInfiniteMode()) return;
+          startNextInfiniteRound("Next food loaded.");
+        }, INFINITE_ADVANCE_DELAY_MS);
+      }
+
       function continueAfterFail() {
-        if (gameState.status !== "failed") return;
+        if (isInfiniteMode() || gameState.status !== "failed") return;
         gameState.status = "freeplay";
         saveGame();
         closeStats();
@@ -6221,7 +6994,7 @@
       }
 
       function handleStatsSecondaryAction() {
-        if (gameState.status === "failed" && !gameState.answerRevealed) {
+        if (!isInfiniteMode() && gameState.status === "failed" && !gameState.answerRevealed) {
           continueAfterFail();
           return;
         }
@@ -6301,18 +7074,43 @@
         document.documentElement.style.setProperty("--keyboard-offset", Math.round(offset) + "px");
       }
 
+      function switchMode(nextMode) {
+        const normalizedMode = nextMode === MODE_INFINITE ? MODE_INFINITE : MODE_DAILY;
+        if (activeMode === normalizedMode) return;
+        clearInfiniteAdvanceTimer();
+        clearCelebration();
+        saveGame();
+        activeMode = normalizedMode;
+        saveMode();
+        applyActiveModeState();
+        if (!isInfiniteMode() && gameState.status !== "playing") recordStats();
+        closeStats();
+        closeInfiniteGameOver();
+        closeSuggestions();
+        populatePoolFilters();
+        updateStatus();
+        renderBoard();
+        renderStats();
+        renderDiscoveryList();
+        updateCountdown();
+        showToast(isInfiniteMode() ? "Infinite mode." : "Daily mode.");
+        if (!els.input.disabled) els.input.focus();
+      }
+
       function initialize() {
         masterRegistry = ensureMasterRegistry(chefleGlobalMasterRegistry);
         targetCache.clear();
+        clearInfiniteAdvanceTimer();
+        clearCelebration();
+        activeMode = readMode();
         todayKey = localDateKey();
         gameId = gameNumberFromDate(todayKey);
-        targetDish = targetForDate(todayKey);
-        dailyPool = dailyPoolForDate(todayKey);
         stats = normalizeStats(readJson(STATS_KEY, freshStats()));
         settings = normalizeSettings(readJson(SETTINGS_KEY, {}));
-        gameState = normalizeGameState(readJson(GAME_KEY, null), todayKey);
-        if (gameState.status !== "playing") recordStats();
+        applyActiveModeState();
+        if (!isInfiniteMode() && gameState.status !== "playing") recordStats();
         closeStats();
+        closeInfiniteGameOver();
         closeHelp();
         closeClassifications();
         closeSettings();
@@ -6324,6 +7122,9 @@
         renderDiscoveryList();
         updateCountdown();
         updateViewportOffset();
+        if (isInfiniteMode() && gameState.status === "failed") {
+          window.setTimeout(() => openInfiniteGameOver(true), 350);
+        }
       }
 
       els.form.addEventListener("submit", (event) => {
@@ -6369,11 +7170,15 @@
       });
 
       els.statsButton.addEventListener("click", () => openStats(false));
+      els.infiniteModeButton.addEventListener("click", () => switchMode(isInfiniteMode() ? MODE_DAILY : MODE_INFINITE));
       els.helpButton.addEventListener("click", openHelp);
       els.classificationsButton.addEventListener("click", openClassifications);
       els.settingsButton.addEventListener("click", openSettings);
       els.closeStats.addEventListener("click", closeStats);
       els.keepPlayingButton.addEventListener("click", handleStatsSecondaryAction);
+      els.closeGameOver.addEventListener("click", closeInfiniteGameOver);
+      els.reviewBoardButton.addEventListener("click", closeInfiniteGameOver);
+      els.newInfiniteStreakButton.addEventListener("click", () => startNextInfiniteRound("New streak started."));
       els.closeHelp.addEventListener("click", closeHelp);
       els.closeClassifications.addEventListener("click", closeClassifications);
       els.closeSettings.addEventListener("click", closeSettings);
@@ -6381,6 +7186,7 @@
       els.revealAnswerButton.addEventListener("click", revealAnswer);
       els.copySummaryButton.addEventListener("click", () => copyShare());
       els.statsModal.addEventListener("pointerdown", (event) => { if (event.target === els.statsModal) closeStats(); });
+      els.infiniteGameOverModal.addEventListener("pointerdown", (event) => { if (event.target === els.infiniteGameOverModal) closeInfiniteGameOver(); });
       els.helpModal.addEventListener("pointerdown", (event) => { if (event.target === els.helpModal) closeHelp(); });
       els.classificationsModal.addEventListener("pointerdown", (event) => { if (event.target === els.classificationsModal) closeClassifications(); });
       els.settingsModal.addEventListener("pointerdown", (event) => { if (event.target === els.settingsModal) closeSettings(); });
@@ -6407,6 +7213,7 @@
         if (event.key === "Escape") {
           closeSuggestions();
           closeStats();
+          closeInfiniteGameOver();
           closeHelp();
           closeClassifications();
           closeSettings();

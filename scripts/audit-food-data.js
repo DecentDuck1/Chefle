@@ -189,6 +189,24 @@ function main() {
 
   const targetCache = new Map();
   const regionGroupForDish = (dish) => regionGroupByRegion[dish.cuisineRegion] || dish.cuisineRegion;
+  const clueSignatureGroups = new Map();
+  masterRegistry.forEach((dish) => {
+    const signature = [
+      category("protein", dish.protein, lookup, labels),
+      category("carb", dish.carb, lookup, labels),
+      category("temp", dish.temp, lookup, labels),
+      dish.calories,
+      category("texture", dish.texture, lookup, labels),
+      dish.prepCookMinutes
+    ].join(" | ");
+    const key = `${regionGroupForDish(dish)} || ${signature}`;
+    if (!clueSignatureGroups.has(key)) clueSignatureGroups.set(key, []);
+    clueSignatureGroups.get(key).push(dish.name);
+  });
+  for (const [signature, names] of clueSignatureGroups.entries()) {
+    assert(names.length === 1, `Same-region clue collision: ${signature} => ${names.join(", ")}`, failures);
+  }
+
   const targetRankForDate = (key, dish) => hashString(`target:${dataVersion}:${key}:${dish.name}`);
   const recentTargetNamesForDate = (key) => {
     const recent = new Set();

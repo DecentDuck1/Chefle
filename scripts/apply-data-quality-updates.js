@@ -17,7 +17,7 @@ const CALORIE_OVERRIDES = {
   "Margherita Pizza": 285,
   "Pepperoni Pizza": 350,
   "BBQ Chicken Pizza": 350,
-  "Hawaiian Pizza": 350,
+  "Hawaiian Pizza": 330,
   "Lasagna Bolognese": 450,
   "Macaroni and Cheese": 510,
   "Beef Empanadas": 520,

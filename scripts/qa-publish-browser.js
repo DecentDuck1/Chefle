@@ -13,6 +13,8 @@ const gameNumberStartDate = (publishHtml.match(/const GAME_NUMBER_START_DATE = "
 const recentTargetLookbackDays = Number((publishHtml.match(/const RECENT_TARGET_LOOKBACK_DAYS = (\d+)/) || [])[1] || 0);
 const registry = publishHtml ? parseJsonConst(publishHtml, "chefleGlobalMasterRegistry") : [];
 const gameKey = "chefle:regional-temp:v3:game";
+const modeKey = "chefle:regional-temp:v3:mode";
+const infiniteGameKey = "chefle:regional-temp:v3:infinite";
 const statsKey = "chefle:regional-temp:v3:stats";
 const requiredFooterLinks = ["privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const chromePaths = [
@@ -248,6 +250,32 @@ async function setStoredGame(send, state) {
   await evaluate(send, `localStorage.setItem(${JSON.stringify(gameKey)}, ${JSON.stringify(JSON.stringify(state))})`);
 }
 
+async function setStoredInfiniteGame(send, state) {
+  await evaluate(send, `localStorage.setItem(${JSON.stringify(infiniteGameKey)}, ${JSON.stringify(JSON.stringify(state))})`);
+}
+
+async function waitForInfiniteInitialized(send) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const state = await evaluate(send, `(() => ({
+      game: document.getElementById("gameId")?.textContent || "",
+      pool: document.getElementById("poolFilteredCount")?.textContent || ""
+    }))()`);
+    if (/Infinite Mode/i.test(state.game) && /\d+ shown/i.test(state.pool) && !/^0 shown$/i.test(state.pool)) return state;
+    await delay(100);
+  }
+  throw new Error("Page did not initialize infinite mode.");
+}
+
+async function submitDish(send, name) {
+  await evaluate(send, `(() => {
+    const input = document.getElementById("dishInput");
+    input.focus();
+    input.value = ${JSON.stringify(name)};
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  })()`);
+  await clickBySelector(send, "#submitButton");
+}
+
 async function runHistogramScenario(send) {
   await send("Emulation.setDeviceMetricsOverride", {
     width: 390,
@@ -334,6 +362,204 @@ async function runShareCopyScenario(send) {
     throw new Error(`Share/copy toast should not fail. Copy: ${copyToast || "empty"} Share: ${shareToast || "empty"}`);
   }
   return { copyToast, shareToast };
+}
+
+async function runInfiniteModeScenario(send) {
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true
+  });
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  await evaluate(send, `localStorage.removeItem(${JSON.stringify(modeKey)}); localStorage.removeItem(${JSON.stringify(infiniteGameKey)})`);
+  await clickBySelector(send, "#infiniteModeButton");
+  await waitForInfiniteInitialized(send);
+
+  const initial = await evaluate(send, `(() => ({
+    game: document.getElementById("gameId")?.textContent || "",
+    title: document.getElementById("gameStatus")?.textContent || "",
+    poolTitle: document.getElementById("poolTitleLabel")?.textContent || "",
+    pressed: document.getElementById("infiniteModeButton")?.getAttribute("aria-pressed"),
+    current: document.getElementById("infiniteCurrentStreak")?.textContent || "",
+    best: document.getElementById("infiniteBestStreak")?.textContent || "",
+    scoreboardHidden: document.getElementById("infiniteScoreboard")?.hidden,
+    stored: JSON.parse(localStorage.getItem(${JSON.stringify(infiniteGameKey)}) || "null")
+  }))()`);
+  if (initial.game !== "Infinite Mode" || initial.poolTitle !== "Infinite Pool" || initial.pressed !== "true" || initial.scoreboardHidden) {
+    throw new Error(`Infinite mode did not render expected chrome: ${JSON.stringify(initial)}`);
+  }
+  if (initial.current !== "0" || initial.best !== "0" || !initial.stored?.targetName) {
+    throw new Error(`Infinite initial streak/storage invalid: ${JSON.stringify(initial)}`);
+  }
+
+  await clickBySelector(send, "#statsButton");
+  const modal = await evaluate(send, `(() => ({
+    title: document.getElementById("statsTitle")?.textContent || "",
+    histogramHidden: document.getElementById("histogram")?.hidden,
+    countdownHidden: document.querySelector(".countdown-box")?.hidden,
+    shareHidden: document.getElementById("shareButton")?.hidden
+  }))()`);
+  if (modal.title !== "Infinite Streak" || !modal.histogramHidden || !modal.countdownHidden || !modal.shareHidden) {
+    throw new Error(`Infinite stats modal did not hide daily-only controls: ${JSON.stringify(modal)}`);
+  }
+  await clickBySelector(send, "#closeStats");
+
+  const firstTarget = initial.stored.targetName;
+  await submitDish(send, firstTarget);
+  await delay(250);
+  const celebration = await evaluate(send, `(() => {
+    const popover = document.getElementById("celebrationPopover");
+    const style = popover ? getComputedStyle(popover) : null;
+    return {
+      visible: popover?.classList.contains("visible"),
+      fire: document.getElementById("celebrationFire")?.textContent || "",
+      title: document.getElementById("celebrationTitle")?.textContent || "",
+      meta: document.getElementById("celebrationMeta")?.textContent || "",
+      backdropFilter: style?.backdropFilter || style?.webkitBackdropFilter || ""
+    };
+  })()`);
+  if (!celebration.visible || !celebration.fire.trim() || celebration.title !== "Great Job" || celebration.meta.trim() || !celebration.backdropFilter.includes("blur")) {
+    throw new Error(`Correct-guess celebration did not render expected text-only blurred popup: ${JSON.stringify(celebration)}`);
+  }
+  await delay(3300);
+  const afterWin = await evaluate(send, `(() => ({
+    current: document.getElementById("infiniteCurrentStreak")?.textContent || "",
+    best: document.getElementById("infiniteBestStreak")?.textContent || "",
+    rows: document.querySelectorAll(".guess-row").length,
+    celebrationVisible: document.getElementById("celebrationPopover")?.classList.contains("visible"),
+    stored: JSON.parse(localStorage.getItem(${JSON.stringify(infiniteGameKey)}) || "null")
+  }))()`);
+  if (afterWin.current !== "1" || afterWin.best !== "1" || afterWin.rows !== 0 || afterWin.celebrationVisible || afterWin.stored?.currentStreak !== 1 || afterWin.stored?.bestStreak !== 1 || afterWin.stored?.guesses?.length !== 0) {
+    throw new Error(`Infinite win did not advance/reset correctly: ${JSON.stringify(afterWin)}`);
+  }
+  if (afterWin.stored.targetName === firstTarget) {
+    throw new Error("Infinite mode repeated the same target immediately after a win.");
+  }
+
+  const failSetup = await evaluate(send, `(() => {
+    const stored = JSON.parse(localStorage.getItem(${JSON.stringify(infiniteGameKey)}) || "null");
+    const poolNames = Array.from(document.querySelectorAll(".pool-name")).map((element) => element.textContent);
+    return { stored, wrongs: poolNames.filter((name) => name !== stored.targetName).slice(0, 7) };
+  })()`);
+  if (!failSetup.stored?.targetName || failSetup.wrongs.length < 7) {
+    throw new Error(`Not enough infinite pool dishes to force a failed round: ${JSON.stringify(failSetup)}`);
+  }
+  await setStoredInfiniteGame(send, {
+    ...failSetup.stored,
+    guesses: failSetup.wrongs.slice(0, 6),
+    status: "playing",
+    roundRecorded: false
+  });
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInfiniteInitialized(send);
+  await submitDish(send, failSetup.wrongs[6]);
+  await delay(900);
+  const afterFail = await evaluate(send, `(() => ({
+    current: document.getElementById("infiniteCurrentStreak")?.textContent || "",
+    best: document.getElementById("infiniteBestStreak")?.textContent || "",
+    rows: document.querySelectorAll(".guess-row").length,
+    gameOverOpen: document.getElementById("infiniteGameOverModal")?.classList.contains("open"),
+    gameOverTitle: document.getElementById("gameOverTitle")?.textContent || "",
+    gameOverAnswer: document.getElementById("gameOverAnswerName")?.textContent || "",
+    gameOverStats: Array.from(document.querySelectorAll("#gameOverStatGrid .stat")).map((card) => ({
+      value: card.querySelector("strong")?.textContent || "",
+      label: card.querySelector("span")?.textContent || ""
+    })),
+    stored: JSON.parse(localStorage.getItem(${JSON.stringify(infiniteGameKey)}) || "null"),
+    dailyStats: localStorage.getItem(${JSON.stringify(statsKey)})
+  }))()`);
+  const endedStreakCard = afterFail.gameOverStats.find((card) => card.label === "Ended Streak");
+  const bestCard = afterFail.gameOverStats.find((card) => card.label === "Best");
+  if (afterFail.current !== "0" || afterFail.best !== "1" || afterFail.rows !== 7 || !afterFail.gameOverOpen || afterFail.gameOverTitle !== "Game Over" || afterFail.gameOverAnswer !== failSetup.stored.targetName || endedStreakCard?.value !== "1" || bestCard?.value !== "1" || afterFail.stored?.status !== "failed" || afterFail.stored?.currentStreak !== 0 || afterFail.stored?.bestStreak !== 1 || afterFail.stored?.guesses?.length !== 7) {
+    throw new Error(`Infinite failure did not show game over and preserve failed round: ${JSON.stringify(afterFail)}`);
+  }
+  if (afterFail.dailyStats !== null) {
+    throw new Error(`Infinite mode should not write daily stats: ${afterFail.dailyStats}`);
+  }
+  await clickBySelector(send, "#newInfiniteStreakButton");
+  await delay(300);
+  const afterNewStreak = await evaluate(send, `(() => ({
+    current: document.getElementById("infiniteCurrentStreak")?.textContent || "",
+    best: document.getElementById("infiniteBestStreak")?.textContent || "",
+    rows: document.querySelectorAll(".guess-row").length,
+    gameOverOpen: document.getElementById("infiniteGameOverModal")?.classList.contains("open"),
+    stored: JSON.parse(localStorage.getItem(${JSON.stringify(infiniteGameKey)}) || "null")
+  }))()`);
+  if (afterNewStreak.current !== "0" || afterNewStreak.best !== "1" || afterNewStreak.rows !== 0 || afterNewStreak.gameOverOpen || afterNewStreak.stored?.status !== "playing" || afterNewStreak.stored?.guesses?.length !== 0) {
+    throw new Error(`Starting a new infinite streak did not reset the failed round: ${JSON.stringify(afterNewStreak)}`);
+  }
+
+  await evaluate(send, `localStorage.removeItem(${JSON.stringify(modeKey)}); localStorage.removeItem(${JSON.stringify(infiniteGameKey)})`);
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  return { initial, modal, celebration, afterWin, afterFail, afterNewStreak };
+}
+
+async function runInfiniteDesktopLayoutScenario(send) {
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1365,
+    height: 768,
+    deviceScaleFactor: 1,
+    mobile: false
+  });
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  await evaluate(send, `localStorage.removeItem(${JSON.stringify(modeKey)}); localStorage.removeItem(${JSON.stringify(infiniteGameKey)}); window.scrollTo(0, 0)`);
+  await send("Page.navigate", { url: targetUrl });
+  await delay(750);
+  await waitForInitialized(send);
+  const before = await evaluate(send, `(() => {
+    const game = document.querySelector(".game-layout")?.getBoundingClientRect();
+    const board = document.querySelector(".board-wrap")?.getBoundingClientRect();
+    const shell = document.querySelector(".app-shell")?.getBoundingClientRect();
+    window.scrollTo(0, 100);
+    return {
+      mode: document.body.dataset.mode || "",
+      gameTop: Math.round(game?.top || 0),
+      gameLeft: Math.round(game?.left || 0),
+      boardHeight: Math.round(board?.height || 0),
+      shellHeight: Math.round(shell?.height || 0),
+      scrollY: Math.round(window.scrollY),
+      overflowY: getComputedStyle(document.body).overflowY
+    };
+  })()`);
+  await clickBySelector(send, "#infiniteModeButton");
+  await waitForInfiniteInitialized(send);
+  const after = await evaluate(send, `(() => {
+    const game = document.querySelector(".game-layout")?.getBoundingClientRect();
+    const board = document.querySelector(".board-wrap")?.getBoundingClientRect();
+    const shell = document.querySelector(".app-shell")?.getBoundingClientRect();
+    window.scrollTo(0, 100);
+    return {
+      mode: document.body.dataset.mode || "",
+      gameTop: Math.round(game?.top || 0),
+      gameLeft: Math.round(game?.left || 0),
+      boardHeight: Math.round(board?.height || 0),
+      shellHeight: Math.round(shell?.height || 0),
+      scrollY: Math.round(window.scrollY),
+      overflowY: getComputedStyle(document.body).overflowY,
+      current: document.getElementById("infiniteCurrentStreak")?.textContent || "",
+      best: document.getElementById("infiniteBestStreak")?.textContent || "",
+      scoreboardInactive: document.getElementById("infiniteScoreboard")?.classList.contains("inactive")
+    };
+  })()`);
+  if (before.scrollY !== 0 || after.scrollY !== 0 || before.overflowY !== "hidden" || after.overflowY !== "hidden") {
+    throw new Error(`Desktop page should not scroll in wide mode: ${JSON.stringify({ before, after })}`);
+  }
+  if (after.mode !== "infinite" || after.scoreboardInactive || after.current !== "0" || after.best !== "0") {
+    throw new Error(`Desktop infinite mode did not activate cleanly: ${JSON.stringify(after)}`);
+  }
+  if (Math.abs(after.gameTop - before.gameTop) > 1 || Math.abs(after.gameLeft - before.gameLeft) > 1 || Math.abs(after.boardHeight - before.boardHeight) > 1) {
+    throw new Error(`Desktop mode switch shifted the game layout: ${JSON.stringify({ before, after })}`);
+  }
+  await evaluate(send, `localStorage.removeItem(${JSON.stringify(modeKey)}); localStorage.removeItem(${JSON.stringify(infiniteGameKey)})`);
+  return { before, after };
 }
 
 function assertScenario(scenario, expectedRows, expectedLastLabel = null) {
@@ -498,15 +724,20 @@ async function main() {
     await send("Runtime.enable");
 
     const results = [];
+    results.push(await runViewport(send, { label: "compact-phone", width: 320, height: 568, mobile: true }));
     results.push(await runViewport(send, { label: "mobile", width: 390, height: 844, mobile: true }));
+    results.push(await runViewport(send, { label: "phone-landscape", width: 667, height: 375, mobile: true }));
+    results.push(await runViewport(send, { label: "tablet", width: 768, height: 1024, mobile: true }));
     results.push(await runViewport(send, { label: "adsense-preview", width: 1000, height: 768, mobile: false }));
     results.push(await runViewport(send, { label: "desktop", width: 1365, height: 768, mobile: false }));
     const boardScenarios = await runBoardStateScenarios(send);
     const histogramWidths = await runHistogramScenario(send);
     const shareCopy = await runShareCopyScenario(send);
+    const infiniteMode = await runInfiniteModeScenario(send);
+    const infiniteDesktopLayout = await runInfiniteDesktopLayoutScenario(send);
     socket.close();
 
-    console.log(JSON.stringify({ targetUrl, results, boardScenarios, histogramWidths, shareCopy }, null, 2));
+    console.log(JSON.stringify({ targetUrl, results, boardScenarios, histogramWidths, shareCopy, infiniteMode, infiniteDesktopLayout }, null, 2));
 
     const failures = results.filter((result) =>
       result.scrollWidth > result.clientWidth + 1
