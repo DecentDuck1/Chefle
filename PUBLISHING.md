@@ -54,15 +54,16 @@ Also, Squarespace Code Blocks have a 400 KB code limit. The HTML may fit today, 
 `publish/index.html` expects these relative paths to exist next to it:
 
 - `chefle-logo.png`
+- `about.html`
+- `how-to-play.html`
+- `food-clues.html`
+- `contact.html`
 - `privacy.html`
 - `terms.html`
 - `cookies.html`
 - `accessibility.html`
 - `disclaimer.html`
-- `ADSENSE.md`
-- `adsense-auto-ads-template.html`
-- `adsense-manual-ad-unit-template.html`
-- `ads.txt.template`
+- `ads.txt`
 - `assets/food-pattern.svg`
 - `assets/earth-equirectangular.jpg`
 - `food-photo-review-specific-only-v3/*.jpg`
@@ -79,15 +80,15 @@ Configure HTTPS and HSTS at the final host after confirming the site is served o
 
 ## Privacy
 
-The footer links to `privacy.html`, `terms.html`, `cookies.html`, `accessibility.html`, and `disclaimer.html`; these files are included in the source and copied into `publish/`. Chefle stores game progress, stats, settings, and trusted-time data in browser `localStorage`; it does not use accounts, payments, email capture, ad pixels, third-party analytics, cookies, geolocation, camera, microphone, or a database. Squarespace and the static host may still process normal technical data such as IP address, browser type, cookies, and access logs.
+The footer links to `how-to-play.html`, `food-clues.html`, `about.html`, `contact.html`, `privacy.html`, `terms.html`, `cookies.html`, `accessibility.html`, and `disclaimer.html`; these files are included in the source and copied into `publish/`. Chefle stores game progress, stats, settings, and trusted-time data in browser `localStorage`; it does not use accounts, payments, email capture, comments, geolocation, camera, microphone, or a database. The app includes Google AdSense code only on the game and original content pages for site review and advertising; utility/legal pages should remain ad-code-free. Keep the Privacy and Cookies pages accurate before publication. Squarespace, Google, and the static host may still process normal technical data such as IP address, browser type, cookies, identifiers, and access logs.
 
 If you add analytics, ads, API integrations, login, comments, forms, or payment features later, update the privacy notice before publishing those changes.
 
 ## Google AdSense
 
-Read `ADSENSE.md` before turning on ads. The generated AdSense files are templates only; they do not load ads until placeholder IDs are replaced with real Google values and pasted into Squarespace or your static host. For the current Squarespace iframe setup, place ads on the surrounding Squarespace page first instead of inside the Chefle iframe.
+Read `ADSENSE.md` before turning on ads. AdSense setup notes and placeholder templates stay in the source repository only; they should not be copied into the public `publish/` bundle during review. For the current Squarespace iframe setup, place ads on the surrounding Squarespace page first instead of inside the Chefle iframe.
 
-If AdSense asks for `ads.txt`, use the exact line Google provides and publish it at the root of the final domain, for example `https://example.com/ads.txt`. Squarespace notes that root-level `ads.txt` may require a custom workaround.
+If AdSense asks for `ads.txt`, use the exact line Google provides and publish it at the root of the final domain, for example `https://example.com/ads.txt`. The current source line is `google.com, pub-4681241502820822, DIRECT, f08c47fec0942fa0`, and the build copies it into `publish/ads.txt`. Squarespace notes that root-level `ads.txt` may require a custom workaround.
 
 ## QA Checklist
 

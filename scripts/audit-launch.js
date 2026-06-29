@@ -3,11 +3,23 @@ const path = require("path");
 const { inlineScripts, scriptHash } = require("./chefle-constants");
 
 const ROOT = path.resolve(__dirname, "..");
-const SOURCE_PAGES = ["chefle.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const PUBLISH_PAGES = ["index.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const MONETIZED_SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clues.html"];
+const MONETIZED_PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html"];
 const ADSENSE_CLIENT = "ca-pub-4681241502820822";
 const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
 const ADSENSE_SCRIPT_ORIGIN = "https://pagead2.googlesyndication.com";
+const ADSENSE_SELLER_LINE = "google.com, pub-4681241502820822, DIRECT, f08c47fec0942fa0";
+const NON_PUBLIC_PUBLISH_FILES = [
+  "publish/ADSENSE.md",
+  "publish/README.md",
+  "publish/adsense-auto-ads-template.html",
+  "publish/adsense-manual-ad-unit-template.html",
+  "publish/ads.txt.template",
+  "publish/publish-manifest.json",
+  "publish/squarespace-iframe-snippet.html"
+];
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
@@ -74,10 +86,24 @@ function auditPages(prefix, pages, expectedReturnHref, failures) {
   }
 }
 
+function auditAdsTxt(relativePath, failures) {
+  assert(exists(relativePath), `Missing ads.txt file: ${relativePath}`, failures);
+  if (!exists(relativePath)) return;
+  const content = read(relativePath).trim();
+  assert(content.includes(ADSENSE_SELLER_LINE), `${relativePath}: missing configured AdSense seller line.`, failures);
+  assert(!/pub-0{16}/.test(content), `${relativePath}: still contains a placeholder publisher ID.`, failures);
+}
+
 function main() {
   const failures = [];
   auditPages("", SOURCE_PAGES, "chefle.html", failures);
   auditPages("publish", PUBLISH_PAGES, "index.html", failures);
+  auditAdsTxt("ads.txt", failures);
+  auditAdsTxt("ads.txt.template", failures);
+  auditAdsTxt("publish/ads.txt", failures);
+  for (const file of NON_PUBLIC_PUBLISH_FILES) {
+    assert(!exists(file), `${file}: setup/template file should not be deployed publicly.`, failures);
+  }
 
   const sourceHtml = read("chefle.html");
   const publishHtml = read("publish/index.html");
@@ -91,11 +117,17 @@ function main() {
     assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}' ${ADSENSE_SCRIPT_ORIGIN}`), "publish/_headers CSP script hash or AdSense origin does not match browser-normalized inline script content.", failures);
   }
   assert(!/script-src[^;"]*'unsafe-inline'/.test(publishHtml), "publish/index.html script CSP still allows unsafe-inline.", failures);
-  for (const page of SOURCE_PAGES) {
+  for (const page of MONETIZED_SOURCE_PAGES) {
     assert(read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: missing AdSense verification script.`, failures);
   }
-  for (const page of PUBLISH_PAGES) {
+  for (const page of MONETIZED_PUBLISH_PAGES) {
     assert(read(`publish/${page}`).includes(ADSENSE_SCRIPT_SRC), `publish/${page}: missing AdSense verification script.`, failures);
+  }
+  for (const page of SOURCE_PAGES.filter((page) => !MONETIZED_SOURCE_PAGES.includes(page))) {
+    assert(!read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: utility/legal page should not load AdSense script.`, failures);
+  }
+  for (const page of PUBLISH_PAGES.filter((page) => !MONETIZED_PUBLISH_PAGES.includes(page))) {
+    assert(!read(`publish/${page}`).includes(ADSENSE_SCRIPT_SRC), `publish/${page}: utility/legal page should not load AdSense script.`, failures);
   }
   assert(!/No Primary Protein/.test(sourceHtml + publishHtml), "Old protein label still appears in game HTML.", failures);
   assert(!/(resetFoodButton|devResetStatus|dev-block|Restart Today)/.test(sourceHtml + publishHtml), "Dev food reset control still appears in game HTML.", failures);

@@ -16,7 +16,7 @@ const gameKey = "chefle:regional-temp:v3:game";
 const modeKey = "chefle:regional-temp:v3:mode";
 const infiniteGameKey = "chefle:regional-temp:v3:infinite";
 const statsKey = "chefle:regional-temp:v3:stats";
-const requiredFooterLinks = ["privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const requiredFooterLinks = ["how-to-play.html", "food-clues.html", "about.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const chromePaths = [
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"

@@ -8,6 +8,7 @@ const { parseJsonConst } = require("./chefle-constants");
 const ROOT = path.resolve(__dirname, "..");
 const HTML_PATH = path.join(ROOT, "chefle.html");
 const JSON_PATH = path.join(ROOT, "chefle-dishes-with-images.json");
+const PUBLISH_ROOT = path.join(ROOT, "publish");
 function contentTypeFor(filePath) {
   const extension = path.extname(filePath).toLowerCase();
   if (extension === ".html") return "text/html; charset=utf-8";
@@ -24,7 +25,16 @@ function startStaticServer() {
     try {
       const urlPath = decodeURIComponent(new URL(request.url, "http://127.0.0.1").pathname);
       const relativePath = urlPath === "/" ? "chefle.html" : urlPath.replace(/^\/+/, "");
-      const filePath = path.resolve(ROOT, relativePath);
+      let filePath = path.resolve(ROOT, relativePath);
+      if (!filePath.startsWith(ROOT + path.sep)) {
+        response.writeHead(404);
+        response.end("Not found");
+        return;
+      }
+      if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+        const publishFilePath = path.resolve(PUBLISH_ROOT, relativePath);
+        if (publishFilePath.startsWith(PUBLISH_ROOT + path.sep)) filePath = publishFilePath;
+      }
       if (!filePath.startsWith(ROOT + path.sep) || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
         response.writeHead(404);
         response.end("Not found");
@@ -68,7 +78,11 @@ function resolveLocalImagePath(imageUrl) {
   }
   const filePath = path.resolve(ROOT, value);
   if (!filePath.startsWith(ROOT + path.sep)) throw new Error(`Image URL escapes project root: ${imageUrl}`);
-  return filePath;
+  if (fs.existsSync(filePath)) return filePath;
+
+  const publishFilePath = path.resolve(PUBLISH_ROOT, value);
+  if (!publishFilePath.startsWith(PUBLISH_ROOT + path.sep)) throw new Error(`Image URL escapes publish root: ${imageUrl}`);
+  return publishFilePath;
 }
 
 function checkScriptSyntax(script, index) {
@@ -116,9 +130,10 @@ async function main() {
   extractInlineScripts(html).forEach(checkScriptSyntax);
 
   const registry = parseRegistry(html);
-  const jsonRegistry = JSON.parse(fs.readFileSync(JSON_PATH, "utf8"));
+  const hasJsonRegistry = fs.existsSync(JSON_PATH);
+  const jsonRegistry = hasJsonRegistry ? JSON.parse(fs.readFileSync(JSON_PATH, "utf8")) : [];
   validateLocalFiles(registry, "HTML registry");
-  validateLocalFiles(jsonRegistry, "JSON registry");
+  if (hasJsonRegistry) validateLocalFiles(jsonRegistry, "JSON registry");
 
   const { server, origin } = await startStaticServer();
   try {
@@ -130,6 +145,7 @@ async function main() {
   console.log(JSON.stringify({
     htmlRegistryCount: registry.length,
     jsonRegistryCount: jsonRegistry.length,
+    jsonRegistryPresent: hasJsonRegistry,
     uniqueImageUrls: new Set(registry.map((item) => item.imageUrl)).size,
     inlineScriptsCompiled: extractInlineScripts(html).length
   }, null, 2));

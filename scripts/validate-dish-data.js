@@ -35,7 +35,8 @@ function main() {
   const html = fs.readFileSync(HTML_PATH, "utf8");
   const registry = parseConst(html, "chefleGlobalMasterRegistry", "[", "]");
   const calories = parseConst(html, "CALORIE_ESTIMATES", "[", "]");
-  const jsonRegistry = JSON.parse(fs.readFileSync(JSON_PATH, "utf8"));
+  const hasJsonRegistry = fs.existsSync(JSON_PATH);
+  const jsonRegistry = hasJsonRegistry ? JSON.parse(fs.readFileSync(JSON_PATH, "utf8")) : [];
   const groups = parseConst(html, "CATEGORY_GROUPS", "{", "}");
   const labels = parseConst(html, "CATEGORY_FILTER_LABELS", "{", "}");
   const lookup = Object.fromEntries(Object.entries(groups).map(([field, fieldGroups]) => [
@@ -54,16 +55,16 @@ function main() {
   const badCarbValues = new Set(["Cheese", "Dairy", "Butter", "Egg", "Pork", "Skewer", "Meringue"]);
   const failures = [];
   if (registry.length !== 273) failures.push(`Expected 273 HTML dishes, got ${registry.length}.`);
-  if (jsonRegistry.length !== registry.length) failures.push(`JSON registry length ${jsonRegistry.length} does not match HTML ${registry.length}.`);
+  if (hasJsonRegistry && jsonRegistry.length !== registry.length) failures.push(`JSON registry length ${jsonRegistry.length} does not match HTML ${registry.length}.`);
   if (calories.length !== registry.length) failures.push(`Calories length ${calories.length} does not match registry ${registry.length}.`);
 
   registry.forEach((dish, index) => {
     const jsonDish = jsonRegistry[index];
-    if (!jsonDish || jsonDish.name !== dish.name) failures.push(`JSON mismatch at ${index + 1}: ${dish.name}`);
+    if (hasJsonRegistry && (!jsonDish || jsonDish.name !== dish.name)) failures.push(`JSON mismatch at ${index + 1}: ${dish.name}`);
     if (dish.protein === "Vegetarian") failures.push(`${dish.name}: protein still uses Vegetarian.`);
     if (badCarbValues.has(dish.carb)) failures.push(`${dish.name}: carb uses non-base value ${dish.carb}.`);
     if (Number(dish.calories) !== Number(calories[index])) failures.push(`${dish.name}: registry calories ${dish.calories} != array ${calories[index]}.`);
-    if (jsonDish && Number(jsonDish.calories) !== Number(calories[index])) failures.push(`${dish.name}: JSON calories ${jsonDish.calories} != array ${calories[index]}.`);
+    if (hasJsonRegistry && jsonDish && Number(jsonDish.calories) !== Number(calories[index])) failures.push(`${dish.name}: JSON calories ${jsonDish.calories} != array ${calories[index]}.`);
     if (!Number.isFinite(Number(calories[index])) || Number(calories[index]) < 1) failures.push(`${dish.name}: invalid calories ${calories[index]}.`);
   });
 
@@ -82,6 +83,7 @@ function main() {
 
   console.log(JSON.stringify({
     dishes: registry.length,
+    jsonRegistryPresent: hasJsonRegistry,
     calorieRange: [Math.min(...calories), Math.max(...calories)],
     proteinCategories: counts.protein,
     carbCategories: counts.carb

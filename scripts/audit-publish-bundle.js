@@ -13,9 +13,20 @@ const PUBLISH_ROOT = path.join(ROOT, "publish");
 const INDEX_PATH = path.join(PUBLISH_ROOT, "index.html");
 const EXPECTED_DISH_COUNT = 273;
 const TARGET_SCHEDULE_SAMPLE_DAYS = 365;
-const PAGES = ["index.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const MONETIZED_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html"];
 const ADSENSE_CLIENT = "ca-pub-4681241502820822";
 const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
+const ADSENSE_SELLER_LINE = "google.com, pub-4681241502820822, DIRECT, f08c47fec0942fa0";
+const NON_PUBLIC_FILES = [
+  "ADSENSE.md",
+  "README.md",
+  "adsense-auto-ads-template.html",
+  "adsense-manual-ad-unit-template.html",
+  "ads.txt.template",
+  "publish-manifest.json",
+  "squarespace-iframe-snippet.html"
+];
 
 function read(relativePath) {
   return fs.readFileSync(path.join(PUBLISH_ROOT, relativePath), "utf8");
@@ -144,6 +155,20 @@ function auditPages(failures) {
     for (const anchor of html.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi)) {
       assert(/\brel=["'][^"']*\bnoopener\b/i.test(anchor[0]), `${page}: target=_blank link missing rel=noopener`, failures);
     }
+  }
+}
+
+function auditAdsTxt(failures) {
+  assert(exists("ads.txt"), "publish/ads.txt is missing.", failures);
+  if (!exists("ads.txt")) return;
+  const content = read("ads.txt").trim();
+  assert(content.includes(ADSENSE_SELLER_LINE), "publish/ads.txt missing configured AdSense seller line.", failures);
+  assert(!/pub-0{16}/.test(content), "publish/ads.txt still contains a placeholder publisher ID.", failures);
+}
+
+function auditNoPublicSetupFiles(failures) {
+  for (const file of NON_PUBLIC_FILES) {
+    assert(!exists(file), `publish/${file} should not be deployed publicly.`, failures);
   }
 }
 
@@ -311,8 +336,13 @@ function main() {
   if (exists("CNAME")) assert(read("CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
 
   auditPages(failures);
-  for (const page of PAGES) {
+  auditAdsTxt(failures);
+  auditNoPublicSetupFiles(failures);
+  for (const page of MONETIZED_PAGES) {
     if (exists(page)) assert(read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: missing AdSense verification script.`, failures);
+  }
+  for (const page of PAGES.filter((page) => !MONETIZED_PAGES.includes(page))) {
+    if (exists(page)) assert(!read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: utility/legal page should not load AdSense script.`, failures);
   }
 
   let dishSummary = null;

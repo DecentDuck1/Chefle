@@ -1051,6 +1051,48 @@
       outline: 0;
     }
 
+    .site-info-panels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      width: min(980px, 100%);
+      margin: 0 auto;
+    }
+
+    .site-info-card {
+      min-width: 0;
+      padding: 14px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,253,246,.84);
+      color: var(--muted);
+      box-shadow: 0 10px 28px rgba(101, 62, 26, .08);
+    }
+
+    .site-info-card h2 {
+      margin: 0 0 7px;
+      color: var(--basil-dark);
+      font-size: .76rem;
+      font-weight: 1000;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .site-info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 760;
+      line-height: 1.45;
+    }
+
+    .site-info-card a {
+      color: var(--basil-dark);
+      font-weight: 1000;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
     .noscript-card {
       width: min(560px, calc(100% - 32px));
       margin: 84px auto 0;
@@ -1873,6 +1915,8 @@
       .stat span { font-size: .5rem; }
       .filter-bar { grid-template-columns: 1fr; }
       .legal-footer { padding-bottom: 6px; }
+      .site-info-panels { grid-template-columns: 1fr; gap: 8px; }
+      .site-info-card { padding: 12px; }
       .discovery-panel {
         height: var(--pool-panel-height) !important;
         min-height: 0;
@@ -2075,7 +2119,30 @@
         </aside>
       </div>
 
+      <section class="site-info-panels" aria-label="About Chefle">
+        <article class="site-info-card">
+          <h2>Original Daily Puzzle</h2>
+          <p>Chefle is an independent food guessing game built around broad dish clues, daily play, and a hand-curated archive of familiar meals. Start with the <a href="how-to-play.html" target="_blank" rel="noopener">how-to-play guide</a>.</p>
+        </article>
+        <article class="site-info-card">
+          <h2>Food Data Notes</h2>
+          <p>Calories, textures, prep times, and regions are simplified editorial estimates for gameplay. The <a href="food-clues.html" target="_blank" rel="noopener">food clue guide</a> explains how the categories work.</p>
+        </article>
+        <article class="site-info-card">
+          <h2>Site Info</h2>
+          <p>Review the <a href="about.html" target="_blank" rel="noopener">About</a>, <a href="contact.html" target="_blank" rel="noopener">Contact</a>, and <a href="privacy.html" target="_blank" rel="noopener">Privacy</a> pages for ownership, support, and advertising disclosures.</p>
+        </article>
+      </section>
+
       <footer class="legal-footer">
+        <a href="how-to-play.html" target="_blank" rel="noopener">How to Play</a>
+        <span aria-hidden="true">|</span>
+        <a href="food-clues.html" target="_blank" rel="noopener">Food Clues</a>
+        <span aria-hidden="true">|</span>
+        <a href="about.html" target="_blank" rel="noopener">About</a>
+        <span aria-hidden="true">|</span>
+        <a href="contact.html" target="_blank" rel="noopener">Contact</a>
+        <span aria-hidden="true">|</span>
         <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>
         <span aria-hidden="true">|</span>
         <a href="terms.html" target="_blank" rel="noopener">Terms</a>
@@ -2086,7 +2153,7 @@
         <span aria-hidden="true">|</span>
         <a href="disclaimer.html" target="_blank" rel="noopener">Disclaimer</a>
         <span aria-hidden="true">|</span>
-        <span class="footer-note">Made with love ❤️</span>
+        <span class="footer-note">Independent daily food puzzle</span>
       </footer>
     </main>
     <aside class="ad-rail ad-rail-right" aria-hidden="true" data-ad-rail="right"></aside>
