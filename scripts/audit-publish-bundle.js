@@ -16,7 +16,6 @@ const TARGET_SCHEDULE_SAMPLE_DAYS = 365;
 const PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
 const AD_SCRIPT_SOURCES = [
-  "https://pl30249833.effectivecpmnetwork.com/cf/1b/70/cf1b703f29329a0bfd5a1278227af69c.js",
   "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"
 ];
 const AD_CONTAINER_ID = "container-aa279291e14979c0366cfb9f53773392";
