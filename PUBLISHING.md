@@ -79,13 +79,13 @@ Configure HTTPS and HSTS at the final host after confirming the site is served o
 
 ## Privacy
 
-The footer links to `how-to-play.html` and `about.html`; support/legal utility pages are still copied into `publish/` for direct access. Chefle stores game progress, stats, settings, and trusted-time data in browser `localStorage`; it does not use accounts, payments, email capture, comments, geolocation, camera, microphone, or a database. The app includes a third-party advertising snippet on the game page only; utility/legal pages should remain ad-code-free. Keep the Privacy and Cookies pages accurate before publication. Squarespace, advertising partners, and the static host may still process normal technical data such as IP address, browser type, cookies, identifiers, and access logs.
+The footer links to `how-to-play.html` and `about.html`; support/legal utility pages are still copied into `publish/` for direct access. Chefle stores game progress, stats, settings, and trusted-time data in browser `localStorage`; it does not use accounts, payments, email capture, comments, geolocation, camera, microphone, or a database. The app includes third-party advertising snippets on the game page only; utility/legal pages should remain ad-code-free. Keep the Privacy and Cookies pages accurate before publication. Squarespace, advertising partners, and the static host may still process normal technical data such as IP address, browser type, cookies, identifiers, and access logs.
 
 If you add analytics, ads, API integrations, login, comments, forms, or payment features later, update the privacy notice before publishing those changes.
 
 ## Third-Party Ad Snippet
 
-The game page includes the configured third-party advertising scripts immediately before `</head>`. The production CSP allows the app script hash plus `https://*.effectivecpmnetwork.com` for the ad snippet. If the advertising provider changes its domains, update `chefle.html`, `scripts/build-publish.js`, and the launch audits together.
+The game page includes the configured third-party advertising code in both head and body placements. The production CSP hashes all inline scripts and allows the configured ad domains, currently `https://*.effectivecpmnetwork.com`, `https://www.highperformanceformat.com`, and `https://*.highperformanceformat.com`. If an advertising provider changes its domains or snippet shape, update `chefle.html`, `scripts/build-publish.js`, and the launch audits together.
 
 ## QA Checklist
 

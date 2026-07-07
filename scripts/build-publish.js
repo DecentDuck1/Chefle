@@ -2,14 +2,19 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const { inlineScripts, parseJsonConst, scriptHash } = require("./chefle-constants");
+const { inlineScripts, parseJsonConst, scriptHashSources } = require("./chefle-constants");
 
 const ROOT = path.resolve(__dirname, "..");
 const HTML_PATH = path.join(ROOT, "chefle.html");
 const OUT_DIR = path.join(ROOT, "publish");
 const PYTHON = process.env.CODEX_PYTHON || process.env.PYTHON || "python";
 const CUSTOM_DOMAIN = "chefle.org";
-const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
+const AD_CSP_SOURCES = [
+  "https://*.effectivecpmnetwork.com",
+  "https://www.highperformanceformat.com",
+  "https://*.highperformanceformat.com"
+];
+const AD_CSP_SOURCE = AD_CSP_SOURCES.join(" ");
 const LEGAL_PAGES = ["about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 
 function assertInsideRoot(target) {
@@ -97,11 +102,10 @@ function prepareDishImageSources(imageUrls) {
 
 function securityHeaders(html) {
   const scripts = inlineScripts(html);
-  if (scripts.length !== 1) throw new Error(`Expected one inline app script for CSP hash, found ${scripts.length}.`);
-  const hash = scriptHash(scripts[0]);
+  const scriptHashes = scriptHashSources(scripts).join(" ");
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'sha256-${hash}' ${AD_CSP_SOURCE}`,
+    `script-src 'self' ${scriptHashes} ${AD_CSP_SOURCE}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src https://fonts.gstatic.com",
     `img-src 'self' data: ${AD_CSP_SOURCE}`,
@@ -122,8 +126,7 @@ function securityHeaders(html) {
 
 function publishHtmlWithHashedCsp(html) {
   const scripts = inlineScripts(html);
-  if (scripts.length !== 1) throw new Error(`Expected one inline app script for CSP hash, found ${scripts.length}.`);
-  const hash = scriptHash(scripts[0]);
+  const scriptHashes = scriptHashSources(scripts).join(" ");
   const metaPattern = /(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")/i;
   const match = html.match(metaPattern);
   if (!match) throw new Error("Could not find Content-Security-Policy meta tag.");
@@ -131,7 +134,7 @@ function publishHtmlWithHashedCsp(html) {
   const directives = match[2].split(";").map((directive) => directive.trim()).filter(Boolean);
   const nextDirectives = directives.map((directive) => (
     directive.startsWith("script-src ")
-      ? `script-src 'self' 'sha256-${hash}' ${AD_CSP_SOURCE}`
+      ? `script-src 'self' ${scriptHashes} ${AD_CSP_SOURCE}`
       : directive
   ));
 

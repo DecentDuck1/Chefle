@@ -120,19 +120,23 @@ function scriptHash(script) {
   return crypto.createHash("sha256").update(script.replace(/\r\n/g, "\n"), "utf8").digest("base64");
 }
 
+function scriptHashSources(scripts) {
+  if (!scripts.length) throw new Error("Expected at least one inline script for CSP hash.");
+  return Array.from(new Set(scripts.map((script) => `'sha256-${scriptHash(script)}'`)));
+}
+
 function withUpdatedCspScriptHash(html) {
   if (/script-src[^;]*'unsafe-inline'/.test(html)) return html;
 
   const scripts = inlineScripts(html);
-  if (scripts.length !== 1) throw new Error(`Expected exactly one inline script, found ${scripts.length}.`);
+  if (!scripts.length) throw new Error("Expected at least one inline script for CSP hash.");
 
   const metaPattern = /(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")/i;
   const match = html.match(metaPattern);
   if (!match) throw new Error("Could not find Content-Security-Policy meta tag.");
 
-  const hash = scriptHash(scripts[0]);
   const directives = match[2].split(";").map((directive) => directive.trim()).filter(Boolean);
-  const scriptDirective = `script-src 'sha256-${hash}'`;
+  const scriptDirective = `script-src ${scriptHashSources(scripts).join(" ")}`;
   const nextDirectives = directives.some((directive) => directive.startsWith("script-src "))
     ? directives.map((directive) => directive.startsWith("script-src ") ? scriptDirective : directive)
     : [...directives, scriptDirective];
@@ -149,5 +153,6 @@ module.exports = {
   parseJsonObjectConst,
   quoteObjectKeys,
   scriptHash,
+  scriptHashSources,
   withUpdatedCspScriptHash
 };

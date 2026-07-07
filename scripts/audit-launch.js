@@ -1,14 +1,19 @@
 const fs = require("fs");
 const path = require("path");
-const { inlineScripts, scriptHash } = require("./chefle-constants");
+const { inlineScripts, scriptHash, scriptHashSources } = require("./chefle-constants");
 
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
-const AD_SCRIPT_SOURCES = [
-  "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"
+const AD_CSP_SOURCES = [
+  "https://*.effectivecpmnetwork.com",
+  "https://www.highperformanceformat.com",
+  "https://*.highperformanceformat.com"
 ];
+const AD_CSP_SOURCE = AD_CSP_SOURCES.join(" ");
+const NATIVE_AD_SCRIPT_SOURCE = "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js";
+const DISPLAY_AD_SCRIPT_SOURCE = "https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js";
+const DISPLAY_AD_STATIC_SNIPPET_COUNT = 3;
 const AD_CONTAINER_ID = "container-aa279291e14979c0366cfb9f53773392";
 const REMOVED_GOOGLE_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-/i;
 const NON_PUBLIC_PUBLISH_FILES = [
@@ -86,12 +91,19 @@ function auditAdSnippet(relativePath, failures) {
   const html = read(relativePath);
   const headEnd = html.search(/<\/head>/i);
   const head = headEnd >= 0 ? html.slice(0, headEnd) : "";
-  for (const source of AD_SCRIPT_SOURCES) {
-    assert(html.includes(`src="${source}"`), `${relativePath}: missing configured ad script ${source}`, failures);
-    assert(head.includes(`src="${source}"`), `${relativePath}: configured ad script must appear before </head>`, failures);
-  }
+  const body = headEnd >= 0 ? html.slice(headEnd) : html;
+  assert(html.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: missing configured native ad script`, failures);
+  assert(head.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: native ad script must appear before </head>`, failures);
   assert(html.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: missing configured ad container`, failures);
   assert(head.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: configured ad container must appear before </head>`, failures);
+  const displayScriptCount = (html.match(new RegExp(`src="${DISPLAY_AD_SCRIPT_SOURCE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`, "g")) || []).length;
+  const displayOptionsCount = (html.match(/atOptions\s*=\s*\{\s*'key'\s*:\s*'c5bca2546625cae1a377f1152785c4d1'/g) || []).length;
+  assert(displayScriptCount === DISPLAY_AD_STATIC_SNIPPET_COUNT, `${relativePath}: expected ${DISPLAY_AD_STATIC_SNIPPET_COUNT} static display ad script, found ${displayScriptCount}`, failures);
+  assert(displayOptionsCount === DISPLAY_AD_STATIC_SNIPPET_COUNT, `${relativePath}: expected ${DISPLAY_AD_STATIC_SNIPPET_COUNT} static display ad option block, found ${displayOptionsCount}`, failures);
+  assert(body.includes(`src="${DISPLAY_AD_SCRIPT_SOURCE}"`), `${relativePath}: display ad script should be placed in the page body`, failures);
+  ["ad-side-left", "ad-side-right", "ad-bottom-banner"].forEach((className) => {
+    assert(html.includes(className), `${relativePath}: missing ${className} placement`, failures);
+  });
 }
 
 function auditRemovedGoogleAds(relativePath, failures) {
@@ -111,12 +123,14 @@ function main() {
   const publishHtml = read("publish/index.html");
   const sourceScripts = inlineScripts(sourceHtml);
   const publishScripts = inlineScripts(publishHtml);
-  assert(sourceScripts.length === 1 && publishScripts.length === 1, "Source and publish should each contain one app script.", failures);
-  if (sourceScripts.length === 1 && publishScripts.length === 1) {
-    assert(scriptHash(sourceScripts[0]) === scriptHash(publishScripts[0]), "publish/index.html app script is not in sync with chefle.html; run node scripts/build-publish.js", failures);
-    const publishScriptHash = scriptHash(publishScripts[0]);
-    assert(publishHtml.includes(`script-src 'self' 'sha256-${publishScriptHash}' ${AD_CSP_SOURCE}`), "publish/index.html CSP script hash or ad source does not match browser-normalized inline script content.", failures);
-    assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}' ${AD_CSP_SOURCE}`), "publish/_headers CSP script hash or ad source does not match browser-normalized inline script content.", failures);
+  assert(sourceScripts.length === publishScripts.length && sourceScripts.length > 0, "Source and publish should contain the same inline scripts.", failures);
+  if (sourceScripts.length === publishScripts.length && sourceScripts.length > 0) {
+    const sourceScriptHashes = sourceScripts.map(scriptHash);
+    const publishScriptHashes = publishScripts.map(scriptHash);
+    assert(JSON.stringify(sourceScriptHashes) === JSON.stringify(publishScriptHashes), "publish/index.html inline scripts are not in sync with chefle.html; run node scripts/build-publish.js", failures);
+    const publishScriptHashSource = scriptHashSources(publishScripts).join(" ");
+    assert(publishHtml.includes(`script-src 'self' ${publishScriptHashSource} ${AD_CSP_SOURCE}`), "publish/index.html CSP script hashes or ad sources do not match browser-normalized inline script content.", failures);
+    assert(read("publish/_headers").includes(`script-src 'self' ${publishScriptHashSource} ${AD_CSP_SOURCE}`), "publish/_headers CSP script hashes or ad sources do not match browser-normalized inline script content.", failures);
   }
   assert(!/script-src[^;"]*'unsafe-inline'/.test(publishHtml), "publish/index.html script CSP still allows unsafe-inline.", failures);
   auditAdSnippet("chefle.html", failures);

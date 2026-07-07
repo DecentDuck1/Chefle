@@ -14,10 +14,15 @@ const INDEX_PATH = path.join(PUBLISH_ROOT, "index.html");
 const EXPECTED_DISH_COUNT = 273;
 const TARGET_SCHEDULE_SAMPLE_DAYS = 365;
 const PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
-const AD_SCRIPT_SOURCES = [
-  "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"
+const AD_CSP_SOURCES = [
+  "https://*.effectivecpmnetwork.com",
+  "https://www.highperformanceformat.com",
+  "https://*.highperformanceformat.com"
 ];
+const AD_CSP_SOURCE = AD_CSP_SOURCES.join(" ");
+const NATIVE_AD_SCRIPT_SOURCE = "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js";
+const DISPLAY_AD_SCRIPT_SOURCE = "https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js";
+const DISPLAY_AD_STATIC_SNIPPET_COUNT = 3;
 const AD_CONTAINER_ID = "container-aa279291e14979c0366cfb9f53773392";
 const REMOVED_GOOGLE_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-/i;
 const NON_PUBLIC_FILES = [
@@ -160,13 +165,22 @@ function auditAdSnippet(failures) {
   const html = read("index.html");
   const headEnd = html.search(/<\/head>/i);
   const head = headEnd >= 0 ? html.slice(0, headEnd) : "";
-  for (const source of AD_SCRIPT_SOURCES) {
-    assert(html.includes(`src="${source}"`), `index.html: missing configured ad script ${source}`, failures);
-    assert(head.includes(`src="${source}"`), "index.html: configured ad script must appear before </head>", failures);
-  }
+  const body = headEnd >= 0 ? html.slice(headEnd) : html;
+  assert(html.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), "index.html: missing configured native ad script", failures);
+  assert(head.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), "index.html: native ad script must appear before </head>", failures);
   assert(html.includes(`id="${AD_CONTAINER_ID}"`), "index.html: missing configured ad container", failures);
   assert(head.includes(`id="${AD_CONTAINER_ID}"`), "index.html: configured ad container must appear before </head>", failures);
-  assert(html.includes(AD_CSP_SOURCE), "index.html: CSP should allow the configured ad source.", failures);
+  const displayScriptCount = (html.match(new RegExp(`src="${DISPLAY_AD_SCRIPT_SOURCE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`, "g")) || []).length;
+  const displayOptionsCount = (html.match(/atOptions\s*=\s*\{\s*'key'\s*:\s*'c5bca2546625cae1a377f1152785c4d1'/g) || []).length;
+  assert(displayScriptCount === DISPLAY_AD_STATIC_SNIPPET_COUNT, `index.html: expected ${DISPLAY_AD_STATIC_SNIPPET_COUNT} static display ad script, found ${displayScriptCount}`, failures);
+  assert(displayOptionsCount === DISPLAY_AD_STATIC_SNIPPET_COUNT, `index.html: expected ${DISPLAY_AD_STATIC_SNIPPET_COUNT} static display ad option block, found ${displayOptionsCount}`, failures);
+  assert(body.includes(`src="${DISPLAY_AD_SCRIPT_SOURCE}"`), "index.html: display ad script should be placed in the page body", failures);
+  ["ad-side-left", "ad-side-right", "ad-bottom-banner"].forEach((className) => {
+    assert(html.includes(className), `index.html: missing ${className} placement`, failures);
+  });
+  for (const source of AD_CSP_SOURCES) {
+    assert(html.includes(source), `index.html: CSP should allow the configured ad source ${source}.`, failures);
+  }
 }
 
 function auditRemovedGoogleAds(failures) {
