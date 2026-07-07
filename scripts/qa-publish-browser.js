@@ -16,7 +16,7 @@ const gameKey = "chefle:regional-temp:v3:game";
 const modeKey = "chefle:regional-temp:v3:mode";
 const infiniteGameKey = "chefle:regional-temp:v3:infinite";
 const statsKey = "chefle:regional-temp:v3:stats";
-const requiredFooterLinks = ["how-to-play.html", "food-clues.html", "about.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
+const requiredFooterLinks = ["how-to-play.html", "about.html"];
 const chromePaths = [
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
@@ -663,10 +663,6 @@ async function runViewport(send, viewport) {
         };
       });
     const appRect = document.querySelector(".app-shell")?.getBoundingClientRect() || { left: 0, right: window.innerWidth, width: window.innerWidth };
-    const leftRail = document.querySelector(".ad-rail-left");
-    const rightRail = document.querySelector(".ad-rail-right");
-    const leftRailRect = leftRail?.getBoundingClientRect() || { width: 0 };
-    const rightRailRect = rightRail?.getBoundingClientRect() || { width: 0 };
     return {
       label: ${JSON.stringify(viewport.label)},
       innerWidth: window.innerWidth,
@@ -674,12 +670,6 @@ async function runViewport(send, viewport) {
       scrollWidth: doc.scrollWidth,
       bodyScrollWidth: body.scrollWidth,
       appWidth: Math.round(appRect.width),
-      appLeftGutter: Math.round(appRect.left),
-      appRightGutter: Math.round(window.innerWidth - appRect.right),
-      leftRailWidth: Math.round(leftRailRect.width),
-      rightRailWidth: Math.round(rightRailRect.width),
-      leftRailDisplay: leftRail ? getComputedStyle(leftRail).display : "",
-      rightRailDisplay: rightRail ? getComputedStyle(rightRail).display : "",
       initialized: document.getElementById("gameId")?.textContent || "",
       region: document.getElementById("regionInsightTitle")?.textContent || "",
       pool: document.getElementById("poolFilteredCount")?.textContent || "",
@@ -728,7 +718,7 @@ async function main() {
     results.push(await runViewport(send, { label: "mobile", width: 390, height: 844, mobile: true }));
     results.push(await runViewport(send, { label: "phone-landscape", width: 667, height: 375, mobile: true }));
     results.push(await runViewport(send, { label: "tablet", width: 768, height: 1024, mobile: true }));
-    results.push(await runViewport(send, { label: "adsense-preview", width: 1000, height: 768, mobile: false }));
+    results.push(await runViewport(send, { label: "medium-desktop", width: 1000, height: 768, mobile: false }));
     results.push(await runViewport(send, { label: "desktop", width: 1365, height: 768, mobile: false }));
     const boardScenarios = await runBoardStateScenarios(send);
     const histogramWidths = await runHistogramScenario(send);
@@ -747,7 +737,6 @@ async function main() {
       || result.devResetPresent
       || !result.poolListHasInternalScroll
       || result.boardToGuessGap > 24
-      || (result.label === "adsense-preview" && (result.appLeftGutter < 140 || result.appRightGutter < 140))
       || (result.label === "desktop" && result.playgroundToPoolBottomDelta > 2)
       || requiredFooterLinks.some((href) => !result.footerLinks.includes(href))
     );

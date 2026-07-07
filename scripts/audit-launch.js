@@ -5,18 +5,15 @@ const { inlineScripts, scriptHash } = require("./chefle-constants");
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const MONETIZED_SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clues.html"];
-const MONETIZED_PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html"];
-const ADSENSE_CLIENT = "ca-pub-4681241502820822";
-const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
-const ADSENSE_SCRIPT_ORIGIN = "https://pagead2.googlesyndication.com";
-const ADSENSE_SELLER_LINE = "google.com, pub-4681241502820822, DIRECT, f08c47fec0942fa0";
+const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
+const AD_SCRIPT_SOURCES = [
+  "https://pl30249833.effectivecpmnetwork.com/cf/1b/70/cf1b703f29329a0bfd5a1278227af69c.js",
+  "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"
+];
+const AD_CONTAINER_ID = "container-aa279291e14979c0366cfb9f53773392";
+const REMOVED_GOOGLE_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-/i;
 const NON_PUBLIC_PUBLISH_FILES = [
-  "publish/ADSENSE.md",
   "publish/README.md",
-  "publish/adsense-auto-ads-template.html",
-  "publish/adsense-manual-ad-unit-template.html",
-  "publish/ads.txt.template",
   "publish/publish-manifest.json",
   "publish/squarespace-iframe-snippet.html"
 ];
@@ -86,21 +83,27 @@ function auditPages(prefix, pages, expectedReturnHref, failures) {
   }
 }
 
-function auditAdsTxt(relativePath, failures) {
-  assert(exists(relativePath), `Missing ads.txt file: ${relativePath}`, failures);
+function auditAdSnippet(relativePath, failures) {
+  const html = read(relativePath);
+  const headEnd = html.search(/<\/head>/i);
+  const head = headEnd >= 0 ? html.slice(0, headEnd) : "";
+  for (const source of AD_SCRIPT_SOURCES) {
+    assert(html.includes(`src="${source}"`), `${relativePath}: missing configured ad script ${source}`, failures);
+    assert(head.includes(`src="${source}"`), `${relativePath}: configured ad script must appear before </head>`, failures);
+  }
+  assert(html.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: missing configured ad container`, failures);
+  assert(head.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: configured ad container must appear before </head>`, failures);
+}
+
+function auditRemovedGoogleAds(relativePath, failures) {
   if (!exists(relativePath)) return;
-  const content = read(relativePath).trim();
-  assert(content.includes(ADSENSE_SELLER_LINE), `${relativePath}: missing configured AdSense seller line.`, failures);
-  assert(!/pub-0{16}/.test(content), `${relativePath}: still contains a placeholder publisher ID.`, failures);
+  assert(!REMOVED_GOOGLE_AD_PATTERN.test(read(relativePath)), `${relativePath}: removed Google ad code is still present.`, failures);
 }
 
 function main() {
   const failures = [];
   auditPages("", SOURCE_PAGES, "chefle.html", failures);
   auditPages("publish", PUBLISH_PAGES, "index.html", failures);
-  auditAdsTxt("ads.txt", failures);
-  auditAdsTxt("ads.txt.template", failures);
-  auditAdsTxt("publish/ads.txt", failures);
   for (const file of NON_PUBLIC_PUBLISH_FILES) {
     assert(!exists(file), `${file}: setup/template file should not be deployed publicly.`, failures);
   }
@@ -113,25 +116,15 @@ function main() {
   if (sourceScripts.length === 1 && publishScripts.length === 1) {
     assert(scriptHash(sourceScripts[0]) === scriptHash(publishScripts[0]), "publish/index.html app script is not in sync with chefle.html; run node scripts/build-publish.js", failures);
     const publishScriptHash = scriptHash(publishScripts[0]);
-    assert(publishHtml.includes(`script-src 'self' 'sha256-${publishScriptHash}' ${ADSENSE_SCRIPT_ORIGIN}`), "publish/index.html CSP script hash or AdSense origin does not match browser-normalized inline script content.", failures);
-    assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}' ${ADSENSE_SCRIPT_ORIGIN}`), "publish/_headers CSP script hash or AdSense origin does not match browser-normalized inline script content.", failures);
+    assert(publishHtml.includes(`script-src 'self' 'sha256-${publishScriptHash}' ${AD_CSP_SOURCE}`), "publish/index.html CSP script hash or ad source does not match browser-normalized inline script content.", failures);
+    assert(read("publish/_headers").includes(`script-src 'self' 'sha256-${publishScriptHash}' ${AD_CSP_SOURCE}`), "publish/_headers CSP script hash or ad source does not match browser-normalized inline script content.", failures);
   }
   assert(!/script-src[^;"]*'unsafe-inline'/.test(publishHtml), "publish/index.html script CSP still allows unsafe-inline.", failures);
-  for (const page of MONETIZED_SOURCE_PAGES) {
-    assert(read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: missing AdSense verification script.`, failures);
-  }
-  for (const page of MONETIZED_PUBLISH_PAGES) {
-    assert(read(`publish/${page}`).includes(ADSENSE_SCRIPT_SRC), `publish/${page}: missing AdSense verification script.`, failures);
-  }
-  for (const page of SOURCE_PAGES.filter((page) => !MONETIZED_SOURCE_PAGES.includes(page))) {
-    assert(!read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: utility/legal page should not load AdSense script.`, failures);
-  }
-  for (const page of PUBLISH_PAGES.filter((page) => !MONETIZED_PUBLISH_PAGES.includes(page))) {
-    assert(!read(`publish/${page}`).includes(ADSENSE_SCRIPT_SRC), `publish/${page}: utility/legal page should not load AdSense script.`, failures);
-  }
+  auditAdSnippet("chefle.html", failures);
+  auditAdSnippet("publish/index.html", failures);
+  [...SOURCE_PAGES, ...PUBLISH_PAGES.map((page) => `publish/${page}`), "publish/_headers"].forEach((page) => auditRemovedGoogleAds(page, failures));
   assert(!/No Primary Protein/.test(sourceHtml + publishHtml), "Old protein label still appears in game HTML.", failures);
   assert(!/(resetFoodButton|devResetStatus|dev-block|Restart Today)/.test(sourceHtml + publishHtml), "Dev food reset control still appears in game HTML.", failures);
-  assert(!/ca-pub-0000000000000000/.test(publishHtml), "publish/index.html still contains placeholder AdSense publisher ID.", failures);
   assert(read("publish/_headers").includes("Content-Security-Policy:"), "publish/_headers missing CSP.", failures);
   assert(read("publish/CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
   assert(exists("publish/.nojekyll"), "publish/.nojekyll is missing.", failures);

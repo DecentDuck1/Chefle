@@ -6,13 +6,11 @@
   <meta name="description" content="Chefle is a daily food guessing game that compares dishes by protein, base carb, temperature, calories, texture, and prep time.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#fff8e8">
-  <meta name="google-site-verification" content="xfxeSGkpUGrWPTYE0L9JepCD1Jv7BTiLrEtUlDnDgBs">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-VpI/utbNJRscx9ftLTKFNfZKOLIVK19h3SdglHWLlfQ=' https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-VpI/utbNJRscx9ftLTKFNfZKOLIVK19h3SdglHWLlfQ=' https://*.effectivecpmnetwork.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.effectivecpmnetwork.com; connect-src 'self' https://*.effectivecpmnetwork.com; frame-src https://*.effectivecpmnetwork.com; object-src 'none'; base-uri 'none'; form-action 'none'">
   <link rel="icon" href="chefle-logo.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4681241502820822" crossorigin="anonymous"></script>
   <title>Chefle</title>
   <style>
     :root {
@@ -34,7 +32,6 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --keyboard-offset: 0px;
       --site-content-width: min(1320px, 100%);
-      --ad-rail-max-width: 160px;
       --board-min-width: 780px;
       --game-panel-height: clamp(500px, calc(100svh - 238px), 700px);
       --board-row-min-height: 72px;
@@ -192,10 +189,6 @@
       justify-items: center;
       width: 100%;
       min-height: 100svh;
-    }
-
-    .ad-rail {
-      display: none;
     }
 
     .app-shell {
@@ -405,12 +398,11 @@
 
     .playground {
       display: grid;
-      grid-template-rows: minmax(0, 1fr) auto;
+      grid-template-rows: auto auto;
       align-content: start;
-      height: var(--game-panel-height);
+      min-height: var(--game-panel-height);
       gap: 16px;
       min-width: 0;
-      min-height: 0;
     }
 
     .legend {
@@ -461,7 +453,7 @@
 
     .board-wrap {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-rows: auto auto;
       height: auto;
       min-height: 0;
       width: 100%;
@@ -517,7 +509,7 @@
       min-width: var(--board-min-width);
       min-height: 0;
       padding: var(--board-pad);
-      overflow-y: auto;
+      overflow-y: hidden;
       overscroll-behavior: contain;
       scrollbar-color: #b68847 #fff1cf;
       scrollbar-width: thin;
@@ -1035,10 +1027,6 @@
       color: rgba(122, 86, 63, .42);
     }
 
-    .legal-footer .footer-note {
-      color: inherit;
-    }
-
     .legal-footer a {
       color: inherit;
       text-decoration: underline;
@@ -1053,7 +1041,7 @@
 
     .site-info-panels {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
       width: min(980px, 100%);
       margin: 0 auto;
@@ -1759,75 +1747,9 @@
       body::before { animation: none !important; }
     }
 
-    @media (min-width: 960px) {
-      :root {
-        --site-content-width: min(1320px, max(680px, calc(100vw - 360px)));
-      }
-
-      .site-frame {
-        grid-template-columns: minmax(0, 1fr) minmax(0, var(--site-content-width)) minmax(0, 1fr);
-        align-items: start;
-      }
-
-      .app-shell {
-        grid-column: 2;
-        width: 100%;
-      }
-
-      .ad-rail {
-        display: block;
-        position: sticky;
-        top: 78px;
-        align-self: start;
-        width: min(var(--ad-rail-max-width), 100%);
-        min-height: min(600px, calc(100svh - 96px));
-        pointer-events: none;
-      }
-
-      .ad-rail-left {
-        grid-column: 1;
-        justify-self: end;
-      }
-
-      .ad-rail-right {
-        grid-column: 3;
-        justify-self: start;
-      }
-    }
-
     @media (min-width: 1101px) and (min-height: 720px) {
-      body {
-        overflow-y: hidden;
-      }
-
-      .site-frame {
-        height: 100svh;
-        min-height: 0;
-        overflow: hidden;
-      }
-
-      .app-shell {
-        grid-template-rows: min-content minmax(0, 1fr) min-content;
-        height: 100svh;
-        min-height: 0;
-        overflow: hidden;
-      }
-
       .intro {
         min-height: 306px;
-      }
-
-      .game-layout {
-        height: 100%;
-        min-height: 0;
-      }
-
-      .playground {
-        height: 100%;
-      }
-
-      .discovery-panel {
-        height: 100% !important;
       }
     }
 
@@ -1839,7 +1761,7 @@
       }
       .intro { grid-template-columns: 1fr; }
       .board-wrap {
-        height: clamp(420px, 56svh, 620px);
+        height: auto;
         min-height: 0;
       }
       .discovery-panel {
@@ -1870,7 +1792,7 @@
       .icon { width: 20px; height: 20px; }
       .intro { padding: 16px; }
       .board-wrap {
-        height: clamp(320px, calc(100svh - 300px), 560px);
+        height: auto;
         min-height: 0;
       }
       .region-insight { grid-template-columns: 106px minmax(0, 1fr); gap: 12px; padding: 10px; }
@@ -1978,7 +1900,7 @@
         --pool-panel-height: clamp(230px, 40svh, 340px);
       }
 
-      .board-wrap { height: clamp(280px, calc(100svh - 270px), 440px); }
+      .board-wrap { height: auto; }
       .daily-title { font-size: 1.5rem; }
     }
 
@@ -2001,7 +1923,7 @@
       .region-title { font-size: .86rem; }
       .region-description,
       .region-list { font-size: .62rem; }
-      .board-wrap { height: clamp(260px, 64svh, 360px); }
+      .board-wrap { height: auto; }
     }
 
     @media (max-width: 360px) {
@@ -2011,6 +1933,11 @@
       .dish-name { font-size: .53rem; }
     }
   </style>
+  <script src="https://pl30249833.effectivecpmnetwork.com/cf/1b/70/cf1b703f29329a0bfd5a1278227af69c.js"></script>
+
+
+  <script async="async" data-cfasync="false" src="https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"></script>
+  <div id="container-aa279291e14979c0366cfb9f53773392"></div>
 </head>
 <body>
   <noscript><main class="noscript-card">Chefle needs JavaScript enabled to run.</main></noscript>
@@ -2045,8 +1972,7 @@
   </header>
 
   <div class="site-frame">
-    <aside class="ad-rail ad-rail-left" aria-hidden="true" data-ad-rail="left"></aside>
-    <main class="app-shell" google-side-rail-overlap="false">
+    <main class="app-shell">
       <section class="intro" aria-labelledby="gameStatus">
         <div class="intro-main">
           <p class="kicker" id="gameId">Chefle</p>
@@ -2125,38 +2051,17 @@
           <p>Chefle is an independent food guessing game built around broad dish clues, daily play, and a hand-curated archive of familiar meals. Start with the <a href="how-to-play.html" target="_blank" rel="noopener">how-to-play guide</a>.</p>
         </article>
         <article class="site-info-card">
-          <h2>Food Data Notes</h2>
-          <p>Calories, textures, prep times, and regions are simplified editorial estimates for gameplay. The <a href="food-clues.html" target="_blank" rel="noopener">food clue guide</a> explains how the categories work.</p>
-        </article>
-        <article class="site-info-card">
           <h2>Site Info</h2>
-          <p>Review the <a href="about.html" target="_blank" rel="noopener">About</a>, <a href="contact.html" target="_blank" rel="noopener">Contact</a>, and <a href="privacy.html" target="_blank" rel="noopener">Privacy</a> pages for ownership, support, and advertising disclosures.</p>
+          <p>Review the <a href="about.html" target="_blank" rel="noopener">About</a> page for ownership, support, and site details.</p>
         </article>
       </section>
 
       <footer class="legal-footer">
         <a href="how-to-play.html" target="_blank" rel="noopener">How to Play</a>
         <span aria-hidden="true">|</span>
-        <a href="food-clues.html" target="_blank" rel="noopener">Food Clues</a>
-        <span aria-hidden="true">|</span>
         <a href="about.html" target="_blank" rel="noopener">About</a>
-        <span aria-hidden="true">|</span>
-        <a href="contact.html" target="_blank" rel="noopener">Contact</a>
-        <span aria-hidden="true">|</span>
-        <a href="privacy.html" target="_blank" rel="noopener">Privacy</a>
-        <span aria-hidden="true">|</span>
-        <a href="terms.html" target="_blank" rel="noopener">Terms</a>
-        <span aria-hidden="true">|</span>
-        <a href="cookies.html" target="_blank" rel="noopener">Cookies</a>
-        <span aria-hidden="true">|</span>
-        <a href="accessibility.html" target="_blank" rel="noopener">Accessibility</a>
-        <span aria-hidden="true">|</span>
-        <a href="disclaimer.html" target="_blank" rel="noopener">Disclaimer</a>
-        <span aria-hidden="true">|</span>
-        <span class="footer-note">Independent daily food puzzle</span>
       </footer>
     </main>
-    <aside class="ad-rail ad-rail-right" aria-hidden="true" data-ad-rail="right"></aside>
   </div>
 
   <div class="modal-backdrop" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">

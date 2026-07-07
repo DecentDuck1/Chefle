@@ -14,16 +14,15 @@ const INDEX_PATH = path.join(PUBLISH_ROOT, "index.html");
 const EXPECTED_DISH_COUNT = 273;
 const TARGET_SCHEDULE_SAMPLE_DAYS = 365;
 const PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const MONETIZED_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html"];
-const ADSENSE_CLIENT = "ca-pub-4681241502820822";
-const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
-const ADSENSE_SELLER_LINE = "google.com, pub-4681241502820822, DIRECT, f08c47fec0942fa0";
+const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
+const AD_SCRIPT_SOURCES = [
+  "https://pl30249833.effectivecpmnetwork.com/cf/1b/70/cf1b703f29329a0bfd5a1278227af69c.js",
+  "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"
+];
+const AD_CONTAINER_ID = "container-aa279291e14979c0366cfb9f53773392";
+const REMOVED_GOOGLE_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-/i;
 const NON_PUBLIC_FILES = [
-  "ADSENSE.md",
   "README.md",
-  "adsense-auto-ads-template.html",
-  "adsense-manual-ad-unit-template.html",
-  "ads.txt.template",
   "publish-manifest.json",
   "squarespace-iframe-snippet.html"
 ];
@@ -158,12 +157,23 @@ function auditPages(failures) {
   }
 }
 
-function auditAdsTxt(failures) {
-  assert(exists("ads.txt"), "publish/ads.txt is missing.", failures);
-  if (!exists("ads.txt")) return;
-  const content = read("ads.txt").trim();
-  assert(content.includes(ADSENSE_SELLER_LINE), "publish/ads.txt missing configured AdSense seller line.", failures);
-  assert(!/pub-0{16}/.test(content), "publish/ads.txt still contains a placeholder publisher ID.", failures);
+function auditAdSnippet(failures) {
+  const html = read("index.html");
+  const headEnd = html.search(/<\/head>/i);
+  const head = headEnd >= 0 ? html.slice(0, headEnd) : "";
+  for (const source of AD_SCRIPT_SOURCES) {
+    assert(html.includes(`src="${source}"`), `index.html: missing configured ad script ${source}`, failures);
+    assert(head.includes(`src="${source}"`), "index.html: configured ad script must appear before </head>", failures);
+  }
+  assert(html.includes(`id="${AD_CONTAINER_ID}"`), "index.html: missing configured ad container", failures);
+  assert(head.includes(`id="${AD_CONTAINER_ID}"`), "index.html: configured ad container must appear before </head>", failures);
+  assert(html.includes(AD_CSP_SOURCE), "index.html: CSP should allow the configured ad source.", failures);
+}
+
+function auditRemovedGoogleAds(failures) {
+  for (const file of [...PAGES, "_headers"]) {
+    if (exists(file)) assert(!REMOVED_GOOGLE_AD_PATTERN.test(read(file)), `${file}: removed Google ad code is still present.`, failures);
+  }
 }
 
 function auditNoPublicSetupFiles(failures) {
@@ -336,21 +346,15 @@ function main() {
   if (exists("CNAME")) assert(read("CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
 
   auditPages(failures);
-  auditAdsTxt(failures);
+  auditAdSnippet(failures);
+  auditRemovedGoogleAds(failures);
   auditNoPublicSetupFiles(failures);
-  for (const page of MONETIZED_PAGES) {
-    if (exists(page)) assert(read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: missing AdSense verification script.`, failures);
-  }
-  for (const page of PAGES.filter((page) => !MONETIZED_PAGES.includes(page))) {
-    if (exists(page)) assert(!read(page).includes(ADSENSE_SCRIPT_SRC), `${page}: utility/legal page should not load AdSense script.`, failures);
-  }
 
   let dishSummary = null;
   if (fs.existsSync(INDEX_PATH)) {
     const html = fs.readFileSync(INDEX_PATH, "utf8");
     assert(!/No Primary Protein/.test(html), "Old protein label still appears in publish/index.html.", failures);
     assert(!/(resetFoodButton|devResetStatus|dev-block|Restart Today)/.test(html), "Dev food reset control still appears in publish/index.html.", failures);
-    assert(!/ca-pub-0000000000000000/.test(html), "publish/index.html still contains placeholder AdSense publisher ID.", failures);
     dishSummary = auditDishData(html, failures);
   }
 

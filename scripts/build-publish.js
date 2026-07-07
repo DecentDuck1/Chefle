@@ -9,7 +9,7 @@ const HTML_PATH = path.join(ROOT, "chefle.html");
 const OUT_DIR = path.join(ROOT, "publish");
 const PYTHON = process.env.CODEX_PYTHON || process.env.PYTHON || "python";
 const CUSTOM_DOMAIN = "chefle.org";
-const ADSENSE_ORIGIN = "https://pagead2.googlesyndication.com";
+const AD_CSP_SOURCE = "https://*.effectivecpmnetwork.com";
 const LEGAL_PAGES = ["about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 
 function assertInsideRoot(target) {
@@ -101,12 +101,12 @@ function securityHeaders(html) {
   const hash = scriptHash(scripts[0]);
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'sha256-${hash}' ${ADSENSE_ORIGIN}`,
+    `script-src 'self' 'sha256-${hash}' ${AD_CSP_SOURCE}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src https://fonts.gstatic.com",
-    "img-src 'self' data: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
-    "connect-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google",
-    "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+    `img-src 'self' data: ${AD_CSP_SOURCE}`,
+    `connect-src 'self' ${AD_CSP_SOURCE}`,
+    `frame-src ${AD_CSP_SOURCE}`,
     "object-src 'none'",
     "base-uri 'none'",
     "form-action 'none'"
@@ -131,7 +131,7 @@ function publishHtmlWithHashedCsp(html) {
   const directives = match[2].split(";").map((directive) => directive.trim()).filter(Boolean);
   const nextDirectives = directives.map((directive) => (
     directive.startsWith("script-src ")
-      ? `script-src 'self' 'sha256-${hash}' ${ADSENSE_ORIGIN}`
+      ? `script-src 'self' 'sha256-${hash}' ${AD_CSP_SOURCE}`
       : directive
   ));
 
@@ -154,7 +154,6 @@ function main() {
     fs.writeFileSync(path.join(OUT_DIR, ".nojekyll"), "", "utf8");
     copyFile("chefle-logo.png");
     LEGAL_PAGES.forEach(copyLegalPage);
-    copyFile("ads.txt");
     copyFile(path.join("assets", "food-pattern.svg"));
 
     const manifest = [
