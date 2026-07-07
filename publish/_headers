@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-r+NJBqLuccg4l8oh5neHzz2aZfIcRwsdAfOnTwfrkcA=' 'sha256-VpI/utbNJRscx9ftLTKFNfZKOLIVK19h3SdglHWLlfQ=' https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; connect-src 'self' https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; frame-src https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; object-src 'none'; base-uri 'none'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https: data:; img-src 'self' data: https:; connect-src 'self' https:; frame-src https:; child-src https:; object-src 'none'; base-uri 'none'; form-action 'none'
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), xr-spatial-tracking=(), clipboard-write=(self), web-share=(self)

@@ -2,19 +2,26 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
-const { inlineScripts, parseJsonConst, scriptHashSources } = require("./chefle-constants");
+const { parseJsonConst } = require("./chefle-constants");
 
 const ROOT = path.resolve(__dirname, "..");
 const HTML_PATH = path.join(ROOT, "chefle.html");
 const OUT_DIR = path.join(ROOT, "publish");
 const PYTHON = process.env.CODEX_PYTHON || process.env.PYTHON || "python";
 const CUSTOM_DOMAIN = "chefle.org";
-const AD_CSP_SOURCES = [
-  "https://*.effectivecpmnetwork.com",
-  "https://www.highperformanceformat.com",
-  "https://*.highperformanceformat.com"
-];
-const AD_CSP_SOURCE = AD_CSP_SOURCES.join(" ");
+const PUBLISH_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https:",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src https: data:",
+  "img-src 'self' data: https:",
+  "connect-src 'self' https:",
+  "frame-src https:",
+  "child-src https:",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'"
+].join("; ");
 const LEGAL_PAGES = ["about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 
 function assertInsideRoot(target) {
@@ -100,50 +107,25 @@ function prepareDishImageSources(imageUrls) {
   };
 }
 
-function securityHeaders(html) {
-  const scripts = inlineScripts(html);
-  const scriptHashes = scriptHashSources(scripts).join(" ");
-  const csp = [
-    "default-src 'self'",
-    `script-src 'self' ${scriptHashes} ${AD_CSP_SOURCE}`,
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src https://fonts.gstatic.com",
-    `img-src 'self' data: ${AD_CSP_SOURCE}`,
-    `connect-src 'self' ${AD_CSP_SOURCE}`,
-    `frame-src ${AD_CSP_SOURCE}`,
-    "object-src 'none'",
-    "base-uri 'none'",
-    "form-action 'none'"
-  ].join("; ");
-
+function securityHeaders() {
   return `/*
-  Content-Security-Policy: ${csp}
+  Content-Security-Policy: ${PUBLISH_CSP}
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), xr-spatial-tracking=(), clipboard-write=(self), web-share=(self)
 `;
 }
 
-function publishHtmlWithHashedCsp(html) {
-  const scripts = inlineScripts(html);
-  const scriptHashes = scriptHashSources(scripts).join(" ");
+function publishHtmlWithAdFriendlyCsp(html) {
   const metaPattern = /(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")/i;
   const match = html.match(metaPattern);
   if (!match) throw new Error("Could not find Content-Security-Policy meta tag.");
-
-  const directives = match[2].split(";").map((directive) => directive.trim()).filter(Boolean);
-  const nextDirectives = directives.map((directive) => (
-    directive.startsWith("script-src ")
-      ? `script-src 'self' ${scriptHashes} ${AD_CSP_SOURCE}`
-      : directive
-  ));
-
-  return html.replace(metaPattern, `${match[1]}${nextDirectives.join("; ")}${match[3]}`);
+  return html.replace(metaPattern, `${match[1]}${PUBLISH_CSP}${match[3]}`);
 }
 
 function main() {
   const sourceHtml = fs.readFileSync(HTML_PATH, "utf8");
-  const html = publishHtmlWithHashedCsp(sourceHtml);
+  const html = publishHtmlWithAdFriendlyCsp(sourceHtml);
   const registry = parseJsonConst(sourceHtml, "chefleGlobalMasterRegistry");
   const imageUrls = Array.from(new Set(registry.map((dish) => dish.imageUrl))).sort();
   const { imageSources, tempDir } = prepareDishImageSources(imageUrls);
@@ -152,7 +134,7 @@ function main() {
     cleanDir(OUT_DIR);
 
     fs.writeFileSync(path.join(OUT_DIR, "index.html"), html, "utf8");
-    fs.writeFileSync(path.join(OUT_DIR, "_headers"), securityHeaders(html), "utf8");
+    fs.writeFileSync(path.join(OUT_DIR, "_headers"), securityHeaders(), "utf8");
     fs.writeFileSync(path.join(OUT_DIR, "CNAME"), `${CUSTOM_DOMAIN}\n`, "utf8");
     fs.writeFileSync(path.join(OUT_DIR, ".nojekyll"), "", "utf8");
     copyFile("chefle-logo.png");

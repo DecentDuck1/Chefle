@@ -1,16 +1,12 @@
 const fs = require("fs");
 const path = require("path");
-const { inlineScripts, scriptHash, scriptHashSources } = require("./chefle-constants");
+const { inlineScripts } = require("./chefle-constants");
 
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const AD_CSP_SOURCES = [
-  "https://*.effectivecpmnetwork.com",
-  "https://www.highperformanceformat.com",
-  "https://*.highperformanceformat.com"
-];
-const AD_CSP_SOURCE = AD_CSP_SOURCES.join(" ");
+const AD_CSP_SCRIPT_DIRECTIVE = "script-src 'self' 'unsafe-inline' https:";
+const AD_CSP_FRAME_DIRECTIVE = "frame-src https:";
 const NATIVE_AD_SCRIPT_SOURCE = "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js";
 const DISPLAY_AD_SCRIPT_SOURCE = "https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js";
 const DISPLAY_AD_STATIC_SNIPPET_COUNT = 3;
@@ -90,12 +86,11 @@ function auditPages(prefix, pages, expectedReturnHref, failures) {
 function auditAdSnippet(relativePath, failures) {
   const html = read(relativePath);
   const headEnd = html.search(/<\/head>/i);
-  const head = headEnd >= 0 ? html.slice(0, headEnd) : "";
   const body = headEnd >= 0 ? html.slice(headEnd) : html;
   assert(html.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: missing configured native ad script`, failures);
-  assert(head.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: native ad script must appear before </head>`, failures);
+  assert(body.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: native ad script should be placed in the page body`, failures);
   assert(html.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: missing configured ad container`, failures);
-  assert(head.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: configured ad container must appear before </head>`, failures);
+  assert(body.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: configured ad container should be placed in the page body`, failures);
   const displayScriptCount = (html.match(new RegExp(`src="${DISPLAY_AD_SCRIPT_SOURCE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`, "g")) || []).length;
   const displayOptionsCount = (html.match(/atOptions\s*=\s*\{\s*'key'\s*:\s*'c5bca2546625cae1a377f1152785c4d1'/g) || []).length;
   assert(displayScriptCount === DISPLAY_AD_STATIC_SNIPPET_COUNT, `${relativePath}: expected ${DISPLAY_AD_STATIC_SNIPPET_COUNT} static display ad script, found ${displayScriptCount}`, failures);
@@ -125,14 +120,12 @@ function main() {
   const publishScripts = inlineScripts(publishHtml);
   assert(sourceScripts.length === publishScripts.length && sourceScripts.length > 0, "Source and publish should contain the same inline scripts.", failures);
   if (sourceScripts.length === publishScripts.length && sourceScripts.length > 0) {
-    const sourceScriptHashes = sourceScripts.map(scriptHash);
-    const publishScriptHashes = publishScripts.map(scriptHash);
-    assert(JSON.stringify(sourceScriptHashes) === JSON.stringify(publishScriptHashes), "publish/index.html inline scripts are not in sync with chefle.html; run node scripts/build-publish.js", failures);
-    const publishScriptHashSource = scriptHashSources(publishScripts).join(" ");
-    assert(publishHtml.includes(`script-src 'self' ${publishScriptHashSource} ${AD_CSP_SOURCE}`), "publish/index.html CSP script hashes or ad sources do not match browser-normalized inline script content.", failures);
-    assert(read("publish/_headers").includes(`script-src 'self' ${publishScriptHashSource} ${AD_CSP_SOURCE}`), "publish/_headers CSP script hashes or ad sources do not match browser-normalized inline script content.", failures);
+    assert(JSON.stringify(sourceScripts) === JSON.stringify(publishScripts), "publish/index.html inline scripts are not in sync with chefle.html; run node scripts/build-publish.js", failures);
+    assert(publishHtml.includes(AD_CSP_SCRIPT_DIRECTIVE), "publish/index.html CSP should allow ad provider inline/bootstrap scripts.", failures);
+    assert(publishHtml.includes(AD_CSP_FRAME_DIRECTIVE), "publish/index.html CSP should allow ad provider frames.", failures);
+    assert(read("publish/_headers").includes(AD_CSP_SCRIPT_DIRECTIVE), "publish/_headers CSP should allow ad provider inline/bootstrap scripts.", failures);
+    assert(read("publish/_headers").includes(AD_CSP_FRAME_DIRECTIVE), "publish/_headers CSP should allow ad provider frames.", failures);
   }
-  assert(!/script-src[^;"]*'unsafe-inline'/.test(publishHtml), "publish/index.html script CSP still allows unsafe-inline.", failures);
   auditAdSnippet("chefle.html", failures);
   auditAdSnippet("publish/index.html", failures);
   [...SOURCE_PAGES, ...PUBLISH_PAGES.map((page) => `publish/${page}`), "publish/_headers"].forEach((page) => auditRemovedGoogleAds(page, failures));

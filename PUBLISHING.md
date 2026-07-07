@@ -71,9 +71,9 @@ The build script copies only the 273 production dish images referenced by the ap
 
 ## CSP
 
-The source app keeps an inline-script-compatible CSP for local single-file testing. The generated `publish/index.html` and `publish/_headers` file use a hash-based script policy for the production bundle.
+The source app keeps an inline-script-compatible CSP for local single-file testing. The generated `publish/index.html` and `publish/_headers` file use an ad-friendly script policy so the configured third-party ad snippets can inject their provider scripts and iframes.
 
-The generated `publish/_headers` file includes the same stricter script hash CSP, `Referrer-Policy`, `X-Content-Type-Options`, and a restrictive `Permissions-Policy` for hosts that support `_headers`, such as Netlify-style static hosting. GitHub Pages ignores `_headers`, but `publish/index.html` still applies the production script CSP through its meta tag. The `_headers` file intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block Squarespace iframe embedding. If you add `frame-ancestors` at another host, include the final Squarespace and custom-domain origins.
+The generated `publish/_headers` file includes the same ad-friendly CSP, `Referrer-Policy`, `X-Content-Type-Options`, and a restrictive `Permissions-Policy` for hosts that support `_headers`, such as Netlify-style static hosting. GitHub Pages ignores `_headers`, but `publish/index.html` still applies the production script CSP through its meta tag. The `_headers` file intentionally omits `X-Frame-Options` and `frame-ancestors` because those can block Squarespace iframe embedding. If you add `frame-ancestors` at another host, include the final Squarespace and custom-domain origins.
 
 Configure HTTPS and HSTS at the final host after confirming the site is served only over HTTPS. Do not enable HSTS preload until the final domain setup is stable.
 
@@ -85,7 +85,7 @@ If you add analytics, ads, API integrations, login, comments, forms, or payment 
 
 ## Third-Party Ad Snippet
 
-The game page includes the configured third-party advertising code in both head and body placements. The production CSP hashes all inline scripts and allows the configured ad domains, currently `https://*.effectivecpmnetwork.com`, `https://www.highperformanceformat.com`, and `https://*.highperformanceformat.com`. If an advertising provider changes its domains or snippet shape, update `chefle.html`, `scripts/build-publish.js`, and the launch audits together.
+The game page includes the configured third-party advertising code in body placements. The production CSP allows inline ad bootstrap code plus HTTPS third-party scripts and frames because the ad providers can load follow-up assets from rotating domains. If an advertising provider changes its snippet shape, update `chefle.html`, `scripts/build-publish.js`, and the launch audits together.
 
 ## QA Checklist
 

@@ -6,7 +6,7 @@
   <meta name="description" content="Chefle is a daily food guessing game that compares dishes by protein, base carb, temperature, calories, texture, and prep time.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#fff8e8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-r+NJBqLuccg4l8oh5neHzz2aZfIcRwsdAfOnTwfrkcA=' 'sha256-VpI/utbNJRscx9ftLTKFNfZKOLIVK19h3SdglHWLlfQ=' https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; connect-src 'self' https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; frame-src https://*.effectivecpmnetwork.com https://www.highperformanceformat.com https://*.highperformanceformat.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https: data:; img-src 'self' data: https:; connect-src 'self' https:; frame-src https:; child-src https:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <link rel="icon" href="chefle-logo.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -208,6 +208,18 @@
     .ad-placement {
       z-index: 35;
       pointer-events: none;
+    }
+
+    .native-ad-placement {
+      width: min(var(--site-content-max), 100%);
+      margin: 0 auto;
+      padding: 0 14px;
+      pointer-events: auto;
+    }
+
+    .native-ad-placement > div {
+      width: 100%;
+      min-height: 0;
     }
 
     .ad-display-slot {
@@ -1938,8 +1950,6 @@
       .dish-name { font-size: .53rem; }
     }
   </style>
-  <script async="async" data-cfasync="false" src="https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"></script>
-  <div id="container-aa279291e14979c0366cfb9f53773392"></div>
 </head>
 <body>
   <noscript><main class="noscript-card">Chefle needs JavaScript enabled to run.</main></noscript>
@@ -2052,6 +2062,11 @@
       </footer>
     </main>
   </div>
+
+  <section class="native-ad-placement" aria-label="Advertisement">
+    <script async="async" data-cfasync="false" src="https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"></script>
+    <div id="container-aa279291e14979c0366cfb9f53773392"></div>
+  </section>
 
   <aside class="ad-placement ad-side-banner ad-side-left" aria-label="Advertisement">
     <div class="ad-display-slot" id="adSideLeft">
