@@ -7,16 +7,13 @@ const SOURCE_PAGES = ["chefle.html", "about.html", "how-to-play.html", "food-clu
 const PUBLISH_PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
 const AD_CSP_SCRIPT_DIRECTIVE = "script-src 'self' 'unsafe-inline' https:";
 const AD_CSP_FRAME_DIRECTIVE = "frame-src https:";
-const NATIVE_AD_SCRIPT_SOURCE = "https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js";
 const DISPLAY_AD_SCRIPTS = [
   "https://www.highperformanceformat.com/5b6fd32e7b3598b0b76b1046b0232cb2/invoke.js",
-  "https://www.highperformanceformat.com/977df5565abaf6df3f3179daf534d18b/invoke.js",
   "https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js",
   "https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js",
   "https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"
 ];
 const DISPLAY_AD_KEYS = DISPLAY_AD_SCRIPTS.map((source) => source.match(/highperformanceformat\.com\/([^/]+)\//)?.[1]).filter(Boolean);
-const AD_CONTAINER_ID = "container-aa279291e14979c0366cfb9f53773392";
 const REMOVED_GOOGLE_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-/i;
 const NON_PUBLIC_PUBLISH_FILES = [
   "publish/README.md",
@@ -93,10 +90,6 @@ function auditAdSnippet(relativePath, failures) {
   const html = read(relativePath);
   const headEnd = html.search(/<\/head>/i);
   const body = headEnd >= 0 ? html.slice(headEnd) : html;
-  assert(html.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: missing configured native ad script`, failures);
-  assert(body.includes(`src="${NATIVE_AD_SCRIPT_SOURCE}"`), `${relativePath}: native ad script should be placed in the page body`, failures);
-  assert(html.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: missing configured ad container`, failures);
-  assert(body.includes(`id="${AD_CONTAINER_ID}"`), `${relativePath}: configured ad container should be placed in the page body`, failures);
   for (const source of DISPLAY_AD_SCRIPTS) {
     assert(html.includes(`src="${source}"`), `${relativePath}: missing display ad script ${source}`, failures);
     assert(body.includes(`src="${source}"`), `${relativePath}: display ad script should be placed in the page body: ${source}`, failures);
@@ -104,9 +97,11 @@ function auditAdSnippet(relativePath, failures) {
   for (const key of DISPLAY_AD_KEYS) {
     assert(new RegExp(`atOptions\\s*=\\s*\\{\\s*'key'\\s*:\\s*'${key}'`).test(html), `${relativePath}: missing display ad options for ${key}`, failures);
   }
-  ["ad-page-top", "ad-page-bottom", "ad-page-grid", "modal-ad-zone", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x300", "ad-slot-160x600"].forEach((className) => {
+  ["ad-page-top", "ad-page-bottom", "ad-page-grid", "modal-ad-zone", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x600"].forEach((className) => {
     assert(html.includes(className), `${relativePath}: missing ${className} placement`, failures);
   });
+  assert(!html.includes("ad-slot-160x300"), `${relativePath}: removed square-like 160x300 ad slot is still present`, failures);
+  assert(!html.includes("container-aa279291e14979c0366cfb9f53773392"), `${relativePath}: removed native ad container is still present`, failures);
 }
 
 function auditRemovedGoogleAds(relativePath, failures) {

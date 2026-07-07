@@ -208,19 +208,6 @@
       pointer-events: none;
     }
 
-    .native-ad-placement {
-      width: 100%;
-      pointer-events: auto;
-    }
-
-    .native-ad-placement > div {
-      width: 100%;
-      min-height: 0;
-      border: 0 !important;
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-
     .ad-page-zone,
     .modal-ad-zone {
       display: flex;
@@ -248,7 +235,7 @@
 
     .ad-page-grid {
       display: grid;
-      grid-template-columns: minmax(0, 160px) minmax(0, 1fr) minmax(0, 160px);
+      grid-template-columns: minmax(0, 160px) minmax(0, 1fr);
       gap: 14px;
       align-items: center;
       width: 100%;
@@ -289,7 +276,6 @@
     .ad-slot-728x90 { --ad-width: 728px; --ad-height: 90px; }
     .ad-slot-468x60 { --ad-width: 468px; --ad-height: 60px; }
     .ad-slot-320x50 { --ad-width: 320px; --ad-height: 50px; }
-    .ad-slot-160x300 { --ad-width: 160px; --ad-height: 300px; }
     .ad-slot-160x600 { --ad-width: 160px; --ad-height: 600px; }
 
     .intro {
@@ -1917,8 +1903,7 @@
       .pool-name { font-size: .78rem; }
       .celebration-popover { padding: 12px; }
       .ad-page-grid { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
-      .ad-slot-160x600,
-      .ad-slot-160x300 { display: none; }
+      .ad-slot-160x600 { display: none; }
       .ad-slot-728x90 { transform: scale(.52); }
       .ad-slot-468x60 { display: none; }
       .game-over-answer {
@@ -2118,10 +2103,6 @@
           <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
         </div>
         <div class="ad-page-center">
-          <section class="native-ad-placement" aria-label="Advertisement">
-            <script async="async" data-cfasync="false" src="https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"></script>
-            <div id="container-aa279291e14979c0366cfb9f53773392"></div>
-          </section>
           <section class="ad-page-zone ad-page-bottom" aria-label="Bottom advertisements">
             <div class="ad-display-slot ad-slot-468x60" id="adBottomBanner">
               <script>
@@ -2148,18 +2129,6 @@
               <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
             </div>
           </section>
-        </div>
-        <div class="ad-display-slot ad-slot-160x300" id="adRightRectangle">
-          <script>
-  atOptions = {
-    'key' : '977df5565abaf6df3f3179daf534d18b',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-          </script>
-          <script src="https://www.highperformanceformat.com/977df5565abaf6df3f3179daf534d18b/invoke.js"></script>
         </div>
       </section>
 
