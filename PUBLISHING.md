@@ -85,7 +85,7 @@ If you add analytics, ads, API integrations, login, comments, forms, or payment 
 
 ## Third-Party Ad Snippet
 
-The game page includes the configured third-party advertising code in body placements: fixed top and bottom display docks, wide-screen side rails, and the native container. The production CSP allows inline ad bootstrap code plus HTTPS third-party scripts and frames because the ad providers can load follow-up assets from rotating domains. If an advertising provider changes its snippet shape, update `chefle.html`, `scripts/build-publish.js`, and the launch audits together.
+The game page includes the configured third-party advertising code in body placements: page-level top, middle, and bottom slots, modal slots, and the native container. The production CSP allows inline ad bootstrap code plus HTTPS third-party scripts and frames because the ad providers can load follow-up assets from rotating domains. If an advertising provider changes its snippet shape, update `chefle.html`, `scripts/build-publish.js`, and the launch audits together.
 
 ## QA Checklist
 

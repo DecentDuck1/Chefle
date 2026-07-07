@@ -204,16 +204,12 @@
     }
 
     .ad-placement {
-      position: fixed;
       z-index: 35;
       pointer-events: none;
     }
 
     .native-ad-placement {
-      left: 50%;
-      bottom: calc(82px + var(--safe-bottom));
-      width: min(728px, calc(100vw - 16px));
-      transform: translateX(-50%);
+      width: 100%;
       pointer-events: auto;
     }
 
@@ -225,37 +221,50 @@
       box-shadow: none !important;
     }
 
-    .ad-dock {
-      left: 0;
-      right: 0;
+    .ad-page-zone,
+    .modal-ad-zone {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 6px 8px;
+      width: 100%;
+      min-width: 0;
       overflow: hidden;
+      pointer-events: none;
     }
 
-    .ad-dock-top {
-      top: 64px;
+    .ad-page-zone {
+      padding: 4px 0;
     }
 
-    .ad-dock-bottom {
-      bottom: 0;
-      padding-bottom: calc(6px + var(--safe-bottom));
+    .ad-page-top {
+      margin: -4px 0 2px;
     }
 
-    .ad-side-rail {
-      top: 154px;
-      display: none;
+    .ad-page-bottom {
+      margin: 2px 0 0;
+      flex-wrap: wrap;
     }
 
-    .ad-side-left {
-      left: 12px;
+    .ad-page-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 160px) minmax(0, 1fr) minmax(0, 160px);
+      gap: 14px;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
     }
 
-    .ad-side-right {
-      right: 12px;
+    .ad-page-center {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      min-width: 0;
+    }
+
+    .modal-ad-zone {
+      margin: 4px 0 0;
+      padding: 0;
     }
 
     .ad-display-slot {
@@ -282,10 +291,6 @@
     .ad-slot-320x50 { --ad-width: 320px; --ad-height: 50px; }
     .ad-slot-160x300 { --ad-width: 160px; --ad-height: 300px; }
     .ad-slot-160x600 { --ad-width: 160px; --ad-height: 600px; }
-
-    @media (min-width: 1680px) and (min-height: 720px) {
-      .ad-side-rail { display: block; }
-    }
 
     .intro {
       display: grid;
@@ -1911,8 +1916,9 @@
       .pool-item { min-height: 50px; gap: 8px; }
       .pool-name { font-size: .78rem; }
       .celebration-popover { padding: 12px; }
-      .ad-dock-top { top: 58px; }
-      .ad-dock { gap: 6px; padding-inline: 4px; }
+      .ad-page-grid { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
+      .ad-slot-160x600,
+      .ad-slot-160x300 { display: none; }
       .ad-slot-728x90 { transform: scale(.52); }
       .ad-slot-468x60 { display: none; }
       .game-over-answer {
@@ -1951,7 +1957,6 @@
       }
 
       .app-shell { padding-top: 66px; }
-      .ad-dock-top { top: 58px; }
       .ad-slot-728x90 { transform: scale(.74); }
       .intro {
         grid-template-columns: minmax(0, 1fr) minmax(240px, .86fr);
@@ -2012,6 +2017,21 @@
 
   <div class="site-frame">
     <main class="app-shell">
+      <section class="ad-placement ad-page-zone ad-page-top" aria-label="Top advertisement">
+        <div class="ad-display-slot ad-slot-728x90" id="adTopLeaderboard">
+          <script>
+  atOptions = {
+    'key' : '5b6fd32e7b3598b0b76b1046b0232cb2',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+          </script>
+          <script src="https://www.highperformanceformat.com/5b6fd32e7b3598b0b76b1046b0232cb2/invoke.js"></script>
+        </div>
+      </section>
+
       <section class="intro" aria-labelledby="gameStatus">
         <div class="intro-main">
           <p class="kicker" id="gameId">Chefle</p>
@@ -2084,34 +2104,9 @@
         </aside>
       </div>
 
-      <footer class="legal-footer">
-        <a href="about.html" target="_blank" rel="noopener">About</a>
-      </footer>
-    </main>
-  </div>
-
-  <section class="native-ad-placement" aria-label="Advertisement">
-    <script async="async" data-cfasync="false" src="https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"></script>
-    <div id="container-aa279291e14979c0366cfb9f53773392"></div>
-  </section>
-
-  <aside class="ad-placement ad-dock ad-dock-top" aria-label="Top advertisement">
-    <div class="ad-display-slot ad-slot-728x90" id="adTopLeaderboard">
-      <script>
-  atOptions = {
-    'key' : '5b6fd32e7b3598b0b76b1046b0232cb2',
-    'format' : 'iframe',
-    'height' : 90,
-    'width' : 728,
-    'params' : {}
-  };
-      </script>
-      <script src="https://www.highperformanceformat.com/5b6fd32e7b3598b0b76b1046b0232cb2/invoke.js"></script>
-    </div>
-  </aside>
-  <aside class="ad-placement ad-side-rail ad-side-left" aria-label="Left advertisement">
-    <div class="ad-display-slot ad-slot-160x600" id="adLeftSkyscraper">
-      <script>
+      <section class="ad-placement ad-page-grid" aria-label="Advertisements">
+        <div class="ad-display-slot ad-slot-160x600" id="adLeftSkyscraper">
+          <script>
   atOptions = {
     'key' : '0fcc9a6c11754263b354a2bb1178ebd9',
     'format' : 'iframe',
@@ -2119,27 +2114,17 @@
     'width' : 160,
     'params' : {}
   };
-      </script>
-      <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
-    </div>
-  </aside>
-  <aside class="ad-placement ad-side-rail ad-side-right" aria-label="Right advertisement">
-    <div class="ad-display-slot ad-slot-160x300" id="adRightRectangle">
-      <script>
-  atOptions = {
-    'key' : '977df5565abaf6df3f3179daf534d18b',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-      </script>
-      <script src="https://www.highperformanceformat.com/977df5565abaf6df3f3179daf534d18b/invoke.js"></script>
-    </div>
-  </aside>
-  <aside class="ad-placement ad-dock ad-dock-bottom" aria-label="Bottom advertisements">
-    <div class="ad-display-slot ad-slot-468x60" id="adBottomBanner">
-      <script>
+          </script>
+          <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
+        </div>
+        <div class="ad-page-center">
+          <section class="native-ad-placement" aria-label="Advertisement">
+            <script async="async" data-cfasync="false" src="https://pl30249834.effectivecpmnetwork.com/aa279291e14979c0366cfb9f53773392/invoke.js"></script>
+            <div id="container-aa279291e14979c0366cfb9f53773392"></div>
+          </section>
+          <section class="ad-page-zone ad-page-bottom" aria-label="Bottom advertisements">
+            <div class="ad-display-slot ad-slot-468x60" id="adBottomBanner">
+              <script>
   atOptions = {
     'key' : '7debd737823293b75ba54fba692e1f2a',
     'format' : 'iframe',
@@ -2147,11 +2132,11 @@
     'width' : 468,
     'params' : {}
   };
-      </script>
-      <script src="https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"></script>
-    </div>
-    <div class="ad-display-slot ad-slot-320x50" id="adBottomMobile">
-      <script>
+              </script>
+              <script src="https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"></script>
+            </div>
+            <div class="ad-display-slot ad-slot-320x50" id="adBottomMobile">
+              <script>
   atOptions = {
     'key' : 'c5bca2546625cae1a377f1152785c4d1',
     'format' : 'iframe',
@@ -2159,10 +2144,30 @@
     'width' : 320,
     'params' : {}
   };
-      </script>
-      <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-    </div>
-  </aside>
+              </script>
+              <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
+            </div>
+          </section>
+        </div>
+        <div class="ad-display-slot ad-slot-160x300" id="adRightRectangle">
+          <script>
+  atOptions = {
+    'key' : '977df5565abaf6df3f3179daf534d18b',
+    'format' : 'iframe',
+    'height' : 300,
+    'width' : 160,
+    'params' : {}
+  };
+          </script>
+          <script src="https://www.highperformanceformat.com/977df5565abaf6df3f3179daf534d18b/invoke.js"></script>
+        </div>
+      </section>
+
+      <footer class="legal-footer">
+        <a href="about.html" target="_blank" rel="noopener">About</a>
+      </footer>
+    </main>
+  </div>
 
   <div class="modal-backdrop" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
     <div class="modal stats-modal">
@@ -2199,6 +2204,20 @@
           <pre id="sharePreviewText"></pre>
         </div>
         <div class="countdown-box"><span class="countdown-label">Next dish</span><span class="countdown-time" id="countdown">00:00:00</span></div>
+        <section class="modal-ad-zone" aria-label="Advertisement">
+          <div class="ad-display-slot ad-slot-320x50">
+            <script>
+  atOptions = {
+    'key' : 'c5bca2546625cae1a377f1152785c4d1',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+            </script>
+            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
+          </div>
+        </section>
         <div class="modal-actions">
           <button class="primary-button" id="shareButton" type="button">Share Results</button>
           <button class="secondary-button" id="keepPlayingButton" type="button">Close</button>
@@ -2226,6 +2245,20 @@
           <p class="answer-proclamation" id="gameOverMessage"></p>
         </div>
         <div class="stat-grid" id="gameOverStatGrid"></div>
+        <section class="modal-ad-zone" aria-label="Advertisement">
+          <div class="ad-display-slot ad-slot-320x50">
+            <script>
+  atOptions = {
+    'key' : 'c5bca2546625cae1a377f1152785c4d1',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+            </script>
+            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
+          </div>
+        </section>
         <div class="modal-actions">
           <button class="primary-button" id="newInfiniteStreakButton" type="button">Start New Streak</button>
           <button class="secondary-button" id="reviewBoardButton" type="button">Review Board</button>
@@ -2282,6 +2315,20 @@
             <p>Stats use the official 7-guess result: played games, win percentage, streaks, a 1-7 guess distribution, and failed games. The share summary includes the game link and emoji rows for the official guesses.</p>
           </section>
         </div>
+        <section class="modal-ad-zone" aria-label="Advertisement">
+          <div class="ad-display-slot ad-slot-320x50">
+            <script>
+  atOptions = {
+    'key' : 'c5bca2546625cae1a377f1152785c4d1',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+            </script>
+            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -2309,6 +2356,20 @@
             <tbody id="classificationsBody"></tbody>
           </table>
         </div>
+        <section class="modal-ad-zone" aria-label="Advertisement">
+          <div class="ad-display-slot ad-slot-320x50">
+            <script>
+  atOptions = {
+    'key' : 'c5bca2546625cae1a377f1152785c4d1',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+            </script>
+            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -2332,6 +2393,20 @@
           <label for="sfxVolumeSlider">Sound Effects Volume</label>
           <input type="range" id="sfxVolumeSlider" min="0" max="1" step="0.1" value="0.8">
         </div>
+        <section class="modal-ad-zone" aria-label="Advertisement">
+          <div class="ad-display-slot ad-slot-320x50">
+            <script>
+  atOptions = {
+    'key' : 'c5bca2546625cae1a377f1152785c4d1',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+            </script>
+            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
+          </div>
+        </section>
       </div>
     </div>
   </div>

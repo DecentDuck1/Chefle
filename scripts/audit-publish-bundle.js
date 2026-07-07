@@ -178,7 +178,7 @@ function auditAdSnippet(failures) {
   for (const key of DISPLAY_AD_KEYS) {
     assert(new RegExp(`atOptions\\s*=\\s*\\{\\s*'key'\\s*:\\s*'${key}'`).test(html), `index.html: missing display ad options for ${key}`, failures);
   }
-  ["ad-dock-top", "ad-dock-bottom", "ad-side-left", "ad-side-right", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x300", "ad-slot-160x600"].forEach((className) => {
+  ["ad-page-top", "ad-page-bottom", "ad-page-grid", "modal-ad-zone", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x300", "ad-slot-160x600"].forEach((className) => {
     assert(html.includes(className), `index.html: missing ${className} placement`, failures);
   });
   assert(html.includes(AD_CSP_SCRIPT_DIRECTIVE), "index.html: CSP should allow ad provider inline/bootstrap scripts.", failures);
