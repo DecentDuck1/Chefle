@@ -1072,10 +1072,6 @@
       font-weight: 850;
     }
 
-    .legal-footer span {
-      color: rgba(122, 86, 63, .42);
-    }
-
     .legal-footer a {
       color: inherit;
       text-decoration: underline;
@@ -1086,48 +1082,6 @@
     .legal-footer a:focus-visible {
       color: var(--basil-dark);
       outline: 0;
-    }
-
-    .site-info-panels {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      width: min(980px, 100%);
-      margin: 0 auto;
-    }
-
-    .site-info-card {
-      min-width: 0;
-      padding: 14px;
-      border: 2px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,253,246,.84);
-      color: var(--muted);
-      box-shadow: 0 10px 28px rgba(101, 62, 26, .08);
-    }
-
-    .site-info-card h2 {
-      margin: 0 0 7px;
-      color: var(--basil-dark);
-      font-size: .76rem;
-      font-weight: 1000;
-      line-height: 1.2;
-      text-transform: uppercase;
-    }
-
-    .site-info-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: .82rem;
-      font-weight: 760;
-      line-height: 1.45;
-    }
-
-    .site-info-card a {
-      color: var(--basil-dark);
-      font-weight: 1000;
-      text-decoration: underline;
-      text-underline-offset: 3px;
     }
 
     .noscript-card {
@@ -1886,8 +1840,6 @@
       .stat span { font-size: .5rem; }
       .filter-bar { grid-template-columns: 1fr; }
       .legal-footer { padding-bottom: 6px; }
-      .site-info-panels { grid-template-columns: 1fr; gap: 8px; }
-      .site-info-card { padding: 12px; }
       .ad-bottom-banner {
         min-height: calc(var(--ad-slot-height) + 16px + var(--safe-bottom));
         padding: 8px 0 calc(8px + var(--safe-bottom));
@@ -2095,20 +2047,7 @@
         </aside>
       </div>
 
-      <section class="site-info-panels" aria-label="About Chefle">
-        <article class="site-info-card">
-          <h2>Original Daily Puzzle</h2>
-          <p>Chefle is an independent food guessing game built around broad dish clues, daily play, and a hand-curated archive of familiar meals. Start with the <a href="how-to-play.html" target="_blank" rel="noopener">how-to-play guide</a>.</p>
-        </article>
-        <article class="site-info-card">
-          <h2>Site Info</h2>
-          <p>Review the <a href="about.html" target="_blank" rel="noopener">About</a> page for ownership, support, and site details.</p>
-        </article>
-      </section>
-
       <footer class="legal-footer">
-        <a href="how-to-play.html" target="_blank" rel="noopener">How to Play</a>
-        <span aria-hidden="true">|</span>
         <a href="about.html" target="_blank" rel="noopener">About</a>
       </footer>
     </main>

@@ -79,7 +79,7 @@ Configure HTTPS and HSTS at the final host after confirming the site is served o
 
 ## Privacy
 
-The footer links to `how-to-play.html` and `about.html`; support/legal utility pages are still copied into `publish/` for direct access. Chefle stores game progress, stats, settings, and trusted-time data in browser `localStorage`; it does not use accounts, payments, email capture, comments, geolocation, camera, microphone, or a database. The app includes third-party advertising snippets on the game page only; utility/legal pages should remain ad-code-free. Keep the Privacy and Cookies pages accurate before publication. Squarespace, advertising partners, and the static host may still process normal technical data such as IP address, browser type, cookies, identifiers, and access logs.
+The footer links to `about.html`; support/legal utility pages are still copied into `publish/` for direct access. Chefle stores game progress, stats, settings, and trusted-time data in browser `localStorage`; it does not use accounts, payments, email capture, comments, geolocation, camera, microphone, or a database. The app includes third-party advertising snippets on the game page only; utility/legal pages should remain ad-code-free. Keep the Privacy and Cookies pages accurate before publication. Squarespace, advertising partners, and the static host may still process normal technical data such as IP address, browser type, cookies, identifiers, and access logs.
 
 If you add analytics, ads, API integrations, login, comments, forms, or payment features later, update the privacy notice before publishing those changes.
 
