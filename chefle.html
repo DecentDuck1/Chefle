@@ -31,9 +31,9 @@
       --radius: 12px;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --keyboard-offset: 0px;
-      --site-content-max: 1320px;
+      --site-content-max: 1040px;
       --site-content-width: min(var(--site-content-max), 100%);
-      --board-min-width: 780px;
+      --board-min-width: 680px;
       --game-panel-height: clamp(500px, calc(100svh - 238px), 700px);
       --board-row-min-height: 72px;
       --board-row-gap: 7px;
@@ -208,6 +208,10 @@
       pointer-events: none;
     }
 
+    .side-ad {
+      display: none;
+    }
+
     .ad-page-zone,
     .modal-ad-zone {
       display: flex;
@@ -231,22 +235,6 @@
     .ad-page-bottom {
       margin: 2px 0 0;
       flex-wrap: wrap;
-    }
-
-    .ad-page-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 160px) minmax(0, 1fr);
-      gap: 14px;
-      align-items: center;
-      width: 100%;
-      min-width: 0;
-    }
-
-    .ad-page-center {
-      display: grid;
-      gap: 10px;
-      justify-items: center;
-      min-width: 0;
     }
 
     .modal-ad-zone {
@@ -465,8 +453,8 @@
 
     .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 342px;
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 12px;
       align-items: stretch;
       min-height: 0;
       min-width: 0;
@@ -553,7 +541,7 @@
     .guess-row,
     .empty-row {
       display: grid;
-      grid-template-columns: minmax(142px, 1.18fr) repeat(6, minmax(82px, 1fr));
+      grid-template-columns: minmax(112px, 1.14fr) repeat(6, minmax(68px, 1fr));
       gap: var(--board-column-gap);
     }
 
@@ -1778,6 +1766,39 @@
     }
 
     @media (min-width: 1101px) and (min-height: 720px) {
+      .site-frame {
+        grid-template-columns: minmax(160px, 1fr) minmax(0, var(--site-content-width)) minmax(160px, 1fr);
+        justify-items: stretch;
+        align-items: start;
+        column-gap: 12px;
+      }
+
+      .app-shell {
+        grid-column: 2;
+        width: 100%;
+        padding-right: 0;
+        padding-left: 0;
+      }
+
+      .side-ad {
+        display: flex;
+        grid-row: 1;
+        align-self: start;
+        justify-content: center;
+        width: 160px;
+        margin-top: 78px;
+      }
+
+      .side-ad-left {
+        grid-column: 1;
+        justify-self: end;
+      }
+
+      .side-ad-right {
+        grid-column: 3;
+        justify-self: start;
+      }
+
       .intro {
         min-height: 306px;
       }
@@ -1902,7 +1923,6 @@
       .pool-item { min-height: 50px; gap: 8px; }
       .pool-name { font-size: .78rem; }
       .celebration-popover { padding: 12px; }
-      .ad-page-grid { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
       .ad-slot-160x600 { display: none; }
       .ad-slot-728x90 { transform: scale(.52); }
       .ad-slot-468x60 { display: none; }
@@ -2001,6 +2021,21 @@
   </header>
 
   <div class="site-frame">
+    <aside class="ad-placement side-ad side-ad-left" aria-label="Left side advertisement">
+      <div class="ad-display-slot ad-slot-160x600" id="adLeftSkyscraper">
+        <script>
+  atOptions = {
+    'key' : '0fcc9a6c11754263b354a2bb1178ebd9',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+        </script>
+        <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
+      </div>
+    </aside>
+
     <main class="app-shell">
       <section class="ad-placement ad-page-zone ad-page-top" aria-label="Top advertisement">
         <div class="ad-display-slot ad-slot-728x90" id="adTopLeaderboard">
@@ -2089,23 +2124,9 @@
         </aside>
       </div>
 
-      <section class="ad-placement ad-page-grid" aria-label="Advertisements">
-        <div class="ad-display-slot ad-slot-160x600" id="adLeftSkyscraper">
+      <section class="ad-placement ad-page-zone ad-page-bottom" aria-label="Bottom advertisements">
+        <div class="ad-display-slot ad-slot-468x60" id="adBottomBanner">
           <script>
-  atOptions = {
-    'key' : '0fcc9a6c11754263b354a2bb1178ebd9',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-          </script>
-          <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
-        </div>
-        <div class="ad-page-center">
-          <section class="ad-page-zone ad-page-bottom" aria-label="Bottom advertisements">
-            <div class="ad-display-slot ad-slot-468x60" id="adBottomBanner">
-              <script>
   atOptions = {
     'key' : '7debd737823293b75ba54fba692e1f2a',
     'format' : 'iframe',
@@ -2113,11 +2134,11 @@
     'width' : 468,
     'params' : {}
   };
-              </script>
-              <script src="https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"></script>
-            </div>
-            <div class="ad-display-slot ad-slot-320x50" id="adBottomMobile">
-              <script>
+          </script>
+          <script src="https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"></script>
+        </div>
+        <div class="ad-display-slot ad-slot-320x50" id="adBottomMobile">
+          <script>
   atOptions = {
     'key' : 'c5bca2546625cae1a377f1152785c4d1',
     'format' : 'iframe',
@@ -2125,10 +2146,8 @@
     'width' : 320,
     'params' : {}
   };
-              </script>
-              <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-            </div>
-          </section>
+          </script>
+          <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
         </div>
       </section>
 
@@ -2136,6 +2155,21 @@
         <a href="about.html" target="_blank" rel="noopener">About</a>
       </footer>
     </main>
+
+    <aside class="ad-placement side-ad side-ad-right" aria-label="Right side advertisement">
+      <div class="ad-display-slot ad-slot-160x600" id="adRightSkyscraper">
+        <script>
+  atOptions = {
+    'key' : '0fcc9a6c11754263b354a2bb1178ebd9',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+        </script>
+        <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
+      </div>
+    </aside>
   </div>
 
   <div class="modal-backdrop" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">

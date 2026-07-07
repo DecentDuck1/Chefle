@@ -171,9 +171,10 @@ function auditAdSnippet(failures) {
   for (const key of DISPLAY_AD_KEYS) {
     assert(new RegExp(`atOptions\\s*=\\s*\\{\\s*'key'\\s*:\\s*'${key}'`).test(html), `index.html: missing display ad options for ${key}`, failures);
   }
-  ["ad-page-top", "ad-page-bottom", "ad-page-grid", "modal-ad-zone", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x600"].forEach((className) => {
+  ["side-ad-left", "side-ad-right", "ad-page-top", "ad-page-bottom", "modal-ad-zone", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x600"].forEach((className) => {
     assert(html.includes(className), `index.html: missing ${className} placement`, failures);
   });
+  assert(!html.includes("ad-page-grid"), "index.html: old in-page tall ad grid is still present", failures);
   assert(!html.includes("ad-slot-160x300"), "index.html: removed square-like 160x300 ad slot is still present", failures);
   assert(!html.includes("container-aa279291e14979c0366cfb9f53773392"), "index.html: removed native ad container is still present", failures);
   assert(html.includes(AD_CSP_SCRIPT_DIRECTIVE), "index.html: CSP should allow ad provider inline/bootstrap scripts.", failures);
