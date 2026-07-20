@@ -11,13 +11,13 @@ const PYTHON = process.env.CODEX_PYTHON || process.env.PYTHON || "python";
 const CUSTOM_DOMAIN = "chefle.org";
 const PUBLISH_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https:",
+  "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src https: data:",
-  "img-src 'self' data: https:",
-  "connect-src 'self' https:",
-  "frame-src https:",
-  "child-src https:",
+  "font-src https://fonts.gstatic.com data:",
+  "img-src 'self' data:",
+  "connect-src 'self'",
+  "frame-src 'none'",
+  "child-src 'none'",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'"

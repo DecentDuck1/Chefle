@@ -6,7 +6,7 @@
   <meta name="description" content="Chefle is a daily food guessing game that compares dishes by protein, base carb, temperature, calories, texture, and prep time.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#fff8e8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https: data:; img-src 'self' data: https:; connect-src 'self' https:; frame-src https:; child-src https:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; frame-src 'none'; child-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <link rel="icon" href="chefle-logo.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -202,69 +202,6 @@
       padding: 78px 14px max(12px, var(--safe-bottom));
       overflow: visible;
     }
-
-    .ad-placement {
-      z-index: 35;
-      pointer-events: none;
-    }
-
-    .side-ad {
-      display: none;
-    }
-
-    .ad-page-zone,
-    .modal-ad-zone {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      min-width: 0;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .ad-page-zone {
-      padding: 4px 0;
-    }
-
-    .ad-page-top {
-      margin: -4px 0 2px;
-    }
-
-    .ad-page-bottom {
-      margin: 2px 0 0;
-      flex-wrap: wrap;
-    }
-
-    .modal-ad-zone {
-      margin: 4px 0 0;
-      padding: 0;
-    }
-
-    .ad-display-slot {
-      flex: 0 0 auto;
-      width: var(--ad-width);
-      height: var(--ad-height);
-      overflow: hidden;
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-      pointer-events: auto;
-    }
-
-    .ad-display-slot iframe,
-    .ad-display-slot ins {
-      display: block;
-      max-width: 100%;
-      border: 0;
-    }
-
-    .ad-slot-728x90 { --ad-width: 728px; --ad-height: 90px; }
-    .ad-slot-468x60 { --ad-width: 468px; --ad-height: 60px; }
-    .ad-slot-320x50 { --ad-width: 320px; --ad-height: 50px; }
-    .ad-slot-160x600 { --ad-width: 160px; --ad-height: 600px; }
 
     .intro {
       display: grid;
@@ -1766,39 +1703,6 @@
     }
 
     @media (min-width: 1101px) and (min-height: 720px) {
-      .site-frame {
-        grid-template-columns: minmax(160px, 1fr) minmax(0, var(--site-content-width)) minmax(160px, 1fr);
-        justify-items: stretch;
-        align-items: start;
-        column-gap: 12px;
-      }
-
-      .app-shell {
-        grid-column: 2;
-        width: 100%;
-        padding-right: 0;
-        padding-left: 0;
-      }
-
-      .side-ad {
-        display: flex;
-        grid-row: 1;
-        align-self: start;
-        justify-content: center;
-        width: 160px;
-        margin-top: 78px;
-      }
-
-      .side-ad-left {
-        grid-column: 1;
-        justify-self: end;
-      }
-
-      .side-ad-right {
-        grid-column: 3;
-        justify-self: start;
-      }
-
       .intro {
         min-height: 306px;
       }
@@ -1923,9 +1827,6 @@
       .pool-item { min-height: 50px; gap: 8px; }
       .pool-name { font-size: .78rem; }
       .celebration-popover { padding: 12px; }
-      .ad-slot-160x600 { display: none; }
-      .ad-slot-728x90 { transform: scale(.52); }
-      .ad-slot-468x60 { display: none; }
       .game-over-answer {
         grid-template-columns: 68px minmax(0, 1fr);
       }
@@ -1962,7 +1863,6 @@
       }
 
       .app-shell { padding-top: 66px; }
-      .ad-slot-728x90 { transform: scale(.74); }
       .intro {
         grid-template-columns: minmax(0, 1fr) minmax(240px, .86fr);
         gap: 12px;
@@ -1980,7 +1880,6 @@
     }
 
     @media (max-width: 360px) {
-      .ad-slot-728x90 { transform: scale(.43); }
       .board-header { font-size: .4rem; }
       .tile-value { font-size: .43rem; }
       .tile-label { font-size: .31rem; }
@@ -2021,37 +1920,7 @@
   </header>
 
   <div class="site-frame">
-    <aside class="ad-placement side-ad side-ad-left" aria-label="Left side advertisement">
-      <div class="ad-display-slot ad-slot-160x600" id="adLeftSkyscraper">
-        <script>
-  atOptions = {
-    'key' : '0fcc9a6c11754263b354a2bb1178ebd9',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-        </script>
-        <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
-      </div>
-    </aside>
-
     <main class="app-shell">
-      <section class="ad-placement ad-page-zone ad-page-top" aria-label="Top advertisement">
-        <div class="ad-display-slot ad-slot-728x90" id="adTopLeaderboard">
-          <script>
-  atOptions = {
-    'key' : '5b6fd32e7b3598b0b76b1046b0232cb2',
-    'format' : 'iframe',
-    'height' : 90,
-    'width' : 728,
-    'params' : {}
-  };
-          </script>
-          <script src="https://www.highperformanceformat.com/5b6fd32e7b3598b0b76b1046b0232cb2/invoke.js"></script>
-        </div>
-      </section>
-
       <section class="intro" aria-labelledby="gameStatus">
         <div class="intro-main">
           <p class="kicker" id="gameId">Chefle</p>
@@ -2124,52 +1993,10 @@
         </aside>
       </div>
 
-      <section class="ad-placement ad-page-zone ad-page-bottom" aria-label="Bottom advertisements">
-        <div class="ad-display-slot ad-slot-468x60" id="adBottomBanner">
-          <script>
-  atOptions = {
-    'key' : '7debd737823293b75ba54fba692e1f2a',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
-  };
-          </script>
-          <script src="https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"></script>
-        </div>
-        <div class="ad-display-slot ad-slot-320x50" id="adBottomMobile">
-          <script>
-  atOptions = {
-    'key' : 'c5bca2546625cae1a377f1152785c4d1',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-          </script>
-          <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-        </div>
-      </section>
-
       <footer class="legal-footer">
         <a href="about.html" target="_blank" rel="noopener">About</a>
       </footer>
     </main>
-
-    <aside class="ad-placement side-ad side-ad-right" aria-label="Right side advertisement">
-      <div class="ad-display-slot ad-slot-160x600" id="adRightSkyscraper">
-        <script>
-  atOptions = {
-    'key' : '0fcc9a6c11754263b354a2bb1178ebd9',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-        </script>
-        <script src="https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js"></script>
-      </div>
-    </aside>
   </div>
 
   <div class="modal-backdrop" id="statsModal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
@@ -2207,20 +2034,6 @@
           <pre id="sharePreviewText"></pre>
         </div>
         <div class="countdown-box"><span class="countdown-label">Next dish</span><span class="countdown-time" id="countdown">00:00:00</span></div>
-        <section class="modal-ad-zone" aria-label="Advertisement">
-          <div class="ad-display-slot ad-slot-320x50">
-            <script>
-  atOptions = {
-    'key' : 'c5bca2546625cae1a377f1152785c4d1',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-            </script>
-            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-          </div>
-        </section>
         <div class="modal-actions">
           <button class="primary-button" id="shareButton" type="button">Share Results</button>
           <button class="secondary-button" id="keepPlayingButton" type="button">Close</button>
@@ -2248,20 +2061,6 @@
           <p class="answer-proclamation" id="gameOverMessage"></p>
         </div>
         <div class="stat-grid" id="gameOverStatGrid"></div>
-        <section class="modal-ad-zone" aria-label="Advertisement">
-          <div class="ad-display-slot ad-slot-320x50">
-            <script>
-  atOptions = {
-    'key' : 'c5bca2546625cae1a377f1152785c4d1',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-            </script>
-            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-          </div>
-        </section>
         <div class="modal-actions">
           <button class="primary-button" id="newInfiniteStreakButton" type="button">Start New Streak</button>
           <button class="secondary-button" id="reviewBoardButton" type="button">Review Board</button>
@@ -2318,20 +2117,6 @@
             <p>Stats use the official 7-guess result: played games, win percentage, streaks, a 1-7 guess distribution, and failed games. The share summary includes the game link and emoji rows for the official guesses.</p>
           </section>
         </div>
-        <section class="modal-ad-zone" aria-label="Advertisement">
-          <div class="ad-display-slot ad-slot-320x50">
-            <script>
-  atOptions = {
-    'key' : 'c5bca2546625cae1a377f1152785c4d1',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-            </script>
-            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-          </div>
-        </section>
       </div>
     </div>
   </div>
@@ -2359,20 +2144,6 @@
             <tbody id="classificationsBody"></tbody>
           </table>
         </div>
-        <section class="modal-ad-zone" aria-label="Advertisement">
-          <div class="ad-display-slot ad-slot-320x50">
-            <script>
-  atOptions = {
-    'key' : 'c5bca2546625cae1a377f1152785c4d1',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-            </script>
-            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-          </div>
-        </section>
       </div>
     </div>
   </div>
@@ -2396,20 +2167,6 @@
           <label for="sfxVolumeSlider">Sound Effects Volume</label>
           <input type="range" id="sfxVolumeSlider" min="0" max="1" step="0.1" value="0.8">
         </div>
-        <section class="modal-ad-zone" aria-label="Advertisement">
-          <div class="ad-display-slot ad-slot-320x50">
-            <script>
-  atOptions = {
-    'key' : 'c5bca2546625cae1a377f1152785c4d1',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-            </script>
-            <script src="https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js"></script>
-          </div>
-        </section>
       </div>
     </div>
   </div>

@@ -14,16 +14,9 @@ const INDEX_PATH = path.join(PUBLISH_ROOT, "index.html");
 const EXPECTED_DISH_COUNT = 273;
 const TARGET_SCHEDULE_SAMPLE_DAYS = 365;
 const PAGES = ["index.html", "about.html", "how-to-play.html", "food-clues.html", "contact.html", "privacy.html", "terms.html", "cookies.html", "accessibility.html", "disclaimer.html"];
-const AD_CSP_SCRIPT_DIRECTIVE = "script-src 'self' 'unsafe-inline' https:";
-const AD_CSP_FRAME_DIRECTIVE = "frame-src https:";
-const DISPLAY_AD_SCRIPTS = [
-  "https://www.highperformanceformat.com/5b6fd32e7b3598b0b76b1046b0232cb2/invoke.js",
-  "https://www.highperformanceformat.com/0fcc9a6c11754263b354a2bb1178ebd9/invoke.js",
-  "https://www.highperformanceformat.com/c5bca2546625cae1a377f1152785c4d1/invoke.js",
-  "https://www.highperformanceformat.com/7debd737823293b75ba54fba692e1f2a/invoke.js"
-];
-const DISPLAY_AD_KEYS = DISPLAY_AD_SCRIPTS.map((source) => source.match(/highperformanceformat\.com\/([^/]+)\//)?.[1]).filter(Boolean);
-const REMOVED_GOOGLE_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-/i;
+const APP_CSP_SCRIPT_DIRECTIVE = "script-src 'self' 'unsafe-inline'";
+const APP_CSP_FRAME_DIRECTIVE = "frame-src 'none'";
+const REMOVED_AD_PATTERN = /pagead2\.googlesyndication\.com|googlesyndication|googleads\.g\.doubleclick\.net|adtrafficquality\.google|adsbygoogle|ca-pub-|highperformanceformat\.com|effectivecpmnetwork\.com|atOptions|ad-display-slot|ad-slot-|side-ad|ad-page-|modal-ad-zone/i;
 const NON_PUBLIC_FILES = [
   "README.md",
   "publish-manifest.json",
@@ -160,30 +153,16 @@ function auditPages(failures) {
   }
 }
 
-function auditAdSnippet(failures) {
+function auditNoAdSnippet(failures) {
   const html = read("index.html");
-  const headEnd = html.search(/<\/head>/i);
-  const body = headEnd >= 0 ? html.slice(headEnd) : html;
-  for (const source of DISPLAY_AD_SCRIPTS) {
-    assert(html.includes(`src="${source}"`), `index.html: missing display ad script ${source}`, failures);
-    assert(body.includes(`src="${source}"`), `index.html: display ad script should be placed in the page body: ${source}`, failures);
-  }
-  for (const key of DISPLAY_AD_KEYS) {
-    assert(new RegExp(`atOptions\\s*=\\s*\\{\\s*'key'\\s*:\\s*'${key}'`).test(html), `index.html: missing display ad options for ${key}`, failures);
-  }
-  ["side-ad-left", "side-ad-right", "ad-page-top", "ad-page-bottom", "modal-ad-zone", "ad-slot-728x90", "ad-slot-468x60", "ad-slot-320x50", "ad-slot-160x600"].forEach((className) => {
-    assert(html.includes(className), `index.html: missing ${className} placement`, failures);
-  });
-  assert(!html.includes("ad-page-grid"), "index.html: old in-page tall ad grid is still present", failures);
-  assert(!html.includes("ad-slot-160x300"), "index.html: removed square-like 160x300 ad slot is still present", failures);
-  assert(!html.includes("container-aa279291e14979c0366cfb9f53773392"), "index.html: removed native ad container is still present", failures);
-  assert(html.includes(AD_CSP_SCRIPT_DIRECTIVE), "index.html: CSP should allow ad provider inline/bootstrap scripts.", failures);
-  assert(html.includes(AD_CSP_FRAME_DIRECTIVE), "index.html: CSP should allow ad provider frames.", failures);
+  assert(!REMOVED_AD_PATTERN.test(html), "index.html: removed ad code is still present.", failures);
+  assert(html.includes(APP_CSP_SCRIPT_DIRECTIVE), "index.html: CSP should allow the app inline script.", failures);
+  assert(html.includes(APP_CSP_FRAME_DIRECTIVE), "index.html: CSP should block frames.", failures);
 }
 
-function auditRemovedGoogleAds(failures) {
+function auditRemovedAds(failures) {
   for (const file of [...PAGES, "_headers"]) {
-    if (exists(file)) assert(!REMOVED_GOOGLE_AD_PATTERN.test(read(file)), `${file}: removed Google ad code is still present.`, failures);
+    if (exists(file)) assert(!REMOVED_AD_PATTERN.test(read(file)), `${file}: removed ad code is still present.`, failures);
   }
 }
 
@@ -357,8 +336,8 @@ function main() {
   if (exists("CNAME")) assert(read("CNAME").trim() === "chefle.org", "publish/CNAME should point to chefle.org.", failures);
 
   auditPages(failures);
-  auditAdSnippet(failures);
-  auditRemovedGoogleAds(failures);
+  auditNoAdSnippet(failures);
+  auditRemovedAds(failures);
   auditNoPublicSetupFiles(failures);
 
   let dishSummary = null;
